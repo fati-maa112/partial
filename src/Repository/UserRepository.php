@@ -33,28 +33,66 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
-    //    /**
-    //     * @return User[] Returns an array of User objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('u.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Find users by role
+     */
+    public function findByRole(string $role): array
+    {
+        return $this->createQueryBuilder('u')
+            ->where('u.roles LIKE :role')
+            ->setParameter('role', '%"' . $role . '"%')
+            ->getQuery()
+            ->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?User
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    /**
+     * Count users by status
+     */
+    public function countByStatus(string $status): int
+    {
+        return $this->count(['status' => $status]);
+    }
+
+    /**
+     * Get user statistics
+     */
+    public function getUserStats(): array
+    {
+        return [
+            'total' => $this->count([]),
+            'active' => $this->count(['status' => 'active']),
+            'disabled' => $this->count(['status' => 'disabled']),
+            'archived' => $this->count(['status' => 'archived']),
+            'admins' => count($this->findByRole('ROLE_ADMIN')),
+            'staff' => count($this->findByRole('ROLE_STAFF')),
+        ];
+    }
+
+    /**
+     * Find recently registered users
+     */
+    public function findRecentUsers(int $limit = 10): array
+    {
+        return $this->createQueryBuilder('u')
+            ->orderBy('u.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Search users by name or email
+     */
+    public function searchUsers(string $query): array
+    {
+        return $this->createQueryBuilder('u')
+            ->where('u.email LIKE :query')
+            ->orWhere('u.firstName LIKE :query')
+            ->orWhere('u.lastName LIKE :query')
+            ->orWhere('u.username LIKE :query')
+            ->setParameter('query', '%' . $query . '%')
+            ->orderBy('u.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

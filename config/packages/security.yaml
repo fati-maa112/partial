@@ -1,8 +1,15 @@
 security:
+    # Role hierarchy - Admin inherits Staff and User permissions
+    role_hierarchy:
+        ROLE_ADMIN: [ROLE_STAFF, ROLE_USER]
+        ROLE_STAFF: [ROLE_USER]
+
+    # Password hashing configuration
     password_hashers:
         App\Entity\User:
             algorithm: auto
 
+    # User provider - loads users from database
     providers:
         app_user_provider:
             entity:
@@ -10,23 +17,51 @@ security:
                 property: username
 
     firewalls:
+        # Development firewall - bypasses security for dev tools
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-
+        
+        # Main application firewall
         main:
             lazy: true
             provider: app_user_provider
-            form_login:
-                login_path: app_log_in_page
-                check_path: app_login
-                default_target_path: /dashboard
-                username_parameter: _username
-                password_parameter: _password
+            user_checker: App\Security\UserChecker
+            custom_authenticator: App\Security\LoginAuthenticator
+            
+            # Logout configuration
             logout:
                 path: app_logout
-                target: app_log_in_page
+                target: app_login  # Redirect to login after logout
+            
+            # Remember me functionality (7 days)
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800  # 7 days in seconds
+                path: /
+                always_remember_me: true
 
+    # Access control rules - Order matters! First match wins
     access_control:
-        - { path: ^/(log/in|login)$, roles: PUBLIC_ACCESS }
-        - { path: ^/dashboard, roles: ROLE_ADMIN }
+        # Admin-only routes (Staff CANNOT access)
+        - { path: ^/admin/dashboard, roles: ROLE_ADMIN }
+        - { path: ^/admin/staff, roles: ROLE_ADMIN }
+        - { path: ^/activity-logs, roles: ROLE_ADMIN }
+        
+        # Staff + Admin can access (all other /admin routes)
+        - { path: ^/admin, roles: ROLE_STAFF }
+        
+        # Profile pages (all authenticated users)
+        - { path: ^/profile, roles: ROLE_USER }
+        
+        # Login page - accessible to everyone (no rule needed, handled by controller)
+
+# Test environment configuration - faster password hashing for tests
+when@test:
+    security:
+        password_hashers:
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4          # Lowest bcrypt cost
+                time_cost: 3     # Lowest argon time cost
+                memory_cost: 10  # Lowest argon memory cost

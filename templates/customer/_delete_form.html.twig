@@ -1,0 +1,35 @@
+<style>
+    .delete-form {
+        margin: 0;
+    }
+
+    .btn-delete {
+        width: 100%;
+        padding: 14px 24px;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+    .btn-delete:hover {
+        background: #dc2626;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+    }
+</style>
+
+<form method="post" action="{{ path('app_customer_delete', {'id': customer.id}) }}" class="delete-form" onsubmit="return confirm('Are you absolutely sure? This cannot be undone.');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ customer.id) }}">
+    <button type="submit" class="btn-delete">
+        <i class="fas fa-trash"></i> Delete This Customer
+    </button>
+</form>

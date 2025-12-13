@@ -55,8 +55,8 @@
 
 <div class="stock-details">
     <div class="stock-image">
-        {% if stock.image %}
-            <img src="{{ asset('uploads/' ~ stock.image) }}" alt="{{ stock.product.name }}">
+        {% if stock.product and stock.product.image %}
+            <img src="{{ asset('images/' ~ stock.product.image) }}" alt="{{ stock.product.name }}">
         {% else %}
             <img src="https://via.placeholder.com/400x400?text=No+Image" alt="No Image">
         {% endif %}

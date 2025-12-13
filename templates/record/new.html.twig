@@ -1,0 +1,562 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Record{% endblock %}
+{% block page_title %}NEW RECORD{% endblock %}
+
+{% block body %}
+<style>
+    /* Keep all your existing styles */
+    .create-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--color-olive) 0%, var(--color-olive-dark) 100%);
+        padding: 40px;
+        border-radius: 20px;
+        margin-bottom: 35px;
+        box-shadow: 0 10px 40px rgba(122, 134, 97, 0.25);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .page-header::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -5%;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .header-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .header-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .header-icon i {
+        font-size: 32px;
+        color: white;
+    }
+
+    .page-header h1 {
+        color: white;
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0 0 12px 0;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-header p {
+        color: rgba(255, 255, 255, 0.95);
+        margin: 0;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    .form-container {
+        background: white;
+        padding: 45px;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        position: relative;
+    }
+
+    [data-theme="dark"] .form-container {
+        background: var(--color-white);
+    }
+
+    .form-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--color-olive) 0%, var(--color-sand) 100%);
+        border-radius: 20px 20px 0 0;
+    }
+
+    .info-banner {
+        background: linear-gradient(135deg, rgba(122, 134, 97, 0.08) 0%, rgba(183, 155, 127, 0.08) 100%);
+        border-left: 5px solid var(--color-olive);
+        padding: 20px 25px;
+        border-radius: 12px;
+        margin-bottom: 35px;
+        display: flex;
+        align-items: start;
+        gap: 15px;
+        animation: slideInLeft 0.5s ease-out;
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .info-banner-icon {
+        width: 45px;
+        height: 45px;
+        background: var(--color-olive);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .info-banner-icon i {
+        color: white;
+        font-size: 20px;
+    }
+
+    .info-banner-content h4 {
+        margin: 0 0 6px 0;
+        color: var(--color-olive);
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .info-banner-content p {
+        margin: 0;
+        color: var(--color-text);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .form-section {
+        margin-bottom: 35px;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--color-olive);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--color-cream);
+    }
+
+    [data-theme="dark"] .section-title {
+        border-bottom-color: #3a3a3a;
+    }
+
+    .section-title i {
+        width: 35px;
+        height: 35px;
+        background: linear-gradient(135deg, var(--color-olive) 0%, var(--color-olive-dark) 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+    }
+
+    .form-group {
+        margin-bottom: 28px;
+        animation: fadeInUp 0.5s ease-out;
+        animation-fill-mode: both;
+    }
+
+    .form-group:nth-child(1) { animation-delay: 0.1s; }
+    .form-group:nth-child(2) { animation-delay: 0.2s; }
+    .form-group:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-group label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        color: var(--color-text);
+        margin-bottom: 12px;
+        font-size: 15px;
+    }
+
+    .form-group label i {
+        color: var(--color-olive);
+        font-size: 18px;
+    }
+
+    .required-badge {
+        background: #e74c3c;
+        color: white;
+        font-size: 10px;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .input-wrapper {
+        position: relative;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 16px 20px 16px 50px;
+        border: 2px solid var(--color-cream);
+        border-radius: 12px;
+        font-size: 15px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-family: 'Poppins', Arial, sans-serif;
+        background: white;
+        color: var(--color-text);
+    }
+
+    [data-theme="dark"] .form-control {
+        background: #2f2f2f;
+        border-color: #3a3a3a;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--color-olive);
+        box-shadow: 0 0 0 4px rgba(122, 134, 97, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--color-olive);
+        font-size: 18px;
+        pointer-events: none;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 150px;
+        padding-top: 18px;
+    }
+
+    textarea.form-control + .input-icon {
+        top: 26px;
+        transform: none;
+    }
+
+    .char-counter {
+        text-align: right;
+        font-size: 12px;
+        color: #999;
+        margin-top: 8px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 40px;
+        padding-top: 35px;
+        border-top: 2px solid var(--color-cream);
+    }
+
+    [data-theme="dark"] .form-actions {
+        border-top-color: #3a3a3a;
+    }
+
+    .btn {
+        padding: 16px 32px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        cursor: pointer;
+        font-size: 15px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .btn:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .btn span {
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn i {
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--color-olive) 0%, var(--color-olive-dark) 100%);
+        color: white;
+        box-shadow: 0 6px 20px rgba(122, 134, 97, 0.3);
+        flex: 1;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(122, 134, 97, 0.4);
+    }
+
+    .btn-secondary {
+        background: var(--color-cream);
+        color: var(--color-text);
+    }
+
+    [data-theme="dark"] .btn-secondary {
+        background: #3a3a3a;
+    }
+
+    .btn-secondary:hover {
+        background: var(--color-sand);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(183, 155, 127, 0.3);
+    }
+
+    .quick-tips {
+        background: linear-gradient(135deg, rgba(183, 155, 127, 0.08) 0%, rgba(122, 134, 97, 0.08) 100%);
+        padding: 25px;
+        border-radius: 12px;
+        margin-top: 30px;
+    }
+
+    .quick-tips h4 {
+        color: var(--color-sand);
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0 0 15px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .quick-tips h4 i {
+        font-size: 20px;
+    }
+
+    .quick-tips ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+
+    .quick-tips li {
+        color: var(--color-text);
+        font-size: 14px;
+        line-height: 1.8;
+        margin-bottom: 8px;
+    }
+
+    .quick-tips li::marker {
+        color: var(--color-sand);
+    }
+
+    .form-errors {
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        border: 2px solid #ef4444;
+        padding: 16px 20px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        color: #991b1b;
+        font-weight: 600;
+    }
+
+    .form-errors ul {
+        margin: 8px 0 0 0;
+        padding-left: 20px;
+    }
+
+    .form-errors li {
+        margin-bottom: 4px;
+    }
+</style>
+
+<div class="create-wrapper">
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="fas fa-plus-circle"></i>
+            </div>
+            <h1>Create New Record</h1>
+            <p>Fill in the details below to create a comprehensive record. All fields marked as required must be completed before submission.</p>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <div class="info-banner">
+            <div class="info-banner-icon">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div class="info-banner-content">
+                <h4>Auto-Assignment Notice</h4>
+                <p>This record will be automatically assigned to <strong>{{ app.user.fullName }}</strong> as the creator. You'll have full access to edit and manage this record.</p>
+            </div>
+        </div>
+
+        {# Use Symfony form - but with custom styling #}
+        {{ form_start(form, {'attr': {'id': 'recordForm', 'novalidate': 'novalidate'}}) }}
+        
+            {# Display form errors if any #}
+            {% if form.vars.submitted and not form.vars.valid %}
+                <div class="form-errors">
+                    <i class="fas fa-exclamation-triangle"></i> Please fix the following errors:
+                    {{ form_errors(form) }}
+                </div>
+            {% endif %}
+
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Basic Information</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.title.vars.id }}">
+                        <i class="fas fa-heading"></i>
+                        Record Title
+                        <span class="required-badge">Required</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-tag input-icon"></i>
+                        {{ form_widget(form.title, {
+                            'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'Enter a clear and descriptive title',
+                                'maxlength': 255
+                            }
+                        }) }}
+                    </div>
+                    {{ form_errors(form.title) }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.description.vars.id }}">
+                        <i class="fas fa-align-left"></i>
+                        Description
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-file-alt input-icon"></i>
+                        {{ form_widget(form.description, {
+                            'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'Provide detailed information about this record. Include any relevant context, background, or notes that will help others understand this record...',
+                                'rows': 8,
+                                'maxlength': 5000,
+                                'id': 'description'
+                            }
+                        }) }}
+                    </div>
+                    {{ form_errors(form.description) }}
+                    <div class="char-counter">
+                        <span id="charCount">0</span> / 5000 characters
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    <span>Create Record</span>
+                </button>
+                <a href="{{ path('app_record') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    <span>Cancel</span>
+                </a>
+            </div>
+        
+        {{ form_end(form) }}
+
+        <div class="quick-tips">
+            <h4><i class="fas fa-lightbulb"></i> Quick Tips</h4>
+            <ul>
+                <li>Use a <strong>descriptive title</strong> that clearly identifies the record's purpose</li>
+                <li>Include relevant <strong>dates, names, or reference numbers</strong> in the description</li>
+                <li>Be as detailed as possible to help your team understand the context</li>
+                <li>You can always edit this record later if you need to update information</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Character counter
+    const description = document.getElementById('description');
+    const charCount = document.getElementById('charCount');
+    
+    if (description && charCount) {
+        description.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+        // Initialize counter on page load
+        charCount.textContent = description.value.length;
+    }
+</script>
+{% endblock %}

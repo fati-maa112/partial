@@ -1,4 +1,5 @@
 <?php
+// src/Entity/Product.php
 
 namespace App\Entity;
 
@@ -37,9 +38,26 @@ class Product
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: Stock::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $stocks;
 
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: \App\Entity\OrderItem::class, orphanRemoval: false, cascade: ['persist'])]
+    private Collection $orderItems;
+
+    // ✅ NEW: Creator tracking
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $createdBy = null;
+
+    // ✅ NEW: Timestamps
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
+
     public function __construct()
     {
         $this->stocks = new ArrayCollection();
+        $this->orderItems = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -154,6 +172,69 @@ class Product
             }
         }
 
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, \App\Entity\OrderItem>
+     */
+    public function getOrderItems(): Collection
+    {
+        return $this->orderItems;
+    }
+
+    public function addOrderItem(\App\Entity\OrderItem $orderItem): static
+    {
+        if (!$this->orderItems->contains($orderItem)) {
+            $this->orderItems->add($orderItem);
+            $orderItem->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrderItem(\App\Entity\OrderItem $orderItem): static
+    {
+        if ($this->orderItems->removeElement($orderItem)) {
+            if ($orderItem->getProduct() === $this) {
+                $orderItem->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    // ✅ NEW: Creator methods
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
         return $this;
     }
 }

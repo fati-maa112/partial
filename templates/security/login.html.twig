@@ -1,0 +1,313 @@
+{% extends 'base_login.html.twig' %}
+
+{% block title %}User Login | Gradient Style{% endblock %}
+
+{# 
+    The 'stylesheets' block is the correct place to put <link> tags or <style> blocks.
+#}
+{% block stylesheets %}
+    {{ parent() }}
+    
+    {# Poppins Font for the friendly, modern sans-serif look #}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    {# Font Awesome for the input icons (User, Lock) #}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    {# --- INLINE CSS: Implements the new Gradient Design --- #}
+    <style>
+
+        /* --- Color Palette Variables --- */
+        /* --- Color Palette Variables (Strictly enforced) --- */
+/* --- Color Palette Variables (Strictly enforced) --- */
+:root {
+    --bg-light: #faf7f0; /* Light accent */
+    --main-highlight: #b72b7f; /* Main highlight color (Pink/Magenta) */
+    --secondary-tone: #7a8661; /* Secondary tone (Olive Green) */
+    --dark-bg: #1f0d1a; /* Custom dark background base (derived from the palette) */
+    --card-bg: #2b1123; /* Slightly lighter dark for card (derived from the palette) */
+    --shadow-dark: rgba(0, 0, 0, 0.4);
+    --shadow-light: rgba(255, 255, 255, 0.05);
+    --border-radius: 20px;
+}
+
+/* Base styles and layout */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--bg-light);
+    /* Updated Dark Gradient background to explicitly blend all three colors */
+    background: linear-gradient(135deg, 
+        #170713 0%, 
+        var(--secondary-tone) 25%, /* Incorporate green tone */
+        #301625 50%, 
+        var(--main-highlight) 75%, /* Incorporate magenta tone */
+        var(--dark-bg) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden; 
+    position: relative;
+    /* Soft filter for the overall dark UI feel */
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+/* --- Abstract Floating Shapes (Neumorphic Style) --- */
+.login-container::before,
+.login-container::after,
+.shape-3 {
+    content: '';
+    position: absolute;
+    opacity: 0.15;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: -1;
+}
+
+/* Shape 1: Use Secondary Tone (Green) */
+.login-container::before {
+    width: 350px; height: 350px;
+    top: 5%; left: 10%;
+    background: radial-gradient(circle, var(--secondary-tone), transparent 70%);
+    transform: translate(-50%, -50%);
+    animation: floatShape 18s infinite ease-in-out alternate;
+}
+
+/* Shape 2: Use Main Highlight (Pink/Magenta) */
+.login-container::after {
+    width: 450px; height: 450px;
+    bottom: 10%; right: 15%;
+    transform: translate(50%, 50%);
+    background: radial-gradient(circle, var(--main-highlight), transparent 70%);
+    animation: floatShape 25s infinite ease-in-out alternate-reverse;
+}
+
+/* Shape 3: Use Secondary Tone (Green) */
+.shape-3 {
+    width: 200px; height: 200px;
+    top: 70%; left: 30%;
+    background: radial-gradient(circle, var(--secondary-tone), transparent 70%);
+    animation: floatShape 14s infinite linear alternate;
+}
+
+@keyframes floatShape {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(20px, 30px) rotate(10deg); }
+    100% { transform: translate(0, 0); }
+}
+
+/* --- Main Content Layout --- */
+.login-wrapper {
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    z-index: 10;
+}
+
+/* Large Header Text */
+.main-header {
+    font-size: 1.8em;
+    font-weight: 600;
+    color: var(--bg-light);
+    margin-bottom: 25px;
+}
+
+/* --- Centered Login Card --- */
+.login-card {
+    background-color: var(--card-bg);
+    padding: 40px;
+    border-radius: var(--border-radius);
+    /* Inner and outer shadow for neumorphic effect */
+    box-shadow: 
+        10px 10px 30px var(--shadow-dark), 
+        -10px -10px 30px var(--shadow-light),
+        0 0 50px rgba(183, 43, 127, 0.1); /* Subtle main highlight glow */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 30px;
+}
+
+.card-title {
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--main-highlight); /* Title remains Pink/Magenta */
+    margin-bottom: 30px;
+}
+
+/* --- Form Elements --- */
+.input-group {
+    display: flex;
+    align-items: center;
+    background-color: #1a0a15;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 25px;
+    
+    /* Input field Neumorphic shadow - recessed look */
+    box-shadow: inset 5px 5px 10px var(--shadow-dark), 
+                inset -5px -5px 10px rgba(255, 255, 255, 0.03);
+    transition: all 0.3s;
+}
+
+.input-group:focus-within {
+    box-shadow: inset 5px 5px 10px var(--shadow-dark), 
+                inset -5px -5px 10px rgba(255, 255, 255, 0.03),
+                /* Changed focus glow to Secondary Tone (Olive Green) for more variation */
+                0 0 10px var(--secondary-tone); 
+}
+
+.input-group i { 
+    margin-right: 15px; 
+    color: var(--secondary-tone); 
+    font-size: 1.2em; 
+}
+
+.input-group input { 
+    flex: 1; 
+    border: none; 
+    outline: none; 
+    font-size: 1em; 
+    background-color: transparent; 
+    color: var(--bg-light); 
+    padding: 0;
+}
+
+.input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Remember Me / Forgot Password Row */
+.card-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.card-controls label { cursor: pointer; }
+.card-controls input[type="checkbox"] { 
+    accent-color: var(--main-highlight); 
+    margin-right: 5px;
+}
+
+.card-controls a { 
+    color: var(--main-highlight); 
+    text-decoration: none;
+    transition: all 0.3s;
+}
+.card-controls a:hover { 
+    color: var(--bg-light); /* Hover text uses light accent */
+    text-shadow: 0 0 5px var(--main-highlight);
+}
+
+/* Login Button Styling (Primary accent color gradient + Neon effect) */
+.login-button {
+    width: 100%;
+    padding: 15px;
+    background: var(--main-highlight);
+    color: var(--bg-light);
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1em;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    
+    /* Neumorphic button shadow */
+    box-shadow: 
+        8px 8px 15px var(--shadow-dark), 
+        -8px -8px 15px rgba(255, 255, 255, 0.05);
+}
+
+.login-button:hover { 
+    /* Neon glow effect using the light accent color */
+    background: var(--main-highlight);
+    box-shadow: 
+        0 0 20px var(--main-highlight), /* Soft glow */
+        /* Increased visibility of the neon glow by using the light accent */
+        0 0 40px var(--bg-light), 
+        0 0 80px rgba(183, 43, 127, 0.4); 
+    transform: translateY(-2px);
+}
+
+/* Registration Link Below Card */
+.register-link {
+    font-size: 1em;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.register-link a {
+    color: var(--secondary-tone); /* Link uses Secondary Tone (Olive Green) */
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s, text-shadow 0.3s;
+}
+
+.register-link a:hover { 
+    color: var(--main-highlight); /* Hover link uses main highlight */
+    text-shadow: 0 0 8px var(--main-highlight);
+}
+
+/* --- Responsiveness --- */
+@media (max-width: 500px) {
+    .login-card { padding: 30px 20px; }
+    .main-header { font-size: 1.5em; margin-bottom: 20px; }
+    .card-title { font-size: 1.7em; margin-bottom: 25px; }
+    .card-controls { flex-direction: column; gap: 10px; align-items: flex-start; }
+    /* Hide some complex shapes on small screens for performance/simplicity */
+    .login-container::before, .login-container::after, .shape-3 { display: none; }
+}
+    </style>
+{% endblock %}
+
+{# --- Main Content: The Login UI Card --- #}
+{% block body %}
+    <div class="login-wrapper">
+
+        <h1 class="main-header">Welcome to the website</h1>
+
+        <div class="login-card">
+            
+            <h2 class="card-title">User Login</h2>
+            
+            {# Adjust the form action and method for your specific authentication route #}
+            <form action="{{ path('app_login') }}" method="post" class="login-form">
+                
+                <!-- Username Input -->
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" value="{{ last_username }}" name="username" id="inputUsername" class="form-control" autocomplete="username" required autofocus>
+                </div>
+                
+                <!-- Password Input -->
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+                    <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+                </div>
+                
+                <!-- Remember Me / Forgot Password Row -->
+                <div class="card-controls">
+                    <label>
+                        <input type="checkbox" name="_remember_me"> Remember me
+                    </label>
+                    <a href="#">Forgot password?</a>
+
+                </div>
+                
+                <!-- Login Button (Primary accent color gradient) -->
+                <button type="submit" class="login-button">LOG IN</button>
+            </form>
+        </div>
+
+        <!-- Registration Link Below Card -->
+        <p class="register-link">
+            To create a new account, <a href="{{ path('app_register') }}">Click here</a>
+        </p>
+    </div>
+{% endblock %}

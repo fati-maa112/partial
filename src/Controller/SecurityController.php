@@ -2,33 +2,41 @@
 
 namespace App\Controller;
 
+use App\Service\ActivityLogger;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    #[Route('/log/in', name: 'app_log_in_page')]
+    #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
+        // Redirect already logged-in users
+        if ($this->getUser()) {
+            // Redirect based on role
+            if ($this->isGranted('ROLE_ADMIN')) {
+                return $this->redirectToRoute('app_dashboard');
+            }
+            // Staff and other users go to orders page (since they can't access dashboard)
+            return $this->redirectToRoute('app_order_index');
+        }
+
+        // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
+        // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
-        return $this->render('log_in_page/index.html.twig', [
-            'last_username' => $lastUsername,
-            'error' => $error,
+        return $this->render('security/login.html.twig', [
+            'last_username' => $lastUsername, 
+            'error' => $error
         ]);
     }
-    #[Route('/login', name: 'app_login', methods: ['POST'])]
-    public function loginCheck(): void
-    {
-    // Symfony handles the login check automatically.
-    }
 
-    #[Route('/logout', name: 'app_logout')]
+    #[Route(path: '/logout', name: 'app_logout')]
     public function logout(): void
     {
-        // Symfony handles logout automatically
+        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 }

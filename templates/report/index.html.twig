@@ -1,0 +1,535 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reports & Analytics - Naturae Admin{% endblock %}
+{% block page_title %}Reports{% endblock %}
+
+{% block body %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --color-olive: #6B7755;
+        --color-olive-dark: #556042;
+        --color-sand: #C2B280;
+        --color-accent: #B55239;
+    }
+
+    .content {
+        padding: 20px 30px;
+        background: #e8e5dc;
+        min-height: calc(100vh - 80px);
+    }
+
+    .content-header {
+        background: linear-gradient(135deg, var(--color-olive) 0%, var(--color-olive-dark) 100%);
+        padding: 30px 40px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .content-header h2 {
+        color: #fff;
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .content-header p {
+        color: rgba(255, 255, 255, 0.85);
+        margin: 0;
+        font-size: 14px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: #fff;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+
+    .stat-icon.revenue { background: #4caf50; }
+    .stat-icon.orders { background: var(--color-sand); }
+    .stat-icon.customers { background: #2196f3; }
+    .stat-icon.products { background: var(--color-olive); }
+    .stat-icon.stock { background: #ff9800; }
+    .stat-icon.categories { background: #9c27b0; }
+
+    .stat-info h3 {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--color-olive);
+        margin: 0 0 5px 0;
+    }
+
+    .stat-info p {
+        font-size: 13px;
+        color: #888;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    /* Section Grid */
+    .section-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .section-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    .section-header {
+        background: var(--color-olive);
+        color: #fff;
+        padding: 20px 25px;
+        font-size: 16px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-body {
+        padding: 25px;
+    }
+
+    /* Order Status */
+    .status-grid {
+        display: grid;
+        gap: 15px;
+    }
+
+    .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border-radius: 10px;
+        background: #f8f9fa;
+    }
+
+    .status-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .status-count {
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .status-completed { color: #4caf50; }
+    .status-pending { color: #ff9800; }
+    .status-processing { color: #2196f3; }
+
+    /* Chart */
+    .chart-container {
+        height: 300px;
+        position: relative;
+    }
+
+    .bar-chart {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        height: 250px;
+        gap: 8px;
+        padding: 20px 0;
+    }
+
+    .bar {
+        flex: 1;
+        background: linear-gradient(180deg, var(--color-sand) 0%, var(--color-olive) 100%);
+        border-radius: 8px 8px 0 0;
+        position: relative;
+        min-height: 20px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .bar:hover {
+        opacity: 0.8;
+        transform: translateY(-5px);
+    }
+
+    .bar-label {
+        position: absolute;
+        bottom: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        color: #666;
+        font-weight: 600;
+    }
+
+    .bar-value {
+        position: absolute;
+        top: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--color-olive);
+        white-space: nowrap;
+    }
+
+    /* Tables */
+    .data-table {
+        width: 100%;
+    }
+
+    .data-table tr {
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .data-table tr:last-child {
+        border-bottom: none;
+    }
+
+    .data-table td {
+        padding: 12px 0;
+        font-size: 14px;
+    }
+
+    .data-table td:first-child {
+        color: #666;
+    }
+
+    .data-table td:last-child {
+        text-align: right;
+        font-weight: 600;
+        color: var(--color-olive);
+    }
+
+    /* Low Stock Alert */
+    .alert-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 15px;
+        background: #fff3e0;
+        border-left: 4px solid #ff9800;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    .alert-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .alert-name {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .alert-qty {
+        color: #ff9800;
+        font-weight: 700;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+    }
+
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+</style>
+
+<div class="content">
+    <!-- Header -->
+    <div class="content-header">
+        <div>
+            <h2>
+                <i class="fas fa-chart-line"></i>
+                Reports & Analytics
+            </h2>
+            <p>Overview of your business performance and insights</p>
+        </div>
+    </div>
+
+    <!-- Main Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon revenue">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-info">
+                <h3>₱{{ totalRevenue|number_format(2) }}</h3>
+                <p>Total Revenue</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon orders">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ totalOrders }}</h3>
+                <p>Total Orders</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon customers">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ totalCustomers }}</h3>
+                <p>Total Customers</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon products">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ totalProducts }}</h3>
+                <p>Total Products</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon stock">
+                <i class="fas fa-cubes"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ totalStockQuantity }}</h3>
+                <p>Stock Units</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon categories">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ totalCategories }}</h3>
+                <p>Categories</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Sales Chart -->
+    <div class="section-card" style="margin-bottom: 30px;">
+        <div class="section-header">
+            <i class="fas fa-chart-bar"></i>
+            Monthly Sales Overview
+        </div>
+        <div class="section-body">
+            <div class="chart-container">
+                <div class="bar-chart">
+                    {% set maxSales = maxMonthlySales %}
+                    {% for month, sales in monthlySales %}
+                        {% set height = maxSales > 0 ? (sales / maxSales * 100) : 5 %}
+                        <div class="bar" style="height: {{ height }}%;" title="{{ month }}: ₱{{ sales|number_format(2) }}">
+                            <span class="bar-value">₱{{ sales|number_format(0) }}</span>
+                            <span class="bar-label">{{ month }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Second Row: Order Status & Low Stock -->
+    <div class="section-grid">
+        <!-- Order Status -->
+        <div class="section-card">
+            <div class="section-header">
+                <i class="fas fa-clipboard-list"></i>
+                Order Status Breakdown
+            </div>
+            <div class="section-body">
+                <div class="status-grid">
+                    <div class="status-item">
+                        <div class="status-label">
+                            <i class="fas fa-check-circle status-completed"></i>
+                            Completed Orders
+                        </div>
+                        <div class="status-count status-completed">{{ completedOrders }}</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">
+                            <i class="fas fa-clock status-pending"></i>
+                            Pending Orders
+                        </div>
+                        <div class="status-count status-pending">{{ pendingOrders }}</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">
+                            <i class="fas fa-spinner status-processing"></i>
+                            Processing Orders
+                        </div>
+                        <div class="status-count status-processing">{{ processingOrders }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Low Stock Alerts -->
+        <div class="section-card">
+            <div class="section-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                Low Stock Alerts
+            </div>
+            <div class="section-body">
+                {% if lowStockItems|length > 0 %}
+                    {% for stock in lowStockItems|slice(0, 5) %}
+                        <div class="alert-item">
+                            <span class="alert-name">
+                                {{ stock.product ? stock.product.name : 'Unknown Product' }}
+                            </span>
+                            <span class="alert-qty">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ stock.quantity }} units
+                            </span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <p>All stock levels are healthy!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Third Row: Recent Orders & Top Products -->
+    <div class="section-grid">
+        <!-- Recent Orders -->
+        <div class="section-card">
+            <div class="section-header">
+                <i class="fas fa-receipt"></i>
+                Recent Orders
+            </div>
+            <div class="section-body">
+                {% if recentOrders|length > 0 %}
+                    <table class="data-table">
+                        {% for order in recentOrders %}
+                            <tr>
+                                <td>
+                                    <strong>#{{ order.id }}</strong> - {{ order.customer ? order.customer.fullName : 'N/A' }}
+                                </td>
+                                <td>₱{{ order.total|number_format(2) }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-shopping-cart"></i>
+                        <p>No orders yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Top Products -->
+        <div class="section-card">
+            <div class="section-header">
+                <i class="fas fa-star"></i>
+                Top Products
+            </div>
+            <div class="section-body">
+                {% if topProducts|length > 0 %}
+                    <table class="data-table">
+                        {% for product in topProducts %}
+                            <tr>
+                                <td>{{ product.name }}</td>
+                                <td>₱{{ product.price|number_format(2) }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-box"></i>
+                        <p>No products yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="section-card">
+        <div class="section-header">
+            <i class="fas fa-calculator"></i>
+            Summary Statistics
+        </div>
+        <div class="section-body">
+            <table class="data-table">
+                <tr>
+                    <td>Average Order Value</td>
+                    <td>₱{{ averageOrderValue|number_format(2) }}</td>
+                </tr>
+                <tr>
+                    <td>Total Products Listed</td>
+                    <td>{{ totalProducts }}</td>
+                </tr>
+                <tr>
+                    <td>Total Stock Value</td>
+                    <td>₱{{ (totalStockQuantity * 100)|number_format(2) }}</td>
+                </tr>
+                <tr>
+                    <td>Active Categories</td>
+                    <td>{{ totalCategories }}</td>
+                </tr>
+                <tr>
+                    <td>Registered Customers</td>
+                    <td>{{ totalCustomers }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

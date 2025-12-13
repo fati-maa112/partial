@@ -1,0 +1,411 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Add New Customer - Naturae Admin{% endblock %}
+
+{% block body %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --color-olive: #6B7755;
+        --color-olive-dark: #556042;
+        --color-sand: #C2B280;
+        --color-cream: #F5F1E8;
+        --color-accent: #B55239;
+    }
+
+    /* Main Content */
+    .content {
+        padding: 20px 30px;
+        background: #e8e5dc;
+        min-height: calc(100vh - 80px);
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .breadcrumb a {
+        color: var(--color-olive);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .breadcrumb a:hover {
+        color: var(--color-olive-dark);
+    }
+
+    .breadcrumb i {
+        font-size: 12px;
+        color: #999;
+    }
+
+    /* Header Section */
+    .content-header {
+        background: linear-gradient(135deg, var(--color-olive) 0%, var(--color-olive-dark) 100%);
+        padding: 30px 40px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .content-header h1 {
+        color: #fff;
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .content-header p {
+        color: rgba(255, 255, 255, 0.85);
+        margin: 0;
+        font-size: 14px;
+    }
+
+    /* Form Container */
+    .form-container {
+        background: #fff;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-section {
+        margin-bottom: 35px;
+    }
+
+    .form-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--color-olive);
+        margin: 0 0 20px 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-title i {
+        font-size: 20px;
+        color: var(--color-sand);
+    }
+
+    /* Form Grid */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .form-grid-full {
+        grid-column: 1 / -1;
+    }
+
+    /* Form Groups */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .form-group label.required:after {
+        content: " *";
+        color: var(--color-accent);
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: var(--color-sand);
+        box-shadow: 0 0 0 3px rgba(194, 178, 128, 0.1);
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-group small {
+        display: block;
+        margin-top: 5px;
+        font-size: 12px;
+        color: #888;
+    }
+
+    /* Input Icons */
+    .input-with-icon {
+        position: relative;
+    }
+
+    .input-with-icon i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        font-size: 16px;
+    }
+
+    .input-with-icon input {
+        padding-left: 45px;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: flex-end;
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 2px solid #f0f0f0;
+    }
+
+    .btn {
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--color-olive), var(--color-olive-dark));
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(107, 119, 85, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(107, 119, 85, 0.4);
+    }
+
+    .btn-secondary {
+        background: #fff;
+        color: #666;
+        border: 2px solid #e0e0e0;
+    }
+
+    .btn-secondary:hover {
+        background: #f9f9f9;
+        border-color: #ccc;
+    }
+
+    /* Info Box */
+    .info-box {
+        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        border-left: 4px solid #2196f3;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .info-box i {
+        color: #2196f3;
+        font-size: 20px;
+        margin-top: 2px;
+    }
+
+    .info-box-content {
+        flex: 1;
+    }
+
+    .info-box-content h4 {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1976d2;
+        margin: 0 0 5px 0;
+    }
+
+    .info-box-content p {
+        font-size: 13px;
+        color: #0d47a1;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    /* Error Messages */
+    .form-error {
+        color: var(--color-accent);
+        font-size: 13px;
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .form-error i {
+        font-size: 12px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-container {
+            padding: 25px 20px;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="content">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="{{ path('app_customer_index') }}"><i class="fas fa-users"></i> Customers</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>Add New Customer</span>
+    </div>
+
+    <!-- Header -->
+    <div class="content-header">
+        <h1>
+            <i class="fas fa-user-plus"></i>
+            Add New Customer
+        </h1>
+        <p>Fill in the customer information below</p>
+    </div>
+
+    <!-- Form Container -->
+    <div class="form-container">
+        <!-- Info Box -->
+        <div class="info-box">
+            <i class="fas fa-info-circle"></i>
+            <div class="info-box-content">
+                <h4>Customer Information</h4>
+                <p>Please provide accurate customer details. Fields marked with an asterisk (*) are required.</p>
+            </div>
+        </div>
+
+        {{ form_start(form) }}
+
+        <!-- Personal Information Section -->
+        <div class="form-section">
+            <h3 class="section-title">
+                <i class="fas fa-user"></i>
+                Personal Information
+            </h3>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    {{ form_label(form.FullName, 'Full Name', {'label_attr': {'class': 'required'}}) }}
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        {{ form_widget(form.FullName, {'attr': {'placeholder': 'Enter customer full name'}}) }}
+                    </div>
+                    {{ form_errors(form.FullName) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.email, 'Email Address') }}
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope"></i>
+                        {{ form_widget(form.email, {'attr': {'placeholder': 'customer@example.com'}}) }}
+                    </div>
+                    {{ form_errors(form.email) }}
+                    <small>We'll use this for important notifications</small>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    {{ form_label(form.phone, 'Phone Number') }}
+                    <div class="input-with-icon">
+                        <i class="fas fa-phone"></i>
+                        {{ form_widget(form.phone, {'attr': {'placeholder': '+1 (555) 123-4567'}}) }}
+                    </div>
+                    {{ form_errors(form.phone) }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Address Section -->
+        <div class="form-section">
+            <h3 class="section-title">
+                <i class="fas fa-map-marker-alt"></i>
+                Address Information
+            </h3>
+
+            <div class="form-grid form-grid-full">
+                <div class="form-group">
+                    {{ form_label(form.address, 'Full Address') }}
+                    <div class="input-with-icon">
+                        <i class="fas fa-home"></i>
+                        {{ form_widget(form.address, {'attr': {'placeholder': 'Street address, city, state, postal code', 'rows': 3}}) }}
+                    </div>
+                    {{ form_errors(form.address) }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <a href="{{ path('app_customer_index') }}" class="btn btn-secondary">
+                <i class="fas fa-times"></i>
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-check"></i>
+                Create Customer
+            </button>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

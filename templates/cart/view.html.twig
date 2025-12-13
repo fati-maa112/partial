@@ -1,0 +1,217 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Order Cart - Admin{% endblock %}
+{% block page_title %}Order Cart{% endblock %}
+
+{% block body %}
+<style>
+    body { background: linear-gradient(135deg, #f5f7fa 0%, #e8ebe9 100%); font-family: 'Poppins', sans-serif; color: #333; min-height: 100vh; padding: 40px 20px; }
+    .page-wrapper { max-width: 1200px; margin: 0 auto; }
+    .back-nav { margin-bottom: 24px; }
+    .back-link { display: inline-flex; align-items: center; gap: 8px; color: #6B7755; text-decoration: none; font-weight: 600; font-size: 14px; padding: 10px 20px; background: #fff; border-radius: 10px; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .back-link:hover { background: #6B7755; color: #fff; transform: translateX(-5px); box-shadow: 0 4px 12px rgba(107, 119, 85, 0.2); }
+    .cart-container { background: #fff; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); overflow: hidden; }
+    .cart-header { background: linear-gradient(135deg, #6B7755 0%, #556042 100%); padding: 30px 40px; color: #fff; }
+    .cart-header h1 { font-size: 28px; font-weight: 700; margin: 0; }
+    .cart-body { padding: 40px; }
+    .empty-cart { text-align: center; padding: 60px 20px; }
+    .empty-cart i { font-size: 64px; color: #d1d5db; margin-bottom: 16px; }
+    .empty-cart p { font-size: 18px; color: #9ca3af; margin: 0; }
+    .validation-errors { background: #fee2e2; border: 2px solid #fca5a5; border-radius: 12px; padding: 16px; margin-bottom: 24px; }
+    .validation-errors h4 { color: #991b1b; margin: 0 0 12px 0; font-weight: 700; }
+    .validation-errors ul { list-style: none; padding: 0; margin: 0; }
+    .validation-errors li { color: #7f1d1d; margin-bottom: 8px; padding-left: 20px; position: relative; }
+    .validation-errors li:before { content: "✕"; position: absolute; left: 0; font-weight: 700; }
+    .cart-items { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 24px; }
+    .cart-items thead { background: linear-gradient(135deg, #6B7755, #556042); color: #fff; }
+    .cart-items th { padding: 16px; text-align: left; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .cart-items th:last-child { text-align: right; }
+    .cart-items td { padding: 16px; border-bottom: 1px solid #f3f4f6; color: #374151; }
+    .cart-items tbody tr:hover { background: #f9fafb; }
+    .cart-items tbody tr:last-child td { border-bottom: none; }
+    .product-cell { display: flex; align-items: center; gap: 12px; }
+    .product-image { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 2px solid #e5e7eb; }
+    .quantity-input { width: 80px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; text-align: center; }
+    .price-cell { text-align: right; font-weight: 700; color: #6B7755; }
+    .product-info { flex: 1; }
+    .product-name { font-weight: 700; color: #1f2937; margin-bottom: 4px; }
+    .product-meta { font-size: 12px; color: #9ca3af; }
+    .stock-badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+    .stock-badge.in-stock { background: #dcfce7; color: #166534; }
+    .stock-badge.low-stock { background: #fef3c7; color: #92400e; }
+    .stock-badge.out-of-stock { background: #fee2e2; color: #991b1b; }
+    .subtotal-row { text-align: right; color: #6B7755; font-weight: 700; }
+    .totals-section { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; align-items: start; }
+    .totals-card { background: linear-gradient(135deg, #fef3c7, #fde68a); padding: 24px; border-radius: 12px; border: 2px solid #fbbf24; }
+    .totals-card h3 { color: #78350f; margin: 0 0 16px 0; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .total-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 15px; color: #78350f; }
+    .total-row.grand { border-top: 2px solid #f59e0b; margin-top: 12px; padding-top: 16px; font-size: 20px; font-weight: 800; }
+    .checkout-form { margin-top: 30px; padding-top: 30px; border-top: 2px solid #e5e7eb; }
+    .form-group { margin-bottom: 24px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 700; color: #374151; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-group select { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: inherit; background-color: #fff; color: #374151; cursor: pointer; transition: all 0.3s ease; }
+    .form-group select:focus { outline: none; border-color: #6B7755; box-shadow: 0 0 0 3px rgba(107, 119, 85, 0.1); }
+    .stock-warning { background: #fef3c7; border: 2px solid #fcd34d; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; color: #92400e; font-size: 13px; font-weight: 600; }
+    .stock-warning i { margin-right: 8px; }
+    .action-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 700; text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+    .btn i { font-size: 16px; }
+    .btn-primary { background: linear-gradient(135deg, #6B7755, #556042); color: #fff; }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(107, 119, 85, 0.4); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-secondary { background: #f3f4f6; color: #374151; }
+    .btn-secondary:hover { background: #e5e7eb; transform: translateY(-3px); }
+    .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+    .btn-danger:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4); }
+    .btn-small { padding: 8px 16px; font-size: 12px; min-width: auto; }
+    @media (max-width: 968px) { .totals-section { grid-template-columns: 1fr; } .action-buttons { flex-direction: column; } .btn { width: 100%; } }
+</style>
+
+<div class="page-wrapper">
+    <div class="back-nav">
+        <a href="{{ path('app_product_index') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Products
+        </a>
+    </div>
+
+    <div class="cart-container">
+        <div class="cart-header">
+            <h1><i class="fas fa-shopping-cart"></i> Order Cart</h1>
+        </div>
+
+        <div class="cart-body">
+            {% if validation.errors|length > 0 %}
+                <div class="validation-errors">
+                    <h4><i class="fas fa-exclamation-circle"></i> Cart Issues</h4>
+                    <ul>
+                        {% for error in validation.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            {% if items|length > 0 %}
+                <table class="cart-items">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">Image</th>
+                            <th>Product</th>
+                            <th style="width: 120px; text-align: center;">Quantity</th>
+                            <th style="width: 150px;">Price</th>
+                            <th style="width: 150px;">Subtotal</th>
+                            <th style="width: 100px; text-align: center;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                            <tr>
+                                <td>
+                                    {% if item.product.image %}
+                                        <img src="{{ asset('images/' ~ item.product.image) }}" alt="{{ item.name }}" class="product-image">
+                                    {% else %}
+                                        <div style="width: 50px; height: 50px; background: #e5e7eb; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-image" style="color: #9ca3af;"></i>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600; color: #1f2937;">{{ item.name }}</div>
+                                    {% if item.product.category %}
+                                        <small style="color: #9ca3af;">{{ item.product.category.name }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="post" action="{{ path('app_cart_update', {'id': item.product_id}) }}" style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('update_cart_' ~ item.product_id) }}">
+                                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="999" class="quantity-input">
+                                        <button type="submit" class="btn btn-small btn-secondary"><i class="fas fa-sync"></i></button>
+                                    </form>
+                                </td>
+                                <td class="price-cell">₱{{ item.price|number_format(2, '.', ',') }}</td>
+                                <td class="price-cell">₱{{ item.subtotal|number_format(2, '.', ',') }}</td>
+                                <td style="text-align: center;">
+                                    <form method="post" action="{{ path('app_cart_remove', {'id': item.product_id}) }}" style="display: inline;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('remove_from_cart_' ~ item.product_id) }}">
+                                        <button type="submit" class="btn btn-small btn-danger" title="Remove from cart"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="totals-section">
+                    <div></div>
+                    <div class="totals-card">
+                        <h3><i class="fas fa-calculator"></i> Cart Totals</h3>
+                        <div class="total-row">
+                            <span>Subtotal:</span>
+                            <span>₱{{ totals.subtotal|number_format(2, '.', ',') }}</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Items:</span>
+                            <span>{{ totals.item_count }}</span>
+                        </div>
+                        <div class="total-row grand">
+                            <span>Total:</span>
+                            <span>₱{{ totals.total|number_format(2, '.', ',') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons" style="margin-top: 30px;">
+                    <form method="post" action="{{ path('app_cart_clear') }}" style="display: inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('clear_cart') }}">
+                        <button type="submit" class="btn btn-secondary" onclick="return confirm('Clear entire cart?')">
+                            <i class="fas fa-trash-alt"></i> Clear Cart
+                        </button>
+                    </form>
+                </div>
+
+                <form method="post" action="{{ path('app_cart_checkout') }}" class="checkout-form">
+                    <input type="hidden" name="_token" value="{{ csrf_token('checkout_cart') }}">
+                    
+                    <div class="form-group">
+                        <label for="customer_id">
+                            <i class="fas fa-user"></i> Select Customer *
+                        </label>
+                        <select id="customer_id" name="customer_id" required>
+                            <option value="">-- Choose a Customer --</option>
+                            {% for customer in customers %}
+                                <option value="{{ customer.id }}">{{ customer.fullName }} ({{ customer.email }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="action-buttons">
+                        {% if validation.valid and customers|length > 0 %}
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                <i class="fas fa-check-circle"></i> Confirm & Create Order
+                            </button>
+                        {% elseif customers|length == 0 %}
+                            <button type="button" class="btn btn-primary" disabled style="opacity: 0.5; cursor: not-allowed; width: 100%;">
+                                <i class="fas fa-ban"></i> No Customers Available
+                            </button>
+                        {% else %}
+                            <button type="button" class="btn btn-primary" disabled style="opacity: 0.5; cursor: not-allowed; width: 100%;">
+                                <i class="fas fa-lock"></i> Fix Issues Above
+                            </button>
+                        {% endif %}
+                    </div>
+                </form>
+            {% else %}
+                <div class="empty-cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <p>Your cart is empty.</p>
+                    <p style="margin-top: 8px;">
+                        <a href="{{ path('app_product_index') }}" class="btn btn-primary" style="margin-top: 16px;">
+                            <i class="fas fa-arrow-left"></i> Continue Shopping
+                        </a>
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

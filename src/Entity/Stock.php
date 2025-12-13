@@ -6,6 +6,7 @@ use App\Repository\StockRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: StockRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Stock
 {
     #[ORM\Id]
@@ -29,8 +30,30 @@ class Stock
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
+    // ✅ NEW: Track who created this stock entry
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $createdBy = null;
+
+    // ✅ NEW: Track creation time
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    // ✅ NEW: Track update time
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
+
     public function __construct()
     {
+        $this->lastUpdated = new \DateTime();
+        $this->createdAt = new \DateTimeImmutable();
+    }
+
+    // ✅ Auto-update timestamp on entity update
+    #[ORM\PreUpdate]
+    public function setUpdatedAtValue(): void
+    {
+        $this->updatedAt = new \DateTimeImmutable();
         $this->lastUpdated = new \DateTime();
     }
 
@@ -91,6 +114,40 @@ class Stock
     public function setImage(?string $image): static
     {
         $this->image = $image;
+        return $this;
+    }
+
+    // ✅ NEW: Creator tracking getters/setters
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
         return $this;
     }
 }

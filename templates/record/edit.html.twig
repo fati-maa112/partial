@@ -1,0 +1,482 @@
+{# templates/record/edit.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Record{% endblock %}
+{% block page_title %}EDIT RECORD{% endblock %}
+
+{% block body %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, var(--color-sand) 0%, #a3886b 100%);
+        padding: 30px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 24px rgba(183, 155, 127, 0.2);
+    }
+
+    .page-header h1 {
+        color: white;
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .page-header p {
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0;
+        font-size: 15px;
+    }
+
+    /* FLASH MESSAGES */
+    .alert {
+        padding: 16px 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+        font-weight: 500;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .alert-success {
+        background: #d4edda;
+        border: 2px solid #c3e6cb;
+        color: #155724;
+    }
+
+    .alert-success i {
+        color: #28a745;
+        font-size: 18px;
+    }
+
+    .alert-error {
+        background: #f8d7da;
+        border: 2px solid #f5c6cb;
+        color: #721c24;
+    }
+
+    .alert-error i {
+        color: #dc3545;
+        font-size: 18px;
+    }
+
+    .alert-warning {
+        background: #fff3cd;
+        border: 2px solid #ffeaa7;
+        color: #856404;
+    }
+
+    .alert-warning i {
+        color: #ffa800;
+        font-size: 18px;
+    }
+
+    .form-container {
+        background: white;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    [data-theme="dark"] .form-container {
+        background: var(--color-white);
+    }
+
+    .record-meta {
+        background: var(--color-cream);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    [data-theme="dark"] .record-meta {
+        background: #2f2f2f;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .meta-item i {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-olive);
+        font-size: 18px;
+    }
+
+    [data-theme="dark"] .meta-item i {
+        background: #3a3a3a;
+    }
+
+    .meta-item div p {
+        margin: 0;
+        font-size: 12px;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .meta-item div span {
+        font-size: 14px;
+        color: var(--color-text);
+        font-weight: 600;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: var(--color-olive);
+        margin-bottom: 10px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-group label i {
+        margin-right: 8px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 14px 18px;
+        border: 2px solid var(--color-cream);
+        border-radius: 10px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        font-family: 'Poppins', Arial, sans-serif;
+        background: white;
+        color: var(--color-text);
+        box-sizing: border-box;
+    }
+
+    [data-theme="dark"] .form-control {
+        background: #2f2f2f;
+        border-color: #3a3a3a;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--color-sand);
+        box-shadow: 0 0 0 3px rgba(183, 155, 127, 0.1);
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+        font-family: 'Poppins', Arial, sans-serif;
+    }
+
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        background: #fff5f5;
+    }
+
+    [data-theme="dark"] .form-control.is-invalid {
+        background: #3a2a2a;
+    }
+
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 13px;
+        margin-top: 6px;
+        display: block;
+        font-weight: 500;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 2px solid var(--color-cream);
+    }
+
+    [data-theme="dark"] .form-actions {
+        border-top-color: #3a3a3a;
+    }
+
+    .btn {
+        padding: 14px 28px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        font-size: 15px;
+        font-family: 'Poppins', Arial, sans-serif;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--color-sand) 0%, #a3886b 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(183, 155, 127, 0.3);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(183, 155, 127, 0.4);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .btn-secondary {
+        background: var(--color-cream);
+        color: var(--color-text);
+    }
+
+    [data-theme="dark"] .btn-secondary {
+        background: #3a3a3a;
+    }
+
+    .btn-secondary:hover {
+        background: var(--color-olive);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .warning-box {
+        background: rgba(255, 168, 0, 0.1);
+        border-left: 4px solid #ffa800;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .warning-box i {
+        color: #ffa800;
+        font-size: 20px;
+    }
+
+    .warning-box p {
+        margin: 0;
+        color: var(--color-text);
+        font-size: 14px;
+    }
+
+    /* Loading State */
+    .btn-loading {
+        position: relative;
+        pointer-events: none;
+    }
+
+    .btn-loading::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 50%;
+        left: 50%;
+        margin-left: -8px;
+        margin-top: -8px;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spinner 0.6s linear infinite;
+    }
+
+    @keyframes spinner {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 25px;
+        }
+
+        .record-meta {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="page-header">
+    <h1><i class="fas fa-edit"></i> Edit Record</h1>
+    <p>Update the information for this record</p>
+</div>
+
+<!-- Flash Messages -->
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        <span>{{ message }}</span>
+    </div>
+{% endfor %}
+
+{% for message in app.flashes('error') %}
+    <div class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>{{ message }}</span>
+    </div>
+{% endfor %}
+
+{% for message in app.flashes('warning') %}
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>{{ message }}</span>
+    </div>
+{% endfor %}
+
+<div class="form-container">
+    <!-- Record Metadata -->
+    <div class="record-meta">
+        <div class="meta-item">
+            <i class="fas fa-user"></i>
+            <div>
+                <p>Created By</p>
+                <span>{{ record.createdBy.username }}</span>
+            </div>
+        </div>
+        <div class="meta-item">
+            <i class="fas fa-calendar"></i>
+            <div>
+                <p>Created At</p>
+                <span>{{ record.createdAt|date('M d, Y') }}</span>
+            </div>
+        </div>
+        {% if record.updatedAt %}
+        <div class="meta-item">
+            <i class="fas fa-clock"></i>
+            <div>
+                <p>Last Updated</p>
+                <span>{{ record.updatedAt|date('M d, Y h:i A') }}</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Admin Warning -->
+    {% if isAdmin and record.createdBy != app.user %}
+    <div class="warning-box">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p><strong>Admin Access:</strong> You are editing a record created by {{ record.createdBy.username }}.</p>
+    </div>
+    {% endif %}
+
+    <!-- Edit Form -->
+    {{ form_start(form, {
+        'attr': {
+            'novalidate': 'novalidate',
+            'id': 'editRecordForm'
+        }
+    }) }}
+        <div class="form-group">
+            <label for="{{ form.title.vars.id }}">
+                <i class="fas fa-heading"></i> Record Title
+            </label>
+            {{ form_widget(form.title, {
+                'attr': {
+                    'class': 'form-control' ~ (form.title.vars.errors|length > 0 ? ' is-invalid' : ''),
+                    'placeholder': 'Enter record title'
+                }
+            }) }}
+            {{ form_errors(form.title) }}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.description.vars.id }}">
+                <i class="fas fa-align-left"></i> Description
+            </label>
+            {{ form_widget(form.description, {
+                'attr': {
+                    'class': 'form-control' ~ (form.description.vars.errors|length > 0 ? ' is-invalid' : ''),
+                    'placeholder': 'Enter record description (optional)'
+                }
+            }) }}
+            {{ form_errors(form.description) }}
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+                <i class="fas fa-save"></i> Update Record
+            </button>
+            <a href="{{ path('app_record') }}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    {{ form_end(form) }}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('editRecordForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (form && submitBtn) {
+        form.addEventListener('submit', function(e) {
+            // Disable button and show loading state
+            submitBtn.disabled = true;
+            submitBtn.classList.add('btn-loading');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+            
+            console.log('Form submitting...');
+        });
+    }
+
+    // Auto-hide flash messages after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+        setTimeout(function() {
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateY(-10px)';
+            setTimeout(function() {
+                alert.remove();
+            }, 300);
+        }, 5000);
+    });
+});
+</script>
+{% endblock %}

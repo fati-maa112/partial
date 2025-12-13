@@ -1,0 +1,129 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Customer - Naturae Admin{% endblock %}
+
+{% block body %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<style>
+    .edit-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .edit-header {
+        background: linear-gradient(135deg, #6B7755 0%, #556042 100%);
+        padding: 35px 40px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(107, 119, 85, 0.2);
+        text-align: center;
+        color: white;
+    }
+
+    .edit-header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .edit-header p {
+        color: rgba(255, 255, 255, 0.85);
+        margin: 0;
+        font-size: 15px;
+    }
+
+    .edit-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+        margin-bottom: 30px;
+    }
+
+    .delete-card {
+        background: #fef2f2;
+        border: 2px solid #fecaca;
+        border-radius: 16px;
+        padding: 28px;
+    }
+
+    .delete-card h3 {
+        color: #991b1b;
+        margin: 0 0 12px 0;
+        font-size: 16px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .delete-card p {
+        color: #7f1d1d;
+        margin: 0 0 20px 0;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        color: #6B7755;
+        text-decoration: none;
+        font-weight: 600;
+        border-radius: 12px;
+        background: #f9fafb;
+        border: 2px solid #e5e7eb;
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+    }
+
+    .btn-back:hover {
+        border-color: #6B7755;
+        background: #fff;
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .edit-wrapper {
+            padding: 20px 15px;
+        }
+
+        .edit-card {
+            padding: 24px;
+        }
+
+        .edit-header {
+            padding: 24px;
+        }
+    }
+</style>
+
+<div class="edit-wrapper">
+    <a href="{{ path('app_customer_index') }}" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Customers
+    </a>
+
+    <div class="edit-header">
+        <h1><i class="fas fa-edit"></i> Edit Customer</h1>
+        <p>Update customer information and details</p>
+    </div>
+
+    <div class="edit-card">
+        {{ include('customer/_form.html.twig', {'button_label': 'Update Customer'}) }}
+    </div>
+
+    <div class="delete-card">
+        <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+        <p>Once you delete a customer, all associated data will be removed. This action cannot be undone.</p>
+        {{ include('customer/_delete_form.html.twig') }}
+    </div>
+</div>
+{% endblock %}

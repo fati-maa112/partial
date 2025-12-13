@@ -1,0 +1,479 @@
+    {# templates/record/view.html.twig #}
+    {% extends 'base.html.twig' %}
+
+    {% block title %}View Record{% endblock %}
+    {% block page_title %}VIEW RECORD{% endblock %}
+
+    {% block body %}
+    <style>
+        .view-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .breadcrumb a {
+            color: var(--color-olive);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--color-sand);
+        }
+
+        .breadcrumb i {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .breadcrumb span {
+            color: #999;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--color-olive) 0%, var(--color-olive-dark) 100%);
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 35px;
+            box-shadow: 0 10px 40px rgba(122, 134, 97, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .header-icon i {
+            font-size: 32px;
+            color: white;
+        }
+
+        .page-header h1 {
+            color: white;
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0 0 12px 0;
+        }
+
+        .page-header p {
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .record-container {
+            background: white;
+            padding: 45px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        [data-theme="dark"] .record-container {
+            background: var(--color-white);
+        }
+
+        .record-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-olive) 0%, var(--color-sand) 100%);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .record-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
+            padding-bottom: 35px;
+            border-bottom: 2px solid var(--color-cream);
+        }
+
+        [data-theme="dark"] .record-meta-grid {
+            border-bottom-color: #3a3a3a;
+        }
+
+        .meta-card {
+            background: var(--color-cream);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: start;
+            gap: 15px;
+        }
+
+        [data-theme="dark"] .meta-card {
+            background: #2f2f2f;
+        }
+
+        .meta-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 22px;
+        }
+
+        .meta-icon.creator {
+            background: linear-gradient(135deg, var(--color-olive) 0%, var(--color-olive-dark) 100%);
+            color: white;
+        }
+
+        .meta-icon.created {
+            background: linear-gradient(135deg, var(--color-sand) 0%, #a3886b 100%);
+            color: white;
+        }
+
+        .meta-icon.updated {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .meta-content h4 {
+            margin: 0 0 6px 0;
+            font-size: 13px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .meta-content p {
+            margin: 0;
+            font-size: 16px;
+            color: var(--color-text);
+            font-weight: 600;
+        }
+
+        .meta-content small {
+            display: block;
+            margin-top: 4px;
+            font-size: 13px;
+            color: #999;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+
+        .role-badge.admin {
+            background: var(--color-olive);
+            color: white;
+        }
+
+        .role-badge.staff {
+            background: var(--color-sand);
+            color: white;
+        }
+
+        .record-section {
+            margin-bottom: 35px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--color-cream);
+        }
+
+        [data-theme="dark"] .section-header {
+            border-bottom-color: #3a3a3a;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--color-olive) 0%, var(--color-olive-dark) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-text);
+        }
+
+        .record-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-olive);
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        .record-description {
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--color-text);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .empty-description {
+            color: #999;
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+            background: var(--color-cream);
+            border-radius: 12px;
+        }
+
+        [data-theme="dark"] .empty-description {
+            background: #2f2f2f;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 15px;
+            padding-top: 35px;
+            border-top: 2px solid var(--color-cream);
+        }
+
+        [data-theme="dark"] .action-bar {
+            border-top-color: #3a3a3a;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .btn-back {
+            background: var(--color-cream);
+            color: var(--color-text);
+        }
+
+        [data-theme="dark"] .btn-back {
+            background: #3a3a3a;
+        }
+
+        .btn-back:hover {
+            background: var(--color-olive);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, var(--color-sand) 0%, #a3886b 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(183, 155, 127, 0.3);
+        }
+
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(183, 155, 127, 0.4);
+            color: white;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .alert-info {
+            background: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid #3498db;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-info i {
+            color: #3498db;
+            font-size: 20px;
+        }
+
+        .alert-info p {
+            margin: 0;
+            color: var(--color-text);
+            font-size: 14px;
+        }
+    </style>
+
+    <div class="view-wrapper">
+        <div class="breadcrumb">
+            <a href="{{ path('app_record') }}"><i class="fas fa-file-alt"></i> Records</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>View Record #{{ record.id }}</span>
+        </div>
+
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h1>Record Details</h1>
+                <p>Viewing complete information for Record #{{ record.id }}</p>
+            </div>
+        </div>
+
+        <div class="record-container">
+            {% if record.createdBy != app.user %}
+            <div class="alert-info">
+                <i class="fas fa-info-circle"></i>
+                <p><strong>Notice:</strong> This record was created by {{ record.createdBy.fullName }}.</p>
+            </div>
+            {% endif %}
+
+            <div class="record-meta-grid">
+                <div class="meta-card">
+                    <div class="meta-icon creator">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="meta-content">
+                        <h4>Created By</h4>
+                        <p>{{ record.createdBy.fullName }}</p>
+                        <span class="role-badge {{ record.createdBy.primaryRole|lower }}">
+                            {{ record.createdBy.primaryRole }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="meta-card">
+                    <div class="meta-icon created">
+                        <i class="fas fa-calendar-plus"></i>
+                    </div>
+                    <div class="meta-content">
+                        <h4>Created At</h4>
+                        <p>{{ record.createdAt|date('M d, Y') }}</p>
+                        <small>{{ record.createdAt|date('h:i A') }}</small>
+                    </div>
+                </div>
+
+                {% if record.updatedAt %}
+                <div class="meta-card">
+                    <div class="meta-icon updated">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="meta-content">
+                        <h4>Last Updated</h4>
+                        <p>{{ record.updatedAt|date('M d, Y') }}</p>
+                        <small>{{ record.updatedAt|date('h:i A') }}</small>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="record-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-heading"></i>
+                    </div>
+                    <h2>Title</h2>
+                </div>
+                <div class="record-title">{{ record.title }}</div>
+            </div>
+
+            <div class="record-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-align-left"></i>
+                    </div>
+                    <h2>Description</h2>
+                </div>
+                {% if record.description %}
+                    <div class="record-description">{{ record.description }}</div>
+                {% else %}
+                    <div class="empty-description">
+                        <i class="fas fa-file-alt"></i>
+                        No description provided for this record.
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="action-bar">
+                <a href="{{ path('app_record_show', {id: record.id}) }}" class="btn-view" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+
+                {% if is_granted('edit', record) %}
+                    <a href="{{ path('app_record_edit', {id: record.id}) }}" class="btn btn-edit">
+                        <i class="fas fa-edit"></i> Edit Record
+                    </a>
+                {% endif %}
+
+                {% if is_granted('delete', record) %}
+                    <form method="post" action="{{ path('app_record_delete', {id: record.id}) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete this record?')">
+                            <i class="fas fa-trash"></i> Delete Record
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endblock %}

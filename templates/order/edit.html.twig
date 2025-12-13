@@ -1,13 +1,743 @@
 {% extends 'base_login.html.twig' %}
 
-{% block title %}Edit Order{% endblock %}
+{% block title %}Edit Order - Naturae Admin{% endblock %}
 
 {% block body %}
-    <h1>Edit Order</h1>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-    {{ include('order/_form.html.twig', {'button_label': 'Update'}) }}
+<style>
+/* ============================= */
+/* CSS Variables */
+/* ============================= */
+:root {
+    --color-olive: #6B7755;
+    --color-sand: #C2B280;
+    --color-olive-dark: #556042;
+    --color-sand-dark: #a9986c;
+}
 
-    <a href="{{ path('app_order_index') }}">back to list</a>
+/* ============================= */
+/* Layout / Content */
+/* ============================= */
+.content { 
+    padding: 30px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ebe9 100%);
+    min-height: 100vh;
+}
 
-    {{ include('order/_delete_form.html.twig') }}
+/* ============================= */
+/* Page Header */
+/* ============================= */
+.page-header {
+    background: linear-gradient(135deg, var(--color-olive) 0%, #556042 100%);
+    padding: 30px 40px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(107, 119, 85, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -5%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+}
+
+.page-header-content h1 {
+    color: #fff;
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.page-header-content h1 i {
+    font-size: 28px;
+}
+
+.page-header-content p {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 15px;
+    margin: 0;
+}
+
+/* Back Button in Header */
+.btn-back-header {
+    background: #fff;
+    color: var(--color-olive);
+    padding: 14px 28px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: 2px solid transparent;
+}
+
+.btn-back-header i { 
+    font-size: 16px;
+    transition: transform 0.3s ease;
+}
+
+.btn-back-header:hover {
+    background: var(--color-sand);
+    color: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-back-header:hover i {
+    transform: translateX(-5px);
+}
+
+/* ============================= */
+/* Main Grid Layout */
+/* ============================= */
+.edit-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+/* ============================= */
+/* Form Container */
+/* ============================= */
+.form-container {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    padding: 45px;
+    position: relative;
+    overflow: hidden;
+}
+
+.form-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--color-olive), var(--color-sand));
+}
+
+.form-section-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-olive);
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #f3f4f6;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.form-section-title i {
+    font-size: 26px;
+    color: var(--color-sand);
+}
+
+/* ============================= */
+/* Form Styling */
+/* ============================= */
+.order-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.form-row {
+    margin-bottom: 0;
+    position: relative;
+}
+
+.form-row label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+.form-row label::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 16px;
+    background: linear-gradient(135deg, var(--color-olive), var(--color-sand));
+    border-radius: 2px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid #e5e7eb;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #f9fafb;
+    color: #1f2937;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.form-row input:hover,
+.form-row select:hover {
+    border-color: #d1d5db;
+    background: #fff;
+}
+
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+    outline: none;
+    border-color: var(--color-olive);
+    background: #fff;
+    box-shadow: 0 0 0 5px rgba(107, 119, 85, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.form-row textarea {
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+}
+
+.form-row select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7755' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 45px;
+    cursor: pointer;
+}
+
+/* Submit Button */
+.btn-submit {
+    width: 100%;
+    padding: 18px 32px;
+    background: linear-gradient(135deg, var(--color-olive), var(--color-olive-dark));
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 20px rgba(107, 119, 85, 0.3);
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-submit:hover {
+    background: linear-gradient(135deg, var(--color-olive-dark), #3d4530);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(107, 119, 85, 0.4);
+}
+
+.btn-submit:active {
+    transform: translateY(-1px);
+}
+
+/* Required field indicator */
+label.required::after {
+    content: '*';
+    color: #ef4444;
+    margin-left: 4px;
+    font-size: 14px;
+}
+
+/* ============================= */
+/* Sidebar Panel */
+/* ============================= */
+.sidebar-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* Info Card */
+.info-card {
+    background: linear-gradient(135deg, #fff 0%, #f9fafb 100%);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    border: 2px solid #f3f4f6;
+    transition: all 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-sand);
+}
+
+.info-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+.info-card-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--color-olive), var(--color-olive-dark));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(107, 119, 85, 0.3);
+}
+
+.info-card-icon i {
+    color: #fff;
+    font-size: 20px;
+}
+
+.info-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-olive);
+    margin: 0;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Danger Zone Card */
+.danger-card {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.15);
+    border: 2px solid #fecaca;
+}
+
+.danger-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.danger-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.danger-icon i {
+    color: #fff;
+    font-size: 18px;
+}
+
+.danger-card h3 {
+    color: #dc2626;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.danger-card p {
+    color: #7f1d1d;
+    font-size: 13px;
+    margin: 0 0 18px 0;
+    line-height: 1.6;
+}
+
+/* Danger Button */
+.btn-danger {
+    width: 100%;
+    padding: 16px 32px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(239, 68, 68, 0.5);
+}
+
+.btn-danger:hover i {
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Bottom Action Bar */
+.bottom-action-bar {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    padding: 20px 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #fde68a;
+}
+
+.bottom-action-bar i {
+    color: #d97706;
+    margin-right: 8px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .edit-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar-panel {
+        flex-direction: row;
+    }
+}
+
+@media (max-width: 768px) {
+    .content {
+        padding: 20px;
+    }
+    
+    .page-header {
+        padding: 25px 30px;
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    
+    .page-header-content h1 {
+        font-size: 26px;
+        justify-content: center;
+    }
+    
+    .btn-back-header {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .form-container {
+        padding: 30px 25px;
+    }
+    
+    .sidebar-panel {
+        flex-direction: column;
+    }
+    
+    .bottom-action-bar {
+        flex-direction: column;
+        gap: 15px;
+        padding: 20px;
+        text-align: center;
+    }
+}
+</style>
+
+<div class="content">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1><i class="fas fa-edit"></i> Edit Order</h1>
+            <p>Update order information, status, and customer details</p>
+        </div>
+        <a href="{{ path('app_order_index') }}" class="btn-back-header">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <!-- Main Grid Layout -->
+    <div class="edit-grid">
+        <!-- Form Container (Left) -->
+        <div class="form-container">
+            <div class="form-section-title">
+                <i class="fas fa-shopping-cart"></i>
+                Order Details
+            </div>
+            
+            {{ form_start(form, {'attr': {'class': 'order-form'}}) }}
+                
+                {# Customer Field #}
+                <div class="form-row">
+                    {{ form_label(form.customer, null, {'label_attr': {'class': 'required'}}) }}
+                    {{ form_widget(form.customer) }}
+                    {{ form_errors(form.customer) }}
+                </div>
+
+                {# Total Field #}
+                <div class="form-row">
+                    {{ form_label(form.total, null, {'label_attr': {'class': 'required'}}) }}
+                    {{ form_widget(form.total, {'attr': {'placeholder': '0.00', 'step': '0.01'}}) }}
+                    {{ form_errors(form.total) }}
+                </div>
+
+                {# Status Field #}
+                <div class="form-row">
+                    {{ form_label(form.status, null, {'label_attr': {'class': 'required'}}) }}
+                    {{ form_widget(form.status) }}
+                    {{ form_errors(form.status) }}
+                </div>
+
+                {# Order Items Section #}
+                <div style="margin-top: 40px; padding-top: 40px; border-top: 3px solid #f3f4f6;">
+                    <h3 style="font-size: 20px; font-weight: 700; color: var(--color-olive); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-list-ul" style="color: var(--color-sand);"></i>
+                        Order Items
+                    </h3>
+                    
+                    {% if form.orderItems is defined %}
+                        <div id="order-items-list" style="display: flex; flex-direction: column; gap: 16px;">
+                            {% for itemForm in form.orderItems %}
+                                <div class="order-item-card" style="background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%); border: 2px solid #e5e7eb; border-radius: 14px; padding: 20px; transition: all 0.3s ease;">
+                                    
+                                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                                        {# Product #}
+                                        <div>
+                                            <label style="display: block; font-size: 12px; font-weight: 700; color: #6b7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Product</label>
+                                            {{ form_widget(itemForm.product, {'attr': {'class': 'form-control', 'style': 'width: 100%;'}}) }}
+                                            {{ form_errors(itemForm.product) }}
+                                        </div>
+
+                                        {# Quantity #}
+                                        <div>
+                                            <label style="display: block; font-size: 12px; font-weight: 700; color: #6b7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Qty</label>
+                                            {{ form_widget(itemForm.quantity, {'attr': {'class': 'form-control', 'style': 'width: 100%;', 'min': '1'}}) }}
+                                            {{ form_errors(itemForm.quantity) }}
+                                        </div>
+
+                                        {# Price Snapshot #}
+                                        <div>
+                                            <label style="display: block; font-size: 12px; font-weight: 700; color: #6b7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Price (₱)</label>
+                                            {{ form_widget(itemForm.price, {'attr': {'class': 'form-control', 'style': 'width: 100%;', 'readonly': 'readonly'}}) }}
+                                            {{ form_errors(itemForm.price) }}
+                                        </div>
+                                    </div>
+
+                                    {# Subtotal Display #}
+                                    <div style="text-align: right; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                                        <span style="font-size: 13px; color: #6b7280; font-weight: 600;">Subtotal: </span>
+                                        <span style="font-size: 18px; font-weight: 700; color: var(--color-olive);">₱<span class="item-subtotal">0.00</span></span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        {% if form.orderItems|length == 0 %}
+                            <div style="text-align: center; padding: 40px 20px; background: #f9fafb; border-radius: 12px; border: 2px dashed #e5e7eb;">
+                                <i class="fas fa-inbox" style="font-size: 36px; color: #d1d5db; margin-bottom: 12px; display: block;"></i>
+                                <p style="color: #9ca3af; font-size: 14px; margin: 0;">No items in this order yet.</p>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                {# Notes Field (if exists) #}
+                {% if form.notes is defined %}
+                <div class="form-row">
+                    {{ form_label(form.notes) }}
+                    {{ form_widget(form.notes, {'attr': {'placeholder': 'Add any special notes...'}}) }}
+                    {{ form_errors(form.notes) }}
+                </div>
+                {% endif %}
+
+                {# Render any other fields that might exist #}
+                {{ form_rest(form) }}
+
+                {# Submit Button #}
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-save"></i> Update Order
+                </button>
+
+            {{ form_end(form) }}
+        </div>
+
+        <!-- Sidebar (Right) -->
+        <div class="sidebar-panel">
+            <!-- Order Info Card -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <h3 class="info-card-title">Order Info</h3>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">Order ID</span>
+                    <span class="info-value">#{{ order.id ?? 'N/A' }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">Created</span>
+                    <span class="info-value">{{ order.createdAt ? order.createdAt|date('M d, Y') : 'N/A' }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">Status</span>
+                    <span class="info-value">{{ order.status ?? 'N/A' }}</span>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="danger-card">
+                <div class="danger-card-header">
+                    <div class="danger-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3>Danger Zone</h3>
+                </div>
+                <p>Once you delete this order, there is no going back. This action cannot be undone.</p>
+                
+                {{ form_start(delete_form, {'attr': {'id': 'delete-form', 'style': 'display:inline;'}}) }}
+                    <button type="button" class="btn-danger" onclick="if(confirm('⚠️ Are you absolutely sure you want to delete this order? This action cannot be undone!')) { document.getElementById('delete-form').submit(); }">
+                        <i class="fas fa-trash-alt"></i> Delete Order
+                    </button>
+                {{ form_end(delete_form) }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Action Bar -->
+    <div class="bottom-action-bar">
+        <div style="color: #6b7280; font-size: 14px; font-weight: 500;">
+            <i class="fas fa-info-circle"></i> Make sure to save your changes before leaving this page
+        </div>
+    </div>
+</div>
+
+<script>
+// Add unsaved changes warning
+let formChanged = false;
+document.addEventListener('DOMContentLoaded', function() {
+    const formInputs = document.querySelectorAll('.order-form input, .order-form select, .order-form textarea');
+    formInputs.forEach(input => {
+        input.addEventListener('change', () => formChanged = true);
+    });
+    
+    window.addEventListener('beforeunload', function(e) {
+        if (formChanged) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+    
+    // Reset on form submit
+    const form = document.querySelector('.order-form');
+    if (form) {
+        form.addEventListener('submit', () => formChanged = false);
+    }
+
+    // Auto-calculate subtotals for each order item
+    const itemCards = document.querySelectorAll('.order-item-card');
+    itemCards.forEach((card, index) => {
+        const qtyInput = card.querySelector('input[id*="quantity"]');
+        const priceInput = card.querySelector('input[id*="price"]');
+        const subtotalSpan = card.querySelector('.item-subtotal');
+
+        const updateSubtotal = () => {
+            const qty = parseInt(qtyInput.value) || 0;
+            const price = parseFloat(priceInput.value) || 0;
+            const subtotal = (qty * price).toFixed(2);
+            if (subtotalSpan) {
+                subtotalSpan.textContent = subtotal;
+            }
+        };
+
+        if (qtyInput) qtyInput.addEventListener('change', updateSubtotal);
+        if (qtyInput) qtyInput.addEventListener('input', updateSubtotal);
+        if (priceInput) priceInput.addEventListener('change', updateSubtotal);
+
+        // Initial calculation
+        updateSubtotal();
+    });
+
+    // Hover effect for order item cards
+    itemCards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            card.style.borderColor = 'var(--color-olive)';
+            card.style.boxShadow = '0 4px 12px rgba(107, 119, 85, 0.15)';
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.borderColor = '#e5e7eb';
+            card.style.boxShadow = 'none';
+        });
+    });
+});
+</script>
 {% endblock %}

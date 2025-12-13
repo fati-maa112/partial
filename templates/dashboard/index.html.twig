@@ -4,182 +4,667 @@
 
 {% block body %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-{% set currentRoute = app.request.attributes.get('_route') %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+:root {
+    --color-cream: #faf7f0;
+    --color-taupe: #b79b7f;
+    --color-sage: #7a8661;
+    --color-sage-light: #9ba882;
+    --color-sage-dark: #5f6b4d;
+    --shadow-sm: 0 2px 8px rgba(122, 134, 97, 0.1);
+    --shadow-md: 0 4px 12px rgba(122, 134, 97, 0.15);
+    --shadow-lg: 0 8px 24px rgba(122, 134, 97, 0.2);
+}
 
+body {
+    background: var(--color-cream);
+}
+
+/* DASHBOARD HEADER */
+.dashboard-header {
+    margin-bottom: 35px;
+    padding: 30px;
+    background: linear-gradient(135deg, var(--color-sage) 0%, var(--color-sage-light) 100%);
+    border-radius: 20px;
+    color: white;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.dashboard-header h1 {
+    font-size: 32px;
+    color: white;
+    margin: 0 0 8px 0;
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+}
+
+.dashboard-header p {
+    color: rgba(255,255,255,0.9);
+    margin: 0;
+    font-size: 15px;
+    position: relative;
+    z-index: 1;
+}
 
 /* DASHBOARD CARDS */
 .dashboard-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 25px;
-    margin-top: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
 }
+
 .card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 25px;
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
 }
+
+.card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-sage) 0%, var(--color-taupe) 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
 .card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-sage-light);
 }
-.card i {
-    font-size: 28px;
-    color: var(--color-olive);
-    margin-bottom: 10px;
+
+.card:hover::after {
+    transform: scaleX(1);
 }
+
+.card:nth-child(1) .card-icon {
+    background: linear-gradient(135deg, var(--color-sage) 0%, var(--color-sage-light) 100%);
+}
+
+.card:nth-child(2) .card-icon {
+    background: linear-gradient(135deg, var(--color-taupe) 0%, #d4bea5 100%);
+}
+
+.card:nth-child(3) .card-icon {
+    background: linear-gradient(135deg, var(--color-sage-dark) 0%, var(--color-sage) 100%);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.card-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.card-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(122, 134, 97, 0.3);
+}
+
 .card h3 {
     margin: 0;
-    font-size: 22px;
-    color: var(--color-olive);
-}
-.card p {
-    font-size: 18px;
+    font-size: 14px;
+    color: #888;
     font-weight: 600;
-    margin: 5px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
-.card small {
-    color: #777;
+
+.card-value {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--color-sage-dark);
+    margin: 0 0 12px 0;
+    line-height: 1;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-label {
+    color: #888;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.trend-up {
+    background: rgba(122, 134, 97, 0.1);
+    color: var(--color-sage);
+}
+
+.trend-down {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+/* TWO COLUMN LAYOUT */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+/* SECTION STYLING */
+.content-section {
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(122, 134, 97, 0.1);
+}
+
+.section-title {
+    font-size: 20px;
+    margin: 0 0 24px 0;
+    color: var(--color-sage-dark);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-title i {
+    font-size: 22px;
+    color: var(--color-taupe);
+}
+
+/* CHART CONTAINER */
+.chart-container {
+    position: relative;
+    height: 280px;
+    margin-top: 20px;
+}
+
+/* ACTIVITY FEED */
+.activity-feed {
+    display: flex;
+    flex-direction: column;
+}
+
+.activity-item {
+    display: flex;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    transition: background 0.2s ease;
+}
+
+.activity-item:hover {
+    background: var(--color-cream);
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+}
+
+.activity-icon.success {
+    background: rgba(122, 134, 97, 0.1);
+    color: var(--color-sage);
+}
+
+.activity-icon.pending {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.activity-icon.info {
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-content strong {
+    display: block;
+    color: var(--color-sage-dark);
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.activity-content span {
+    color: #666;
+    font-size: 13px;
+}
+
+.activity-time {
+    color: #999;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.activity-amount {
+    color: var(--color-sage);
+    font-weight: 700;
+    font-size: 14px;
 }
 
 /* TABLE */
-.section-title {
-    font-size: 22px;
-    margin: 40px 0 15px;
-    color: var(--color-olive);
-    font-weight: 600;
-}
 .recent-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     background: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
-.recent-table th, .recent-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #eee;
-    text-align: left;
+
+.recent-table thead {
+    background: linear-gradient(135deg, var(--color-sage) 0%, var(--color-sage-light) 100%);
 }
+
 .recent-table th {
-    background: var(--color-olive);
+    padding: 16px 18px;
+    text-align: left;
     color: #fff;
     font-weight: 600;
-}
-.recent-table tr:hover { background: #f8f8f8; }
-
-/* Customer Ratings Card */
-.card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  margin-top: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.section-title {
-  color: #6b705c;
-  font-weight: 600;
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.recent-table th:first-child {
+    border-top-left-radius: 12px;
 }
 
+.recent-table th:last-child {
+    border-top-right-radius: 12px;
+}
+
+.recent-table td {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--color-cream);
+    color: #333;
+    font-size: 14px;
+}
+
+.recent-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.recent-table tbody tr:hover {
+    background: var(--color-cream);
+}
+
+.recent-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.status-pending {
+    background: #ffeaa7;
+    color: #d68910;
+}
+
+.status-completed {
+    background: #a8e6cf;
+    color: var(--color-sage-dark);
+}
+
+.status-processing {
+    background: #dfe6e9;
+    color: #636e72;
+}
+
+.status-cancelled {
+    background: #ffcccc;
+    color: #c0392b;
+}
+
+/* RATINGS CARD */
 .ratings-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 40px;
+    align-items: start;
 }
 
 .ratings-summary {
-  font-size: 1.2rem;
-  color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+    background: linear-gradient(135deg, var(--color-cream) 0%, #f5f2ea 100%);
+    border-radius: 16px;
+    min-width: 200px;
+    border: 2px solid rgba(122, 134, 97, 0.1);
 }
 
 .average-rating {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #b79b7f; /* gold tone */
+    font-size: 64px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--color-sage) 0%, var(--color-taupe) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 8px;
 }
 
 .out-of {
-  color: #777;
+    color: #999;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.rating-stars {
+    color: var(--color-taupe);
+    font-size: 28px;
+    margin: 12px 0;
+    letter-spacing: 3px;
 }
 
 .review-count {
-  color: #888;
-  margin-left: 5px;
+    color: var(--color-sage);
+    font-size: 14px;
+    margin-top: 6px;
+    font-weight: 500;
 }
 
 .rating-bars {
-  margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 10px;
 }
 
 .rating-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
-  font-size: 0.95rem;
+    display: grid;
+    grid-template-columns: 45px 1fr 55px;
+    align-items: center;
+    gap: 16px;
+    font-size: 14px;
+}
+
+.rating-label {
+    color: var(--color-sage-dark);
+    font-weight: 600;
+    text-align: right;
 }
 
 .rating-bar {
-  flex: 1;
-  height: 8px;
-  background: #e5e5e5;
-  border-radius: 6px;
-  overflow: hidden;
+    height: 12px;
+    background: var(--color-cream);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(122, 134, 97, 0.1);
 }
 
 .rating-fill {
-  height: 8px;
-  background: #b79b7f;
-  border-radius: 6px;
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-sage) 0%, var(--color-taupe) 100%);
+    border-radius: 10px;
+    transition: width 0.8s ease;
+    box-shadow: 0 2px 8px rgba(122, 134, 97, 0.3);
 }
 
+.rating-row:nth-child(1) .rating-fill {
+    background: linear-gradient(90deg, var(--color-sage) 0%, var(--color-sage-light) 100%);
+}
+
+.rating-row:nth-child(2) .rating-fill {
+    background: linear-gradient(90deg, var(--color-sage-light) 0%, var(--color-taupe) 100%);
+}
+
+.rating-row:nth-child(3) .rating-fill {
+    background: linear-gradient(90deg, var(--color-taupe) 0%, #c9b59a 100%);
+}
+
+.rating-row:nth-child(4) .rating-fill {
+    background: linear-gradient(90deg, #c9b59a 0%, #d4bea5 100%);
+}
+
+.rating-row:nth-child(5) .rating-fill {
+    background: linear-gradient(90deg, #d4bea5 0%, #e0d1bb 100%);
+}
+
+.rating-percentage {
+    color: var(--color-sage-dark);
+    font-weight: 700;
+    font-size: 13px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .ratings-container {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .ratings-summary {
+        width: 100%;
+    }
+}
+
+/* EMPTY STATE */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+}
+
+.empty-state i {
+    font-size: 48px;
+    color: var(--color-taupe);
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
 </style>
 
+<div class="dashboard-header">
+    <h1>Dashboard Overview</h1>
+    <p>Welcome back! Here's what's happening with your store today.</p>
+</div>
 
-
-
-    <!-- KPI CARDS -->
-    <div class="dashboard-cards">
-        <div class="card">
-            <i class="fas fa-dollar-sign"></i>
-            <h3>Sales</h3>
-            <p>₱25,970</p>
-            <small>Last 24 hours</small>
+<!-- KPI CARDS -->
+<div class="dashboard-cards">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-header-left">
+                <div class="card-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <h3>Sales</h3>
+            </div>
         </div>
-        <div class="card">
-            <i class="fas fa-shopping-cart"></i>
-            <h3>Orders</h3>
-            <p>{{ totalOrders }}</p>
-            <small>Total Orders</small>
+        <p class="card-value">₱{{ todayRevenue|number_format(0) }}</p>
+        <div class="card-footer">
+            <span class="card-label">Today's Revenue</span>
+            {% if ordersGrowth > 0 %}
+                <span class="trend trend-up">
+                    <i class="fas fa-arrow-up"></i> {{ ordersGrowth }}%
+                </span>
+            {% elseif ordersGrowth < 0 %}
+                <span class="trend trend-down">
+                    <i class="fas fa-arrow-down"></i> {{ ordersGrowth|abs }}%
+                </span>
+            {% endif %}
         </div>
-        <div class="card">
-            <i class="fas fa-box"></i>
-            <h3>Products</h3>
-            <p>{{ totalProducts }}</p>
-            <small>Total Products</small>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <div class="card-header-left">
+                <div class="card-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <h3>Orders</h3>
+            </div>
+        </div>
+        <p class="card-value">{{ totalOrders }}</p>
+        <div class="card-footer">
+            <span class="card-label">Total Orders</span>
+            {% if ordersGrowth > 0 %}
+                <span class="trend trend-up">
+                    <i class="fas fa-arrow-up"></i> {{ ordersGrowth }}%
+                </span>
+            {% elseif ordersGrowth < 0 %}
+                <span class="trend trend-down">
+                    <i class="fas fa-arrow-down"></i> {{ ordersGrowth|abs }}%
+                </span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <div class="card-header-left">
+                <div class="card-icon">
+                    <i class="fas fa-box"></i>
+                </div>
+                <h3>Products</h3>
+            </div>
+        </div>
+        <p class="card-value">{{ activeProducts }}</p>
+        <div class="card-footer">
+            <span class="card-label">Active Products</span>
+            {% if lowStockCount > 0 %}
+                <span class="trend trend-down">
+                    <i class="fas fa-exclamation-triangle"></i> {{ lowStockCount }} low
+                </span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- TWO COLUMN GRID -->
+<div class="dashboard-grid">
+    <!-- REVENUE CHART -->
+    <div class="content-section">
+        <h2 class="section-title">
+            <i class="fas fa-chart-line"></i>
+            Revenue Overview
+        </h2>
+        <div class="chart-container">
+            <canvas id="revenueChart"></canvas>
         </div>
     </div>
 
-    <!-- RECENT ORDERS -->
-    <h2 class="section-title"><i class="fas fa-box-open"></i> Recent Orders</h2>
+    <!-- RECENT ACTIVITY -->
+    <div class="content-section">
+        <h2 class="section-title">
+            <i class="fas fa-clock"></i>
+            Recent Activity
+        </h2>
+        <div class="activity-feed">
+            {% for activity in activities %}
+                <div class="activity-item">
+                    <div class="activity-icon {{ activity.iconClass }}">
+                        <i class="fas fa-{{ activity.icon }}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <strong>{{ activity.title }}</strong>
+                        <span>{{ activity.description }}</span>
+                    </div>
+                    {% if activity.amount is defined %}
+                        <div class="activity-amount">{{ activity.amount }}</div>
+                    {% else %}
+                        <div class="activity-time">{{ activity.time }}</div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>No recent activity</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- RECENT ORDERS -->
+<div class="content-section">
+    <h2 class="section-title">
+        <i class="fas fa-box-open"></i>
+        Recent Orders
+    </h2>
     <table class="recent-table">
         <thead>
             <tr>
-                <th>#</th>
+                <th>Order ID</th>
                 <th>Customer</th>
                 <th>Status</th>
                 <th>Date</th>
@@ -188,65 +673,210 @@
         <tbody>
             {% for order in recentOrders %}
                 <tr>
-                    <td>{{ order.id }}</td>
-                    <td>{{ order.customerName ?? 'N/A' }}</td>
-                    <td>{{ order.status ?? 'Pending' }}</td>
-                    <td>{{ order.createdAt|date('Y-m-d H:i') }}</td>
+                    <td><strong>#{{ order.id }}</strong></td>
+                    <td>{{ order.customerName ?? 'Guest' }}</td>
+                    <td>
+                        <span class="status-badge status-{{ order.status|lower|default('pending') }}">
+                            {{ order.status|default('Pending')|capitalize }}
+                        </span>
+                    </td>
+                    <td>{{ order.createdAt|date('M d, Y H:i') }}</td>
                 </tr>
             {% else %}
-                <tr><td colspan="4" style="text-align:center;">No orders yet.</td></tr>
+                <tr>
+                    <td colspan="4" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No orders yet.</p>
+                    </td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>
-    <!-- CUSTOMER RATINGS -->
-<div class="card mt-4">
-    <h2 class="section-title"><i class="fas fa-star"></i> Customer Ratings</h2>
+</div>
+
+<!-- LOW STOCK ALERTS (Only show if there are low stock products) -->
+{% if lowStockCount > 0 %}
+<div class="content-section">
+    <h2 class="section-title">
+        <i class="fas fa-exclamation-triangle"></i>
+        Stock Alerts ({{ lowStockCount }})
+    </h2>
+    <table class="recent-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Current Stock</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in lowStockProducts %}
+                <tr>
+                    <td><strong>{{ product.name }}</strong></td>
+                    <td>{{ product.quantity }} units</td>
+                    <td>
+                        <span class="status-badge status-pending">
+                            {% if product.quantity == 0 %}
+                                Out of Stock
+                            {% else %}
+                                Low Stock
+                            {% endif %}
+                        </span>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<!-- CUSTOMER RATINGS -->
+<div class="content-section">
+    <h2 class="section-title">
+        <i class="fas fa-star"></i>
+        Customer Ratings
+    </h2>
     <div class="ratings-container">
         <div class="ratings-summary">
             <span class="average-rating">4.8</span>
-            <span class="out-of">/ 5.0</span>
-            <span class="review-count">(256 reviews)</span>
+            <span class="out-of">out of 5</span>
+            <div class="rating-stars">★★★★★</div>
+            <span class="review-count">Based on 256 reviews</span>
         </div>
 
         <div class="rating-bars">
             <div class="rating-row">
-                <span>5 ★</span>
+                <span class="rating-label">5 ★</span>
                 <div class="rating-bar">
                     <div class="rating-fill" style="width: 80%;"></div>
                 </div>
-                <span>80%</span>
+                <span class="rating-percentage">80%</span>
             </div>
             <div class="rating-row">
-                <span>4 ★</span>
+                <span class="rating-label">4 ★</span>
                 <div class="rating-bar">
                     <div class="rating-fill" style="width: 15%;"></div>
                 </div>
-                <span>15%</span>
+                <span class="rating-percentage">15%</span>
             </div>
             <div class="rating-row">
-                <span>3 ★</span>
+                <span class="rating-label">3 ★</span>
                 <div class="rating-bar">
                     <div class="rating-fill" style="width: 4%;"></div>
                 </div>
-                <span>4%</span>
+                <span class="rating-percentage">4%</span>
             </div>
             <div class="rating-row">
-                <span>2 ★</span>
+                <span class="rating-label">2 ★</span>
                 <div class="rating-bar">
                     <div class="rating-fill" style="width: 1%;"></div>
                 </div>
-                <span>1%</span>
+                <span class="rating-percentage">1%</span>
             </div>
             <div class="rating-row">
-                <span>1 ★</span>
+                <span class="rating-label">1 ★</span>
                 <div class="rating-bar">
                     <div class="rating-fill" style="width: 0%;"></div>
                 </div>
-                <span>0%</span>
+                <span class="rating-percentage">0%</span>
             </div>
         </div>
     </div>
 </div>
 
-</div>
+<script>
+// Revenue Chart with Dynamic Data
+const ctx = document.getElementById('revenueChart').getContext('2d');
+
+// Get data from Twig variables
+const chartLabels = {{ chartLabels|raw }};
+const chartData = {{ chartData|raw }};
+
+const revenueChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: chartLabels,
+        datasets: [{
+            label: 'Daily Revenue',
+            data: chartData,
+            borderColor: '#7a8661',
+            backgroundColor: 'rgba(122, 134, 97, 0.1)',
+            tension: 0.4,
+            fill: true,
+            borderWidth: 3,
+            pointBackgroundColor: '#7a8661',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+                align: 'end',
+                labels: {
+                    usePointStyle: true,
+                    padding: 15,
+                    font: {
+                        size: 12,
+                        family: 'Poppins'
+                    }
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                padding: 12,
+                titleFont: {
+                    size: 14,
+                    family: 'Poppins'
+                },
+                bodyFont: {
+                    size: 13,
+                    family: 'Poppins'
+                },
+                callbacks: {
+                    label: function(context) {
+                        return 'Revenue: ₱' + context.parsed.y.toLocaleString();
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(122, 134, 97, 0.1)',
+                    drawBorder: false
+                },
+                ticks: {
+                    callback: function(value) {
+                        return '₱' + value.toLocaleString();
+                    },
+                    font: {
+                        size: 11,
+                        family: 'Poppins'
+                    }
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    font: {
+                        size: 11,
+                        family: 'Poppins'
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+
 {% endblock %}

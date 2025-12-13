@@ -1,120 +1,305 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Category - Naturae Skincare{% endblock %}
+{% block title %}Edit Category - Naturae Admin{% endblock %}
 
 {% block body %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
-    body {
-        background-color: #faf9f6;
-        font-family: 'Poppins', sans-serif;
+    :root {
+        --color-olive: #6B7755;
+        --color-olive-dark: #556042;
+        --color-sand: #C2B280;
+        --color-cream: #F5F1E8;
+        --color-accent: #B55239;
     }
 
+    /* Main Content */
+    .content {
+        padding: 20px 30px;
+        background: #e8e5dc;
+        min-height: calc(100vh - 80px);
+    }
+
+    /* Back Link */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--color-olive);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+        color: var(--color-sand);
+        gap: 12px;
+    }
+
+    /* Form Container */
     .form-container {
         max-width: 600px;
-        margin: 60px auto;
-        background: #ffffff;
-        padding: 40px 50px;
-        border-radius: 24px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin: 0 auto;
     }
 
-    h1 {
+    /* Header Card */
+    .form-header {
+        background: linear-gradient(135deg, var(--color-sand) 0%, #a9986c 100%);
+        padding: 30px;
+        border-radius: 16px 16px 0 0;
         text-align: center;
-        color: #6b7352;
-        font-size: 1.6rem;
-        margin-bottom: 35px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-header h2 {
+        color: #fff;
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .form-header p {
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0 0 10px 0;
+        font-size: 14px;
+    }
+
+    .category-id-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 13px;
         font-weight: 600;
-    }
-
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 25px;
-    }
-
-    .form-group {
-        display: flex;
-        align-items: flex-start;
-        gap: 20px;
-    }
-
-    label {
-        width: 130px;
-        font-weight: 500;
-        color: #4a4a4a;
-        text-align: right;
-        padding-top: 10px;
-    }
-
-    input, textarea {
-        flex: 1;
-        border: 1px solid #e2dfd8;
-        border-radius: 12px;
-        padding: 12px 14px;
-        background: #fcfaf7;
-        font-size: 14px;
-        color: #333;
-        outline: none;
-        transition: border-color 0.3s ease;
-    }
-
-    input:focus, textarea:focus {
-        border-color: #7a8661;
-    }
-
-    textarea {
-        min-height: 100px;
-        resize: vertical;
-    }
-
-    .btn-group {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 30px;
-    }
-
-    .btn {
-        border: none;
-        padding: 12px 32px;
-        border-radius: 32px;
-        font-weight: 500;
-        font-size: 14px;
-        cursor: pointer;
-        transition: background 0.3s ease;
         color: #fff;
     }
 
-    .btn-back {
-        background-color: #b79b7f;
-    }
-    .btn-back:hover {
-        background-color: #a48a6d;
+    /* Info Alert */
+    .info-alert {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px 20px;
+        margin: 20px 0;
+        border-radius: 0 8px 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
 
-    .btn-save {
-        background-color: #7a8661;
+    .info-alert i {
+        color: #ff9800;
+        font-size: 18px;
     }
-    .btn-save:hover {
-        background-color: #65714f;
+
+    .info-alert p {
+        margin: 0;
+        color: #856404;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    /* Form Body */
+    .form-body {
+        background: #fff;
+        padding: 35px;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Form Groups */
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .form-group label span.required {
+        color: #e74c3c;
+        margin-left: 3px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #333;
+        background: #fafafa;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--color-sand);
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(194, 178, 128, 0.1);
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+        font-family: inherit;
+    }
+
+    .form-hint {
+        font-size: 12px;
+        color: #888;
+        margin-top: 5px;
+        display: block;
+    }
+
+    /* Buttons */
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 35px;
+        padding-top: 25px;
+        border-top: 2px solid #f0f0f0;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 14px 28px;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-cancel {
+        background: #e0e0e0;
+        color: #666;
+    }
+
+    .btn-cancel:hover {
+        background: #d0d0d0;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-update {
+        background: linear-gradient(135deg, var(--color-sand) 0%, #a9986c 100%);
+        color: #fff;
+    }
+
+    .btn-update:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(194, 178, 128, 0.3);
+    }
+
+    /* Character Counter */
+    .char-counter {
+        text-align: right;
+        font-size: 12px;
+        color: #888;
+        margin-top: 5px;
     }
 </style>
 
-<div class="form-container">
-    <h1>Edit Category</h1>
+<div class="content">
+    <a href="{{ path('app_category_index') }}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Categories
+    </a>
 
-    {{ form_start(form) }}
-        <div class="form-group">
-            {{ form_label(form.name) }}
-            {{ form_widget(form.name) }}
+    <div class="form-container">
+        <div class="form-header">
+            <h2>
+                <i class="fas fa-edit"></i>
+                Edit Category
+            </h2>
+            <p>Update category information</p>
+            <div class="category-id-badge">
+                Category ID: #{{ category.id }}
+            </div>
         </div>
-        <div class="form-group">
-            {{ form_label(form.description) }}
-            {{ form_widget(form.description) }}
+
+        <div class="form-body">
+            <div class="info-alert">
+                <i class="fas fa-info-circle"></i>
+                <p>Modify any fields below and click "Update Category" to save your changes.</p>
+            </div>
+
+            {{ form_start(form) }}
+                <div class="form-group">
+                    <label for="category_name">
+                        <i class="fas fa-tag"></i> Category Name
+                        <span class="required">*</span>
+                    </label>
+                    {{ form_widget(form.name, {
+                        'attr': {
+                            'class': 'form-control',
+                            'placeholder': 'e.g., Facial Masks, Cleansers, Moisturizers',
+                            'id': 'category_name'
+                        }
+                    }) }}
+                    <small class="form-hint">Enter a clear, concise name for this category</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="category_description">
+                        <i class="fas fa-align-left"></i> Description
+                    </label>
+                    {{ form_widget(form.description, {
+                        'attr': {
+                            'class': 'form-control',
+                            'placeholder': 'Describe what products belong in this category...',
+                            'id': 'category_description',
+                            'maxlength': '500'
+                        }
+                    }) }}
+                    <small class="form-hint">Provide a brief description (optional, max 500 characters)</small>
+                    <div class="char-counter">
+                        <span id="charCount">0</span> / 500 characters
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ path('app_category_index') }}" class="btn btn-cancel">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-update">
+                        <i class="fas fa-save"></i> Update Category
+                    </button>
+                </div>
+            {{ form_end(form) }}
         </div>
-        <div class="btn-group">
-            <a href="{{ path('app_category_index') }}" class="btn btn-back">Back</a>
-            <button class="btn btn-save">Save</button>
-        </div>
-    {{ form_end(form) }}
+    </div>
 </div>
+
+<script>
+// Character counter for description
+const descField = document.getElementById('category_description');
+const charCount = document.getElementById('charCount');
+
+if (descField) {
+    descField.addEventListener('input', function() {
+        charCount.textContent = this.value.length;
+    });
+    // Initialize counter
+    charCount.textContent = descField.value.length;
+}
+</script>
+
 {% endblock %}

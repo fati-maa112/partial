@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Receipt - Order #{{ order.id }}{% endblock %}
+
+{% block body %}
+<style>
+.receipt { max-width: 720px; margin: 24px auto; padding: 24px; background: #fff; color: #111827; border-radius: 8px; }
+.header { display:flex; justify-content:space-between; align-items:center; }
+.items { width:100%; border-collapse: collapse; margin-top:16px; }
+.items th, .items td { padding:8px; border-bottom:1px solid #e5e7eb; }
+.total-row { font-weight:700; }
+.print-button { margin-top: 16px; }
+</style>
+
+<div class="receipt">
+    <div class="header">
+        <div>
+            <h2>Receipt</h2>
+            <div>Order #: <strong>{{ order.id }}</strong></div>
+            <div>Date: {{ order.createdAt ? order.createdAt|date('Y-m-d H:i') : '' }}</div>
+            <div>Status: <strong>{{ order.status }}</strong></div>
+        </div>
+        <div style="text-align:right">
+            <h3>{{ app.user ? app.user.username : 'Admin' }}</h3>
+            <div>{{ order.customer ? order.customer.getName() : '' }}</div>
+            <div>{{ order.customer ? order.customer.getEmail() : '' }}</div>
+        </div>
+    </div>
+
+    <table class="items">
+        <thead>
+            <tr>
+                <th style="text-align:left;">Product</th>
+                <th style="text-align:center;">Qty</th>
+                <th style="text-align:right;">Price</th>
+                <th style="text-align:right;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.orderItems %}
+                <tr>
+                    <td>{{ item.product is defined and item.product ? item.product.name : item.productName }}</td>
+                    <td style="text-align:center">{{ item.quantity }}</td>
+                    <td style="text-align:right">₱{{ item.price|number_format(2, '.', ',') }}</td>
+                    <td style="text-align:right">₱{{ (item.price * item.quantity)|number_format(2, '.', ',') }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="3" style="text-align:right">Subtotal</td>
+                <td style="text-align:right">₱{{ order.total|number_format(2, '.', ',') }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="print-button">
+        <button onclick="window.print()" class="btn btn-primary">Print Receipt</button>
+    </div>
+</div>
+
+{% endblock %}

@@ -4,166 +4,653 @@
 {% block page_title %}Stock Inventory{% endblock %}
 
 {% block body %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-    /* Content */
-    .content { padding: 20px; }
+    :root {
+        --color-olive: #6B7755;
+        --color-olive-dark: #556042;
+        --color-sand: #C2B280;
+        --color-cream: #F5F1E8;
+        --color-accent: #B55239;
+    }
 
+    /* Main Content */
+    .content {
+        padding: 20px 30px;
+        background: #e8e5dc;
+        min-height: calc(100vh - 80px);
+    }
+
+    /* Header Section */
     .content-header {
+        background: linear-gradient(135deg, var(--color-olive) 0%, var(--color-olive-dark) 100%);
+        padding: 30px 40px;
+        border-radius: 16px;
+        margin-bottom: 30px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
-    .content-header h2 {
-        color: var(--color-olive);
-        font-size: 24px;
-        font-weight: 600;
-    }
-    .btn-add {
-        background: var(--color-olive);
+
+    .header-content h2 {
         color: #fff;
-        padding: 10px 20px;
-        border-radius: 30px;
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .header-content p {
+        color: rgba(255, 255, 255, 0.85);
+        margin: 0;
+        font-size: 14px;
+    }
+
+    /* Add Button */
+    .btn-add {
+        background: #fff;
+        color: var(--color-olive);
+        padding: 12px 24px;
+        border-radius: 8px;
         text-decoration: none;
-        font-size: 15px;
+        font-size: 14px;
         font-weight: 600;
-        letter-spacing: 0.5px;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
         gap: 8px;
-    }
-    .btn-add i {
-        font-size: 14px;
-    }
-    .btn-add:hover {
-        background: var(--color-sand);
-        color: #fff;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    /* Table */
+    .btn-add:hover {
+        background: var(--color-cream);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Stats Cards */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: #fff;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--color-sand);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+
+    .stat-info h3 {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--color-olive);
+        margin: 0 0 5px 0;
+    }
+
+    .stat-info p {
+        font-size: 13px;
+        color: #888;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    /* Action Buttons Container */
+    .table-actions {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px 12px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .export-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-export {
+        background: var(--color-sand);
+        color: #fff;
+        padding: 10px 18px;
+        border-radius: 8px;
+        border: none;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-export:hover {
+        background: var(--color-olive);
+        transform: translateY(-2px);
+    }
+
+    .search-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .search-box label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--color-olive);
+    }
+
+    .search-box input {
+        padding: 8px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 14px;
+        width: 250px;
+        transition: all 0.3s ease;
+    }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: var(--color-sand);
+    }
+
+    /* Table Container */
+    .table-container {
+        background: #fff;
+        border-radius: 0 0 12px 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    /* Table Styling */
     .table {
         width: 100%;
         border-collapse: collapse;
     }
+
     .table thead {
         background: var(--color-olive);
         color: #fff;
     }
-    .table th, .table td {
-        padding: 12px 15px;
-        text-align: center;
-        font-size: 14px;
-        border-bottom: 1px solid #ddd;
+
+    .table th {
+        padding: 15px 20px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: none;
     }
+
+    .table th:first-child {
+        padding-left: 30px;
+    }
+
+    .table td {
+        padding: 18px 20px;
+        font-size: 14px;
+        border-bottom: 1px solid #f0f0f0;
+        color: #333;
+        vertical-align: middle;
+    }
+
+    .table td:first-child {
+        padding-left: 30px;
+    }
+
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+
     .table tbody tr:hover {
         background: #f9f9f9;
     }
-    .table img {
-        border-radius: 8px;
-        border: 1px solid #ddd;
+
+    .table tbody tr:last-child td {
+        border-bottom: none;
     }
 
-    /* Action buttons */
-    .btn-view, .btn-edit, .btn-delete {
+    /* ID Column */
+    .stock-id {
+        font-weight: 700;
+        color: var(--color-olive);
+    }
+
+    /* Product Image */
+    .product-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 2px solid #f0f0f0;
+    }
+
+    .no-image {
+        width: 80px;
+        height: 80px;
+        background: #f5f5f5;
+        border-radius: 10px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        color: #aaa;
+        font-size: 12px;
+        font-style: italic;
+        border: 2px dashed #ddd;
+    }
+
+    /* Product Name */
+    .product-name {
+        font-weight: 600;
+        color: #333;
+    }
+
+    /* Quantity Badge */
+    .quantity-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    .quantity-low {
+        background: #ffe5e5;
+        color: var(--color-accent);
+    }
+
+    .quantity-medium {
+        background: #fff3e0;
+        color: #ff9800;
+    }
+
+    .quantity-high {
+        background: #e8f5e9;
+        color: #4caf50;
+    }
+
+    /* Date Column */
+    .stock-date {
+        color: #888;
+        font-size: 13px;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-view, .btn-edit, .btn-delete {
         width: 36px;
         height: 36px;
-        font-size: 14px;
-        margin: 0 3px;
-        cursor: pointer;
         border-radius: 8px;
         border: none;
-        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+        text-decoration: none;
     }
+
     .btn-view {
-        background-color: #6B7755;
+        background: var(--color-olive);
         color: #fff;
     }
+
     .btn-view:hover {
-        background-color: #556042;
+        background: var(--color-olive-dark);
+        transform: scale(1.1);
     }
+
     .btn-edit {
-        background-color: #C2B280;
-        color: #6B7755;
-    }
-    .btn-edit:hover {
-        background-color: #a9986c;
-    }
-    .btn-delete {
-        background-color: #B55239;
+        background: var(--color-sand);
         color: #fff;
     }
+
+    .btn-edit:hover {
+        background: #a9986c;
+        transform: scale(1.1);
+    }
+
+    .btn-delete {
+        background: var(--color-accent);
+        color: #fff;
+    }
+
     .btn-delete:hover {
-        background-color: #8f3f2d;
+        background: #8f3f2d;
+        transform: scale(1.1);
+    }
+
+    /* Pagination */
+    .pagination-container {
+        background: #fff;
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 0 0 12px 12px;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .pagination-info {
+        font-size: 14px;
+        color: #666;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .page-btn {
+        padding: 8px 12px;
+        border: 2px solid #e0e0e0;
+        background: #fff;
+        color: #666;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .page-btn:hover:not(:disabled) {
+        border-color: var(--color-sand);
+        color: var(--color-olive);
+    }
+
+    .page-btn.active {
+        background: var(--color-olive);
+        color: #fff;
+        border-color: var(--color-olive);
+    }
+
+    .page-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    .empty-state i {
+        font-size: 64px;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+
+    .empty-state h3 {
+        font-size: 18px;
+        color: #666;
+        margin: 0 0 10px 0;
+    }
+
+    .empty-state p {
+        font-size: 14px;
+        color: #999;
+        margin: 0;
     }
 </style>
 
 <div class="content">
+    <!-- Header Section -->
     <div class="content-header">
-        
-        <a href="{{ path('app_stock_new') }}" class="btn-add"><i class="fas fa-plus"></i> Add Stock</a>
+        <div class="header-content">
+            <h2>
+                <i class="fas fa-boxes"></i>
+                Stock Inventory Management
+            </h2>
+            <p>Monitor and control your product stock levels</p>
+        </div>
+        <a href="{{ path('app_stock_new') }}" class="btn-add">
+            <i class="fas fa-plus-circle"></i> Add New Stock
+        </a>
     </div>
 
+    <!-- Stats Cards -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-boxes"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stocks|length }}</h3>
+                <p>Total Stock Items</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #6B7755;">
+                <i class="fas fa-cubes"></i>
+            </div>
+            <div class="stat-info">
+                {% set totalQty = 0 %}
+                {% for stock in stocks %}
+                    {% set totalQty = totalQty + stock.quantity %}
+                {% endfor %}
+                <h3>{{ totalQty }}</h3>
+                <p>Total Quantity</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #ff9800;">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-info">
+                {% set lowStock = stocks|filter(s => s.quantity < 10)|length %}
+                <h3>{{ lowStock }}</h3>
+                <p>Low Stock Alerts</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #4caf50;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                {% set inStock = stocks|filter(s => s.quantity >= 10)|length %}
+                <h3>{{ inStock }}</h3>
+                <p>In Stock</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Actions -->
+    <div class="table-actions">
+        <div class="export-buttons">
+            <button class="btn-export">
+                <i class="fas fa-copy"></i> COPY
+            </button>
+            <button class="btn-export">
+                <i class="fas fa-file-csv"></i> CSV
+            </button>
+            <button class="btn-export">
+                <i class="fas fa-file-excel"></i> EXCEL
+            </button>
+            <button class="btn-export">
+                <i class="fas fa-file-pdf"></i> PDF
+            </button>
+            <button class="btn-export">
+                <i class="fas fa-print"></i> PRINT
+            </button>
+        </div>
+
+        <div class="search-box">
+            <label>Search stocks:</label>
+            <input type="text" placeholder="Type to search..." id="searchInput">
+        </div>
+    </div>
+
+    <!-- Table -->
     <div class="table-container">
         <table class="table">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Image</th>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Last Updated</th>
-                    <th>Actions</th>
+                    <th>IMAGE</th>
+                    <th>PRODUCT</th>
+                    <th>QUANTITY</th>
+                    <th>LAST UPDATED</th>
+                    <th>ACTIONS</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="stockTable">
             {% for stock in stocks %}
                 <tr>
-                    <td>{{ stock.id }}</td>
                     <td>
-                        {% if stock.image %}
-                            <img src="{{ asset('uploads/stocks/' ~ stock.image) }}" 
-                                 alt="Stock Image" 
-                                 width="100" 
-                                 style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <span class="stock-id">#{{ stock.id }}</span>
+                    </td>
+                    <td>
+                        {% if stock.product and stock.product.image %}
+                            <img src="{{ asset('images/' ~ stock.product.image) }}" 
+                                 alt="{{ stock.product.name }} Image" 
+                                 class="product-image">
                         {% else %}
-                            <span style="font-style: italic; color: #888;">No image</span>
+                            <div class="no-image">
+                                <i class="fas fa-image"></i><br>No Image
+                            </div>
                         {% endif %}
                     </td>
-                    <td>{{ stock.product ? stock.product.name : '—' }}</td>
-                    <td>{{ stock.quantity }}</td>
-                    <td>{{ stock.lastUpdated ? stock.lastUpdated|date('Y-m-d H:i') : '—' }}</td>
                     <td>
-                        <a href="{{ path('app_stock_show', {'id': stock.id}) }}" class="btn-view">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <a href="{{ path('app_stock_edit', {'id': stock.id}) }}" class="btn-edit">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <form method="post" 
-                              action="{{ path('app_stock_delete', {'id': stock.id}) }}" 
-                              onsubmit="return confirm('Are you sure you want to delete this stock record?');" 
-                              style="display:inline;">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ stock.id) }}">
-                            <button class="btn-delete"><i class="fas fa-trash"></i></button>
-                        </form>
+                        <span class="product-name">
+                            {% if stock.product %}
+                                <i class="fas fa-box" style="color: var(--color-sand); margin-right: 5px;"></i>
+                                {{ stock.product.name }}
+                            {% else %}
+                                <em style="color: #999;">No product assigned</em>
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        {% set qty = stock.quantity %}
+                        {% if qty < 10 %}
+                            <span class="quantity-badge quantity-low">
+                                <i class="fas fa-exclamation-circle"></i> {{ qty }} units
+                            </span>
+                        {% elseif qty < 50 %}
+                            <span class="quantity-badge quantity-medium">
+                                <i class="fas fa-minus-circle"></i> {{ qty }} units
+                            </span>
+                        {% else %}
+                            <span class="quantity-badge quantity-high">
+                                <i class="fas fa-check-circle"></i> {{ qty }} units
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="stock-date">
+                            {% if stock.lastUpdated %}
+                                <i class="far fa-calendar-alt" style="margin-right: 5px;"></i>
+                                {{ stock.lastUpdated|date('M d, Y') }}
+                                <br>
+                                <small style="color: #aaa;">{{ stock.lastUpdated|date('h:i A') }}</small>
+                            {% else %}
+                                <em style="color: #999;">Not updated</em>
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{{ path('app_stock_show', {'id': stock.id}) }}" class="btn-view" title="View">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ path('app_stock_edit', {'id': stock.id}) }}" class="btn-edit" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form method="post" 
+                                  action="{{ path('app_stock_delete', {'id': stock.id}) }}" 
+                                  onsubmit="return confirm('Are you sure you want to delete this stock record?');" 
+                                  style="display:inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ stock.id) }}">
+                                <button type="submit" class="btn-delete" title="Delete">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="6" class="text-center">No stock records found</td>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="fas fa-box-open"></i>
+                            <h3>No stock records found</h3>
+                            <p>Start by adding your first stock item!</p>
+                        </div>
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
+
+        <!-- Pagination -->
+        <div class="pagination-container">
+            <div class="pagination-info">
+                Showing 1 to {{ stocks|length }} of {{ stocks|length }} stock items
+            </div>
+            <div class="pagination">
+                <button class="page-btn" disabled>Previous</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn" disabled>Next</button>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+// Search functionality
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchValue = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('#stockTable tr');
+    
+    tableRows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchValue) ? '' : 'none';
+    });
+});
+</script>
+
 {% endblock %}

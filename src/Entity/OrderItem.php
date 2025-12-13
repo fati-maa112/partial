@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\OrderItemRepository;
+use App\Entity\Product;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -24,6 +25,10 @@ class OrderItem
     #[ORM\ManyToOne(inversedBy: 'orderItems')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Order $order = null;
+
+    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: 'orderItems')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Product $product = null;
 
     #[ORM\Column(length: 100)]
     private ?string $productName = null;
@@ -63,6 +68,17 @@ class OrderItem
     public function setOrder(?Order $order): static
     {
         $this->order = $order;
+        return $this;
+    }
+
+    public function getProduct(): ?Product
+    {
+        return $this->product;
+    }
+
+    public function setProduct(?Product $product): static
+    {
+        $this->product = $product;
         return $this;
     }
 
