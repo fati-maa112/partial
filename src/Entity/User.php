@@ -7,9 +7,14 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use ApiPlatform\Metadata\ApiResource;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
+#[ApiResource]
+#[UniqueEntity(fields: ['username'], message: 'Username already taken')]
+#[UniqueEntity(fields: ['email'], message: 'Email already registered')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -43,6 +48,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\Column]
+    private ?bool $isVerified = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+private ?string $verificationToken = null;
 
     public function __construct()
     {
@@ -197,5 +208,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             return 'Staff';
         }
         return 'User';
+    }
+
+    public function isVerified(): ?bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    public function getVerificationToken(): ?string
+    {
+        return $this->verificationToken;
+    }
+
+    public function setVerificationToken(?string $verificationToken): static    
+    {
+        $this->verificationToken = $verificationToken;
+
+        return $this;
     }
 }

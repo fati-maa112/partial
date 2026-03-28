@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Naturaé Skincare — Pure. Natural. Radiant.">
+    <title>Naturaé Skincare — Pure. Natural. Radiant.</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --cream:        #faf7f0;
+            --cream-mid:    #f2ebe0;
+            --cream-deep:   #e8dfd0;
+            --taupe:        #b79b7f;
+            --taupe-light:  #d4c3ae;
+            --taupe-faint:  rgba(183,155,127,0.10);
+            --sage:         #7a8661;
+            --sage-light:   #9ba882;
+            --sage-dark:    #5f6b4d;
+            --sage-faint:   #eef0e9;
+            --sage-ultra:   #f4f6f0;
+            --moss:         #4a5240;
+            --text:         #2a2520;
+            --text-mid:     #524c44;
+            --text-muted:   #8a7f72;
+            --white:        #ffffff;
+
+            --shadow-xs:   0 1px 6px rgba(60,52,40,0.05);
+            --shadow-sm:   0 2px 16px rgba(60,52,40,0.07);
+            --shadow-md:   0 6px 32px rgba(60,52,40,0.10);
+            --shadow-lg:   0 16px 56px rgba(60,52,40,0.13);
+            --shadow-xl:   0 28px 80px rgba(60,52,40,0.17);
+
+            --r-sm:   10px;
+            --r-md:   18px;
+            --r-lg:   28px;
+            --r-xl:   40px;
+            --r-pill: 100px;
+
+            --ease: cubic-bezier(0.22, 1, 0.36, 1);
+            --t:    all 0.4s var(--ease);
+        }
+
+       
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+
+        body {
+            background-color: var(--cream);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            line-height: 1.85;
+            overflow-x: hidden;
+        }
+
+        
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            pointer-events: none; z-index: 9998; opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-size: 400px;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            line-height: 1.1; color: var(--text);
+        }
+        p { color: var(--text-mid); }
+        a { text-decoration: none; }
+
+    
+        .leaf {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.07;
+            animation: leaf-float 8s ease-in-out infinite;
+        }
+        .leaf-2 { animation-delay: -3s; animation-duration: 11s; }
+        .leaf-3 { animation-delay: -6s; animation-duration: 9s; }
+        @keyframes leaf-float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50%       { transform: translateY(-18px) rotate(6deg); }
+        }
+
+        .n-nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            padding: 1rem 0;
+            background: rgba(250,247,240,0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(183,155,127,0.12);
+            transition: var(--t);
+        }
+        .n-nav.scrolled {
+            padding: 0.7rem 0;
+            box-shadow: 0 4px 32px rgba(60,52,40,0.08);
+        }
+        .brand-logo {
+            display: inline-flex; align-items: center;
+            text-decoration: none; transition: opacity 0.25s;
+        }
+        .brand-logo:hover { opacity: 0.8; }
+        .brand-logo img { height: 44px; width: auto; object-fit: contain; }
+
+        .n-link {
+            font-size: 0.74rem; font-weight: 400;
+            letter-spacing: 0.16em; text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 0.35rem 0.9rem;
+            text-decoration: none;
+            transition: color 0.25s;
+            position: relative;
+        }
+        .n-link::after {
+            content: '';
+            position: absolute; bottom: -2px; left: 0.9rem; right: 0.9rem;
+            height: 1px; background: var(--sage);
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 0.3s var(--ease);
+        }
+        .n-link:hover, .n-link.active { color: var(--sage-dark); }
+        .n-link:hover::after, .n-link.active::after { transform: scaleX(1); }
+
+      
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 0.55rem;
+            background: var(--sage-dark); color: var(--white) !important;
+            border: none; border-radius: var(--r-pill);
+            padding: 0.85rem 2.2rem;
+            font-family: 'DM Sans', sans-serif; font-size: 0.80rem;
+            font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase;
+            text-decoration: none; cursor: pointer; transition: var(--t);
+            box-shadow: 0 6px 24px rgba(95,107,77,0.35);
+        }
+        .btn-primary:hover {
+            background: var(--moss);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 36px rgba(74,82,64,0.45);
+        }
+        .btn-outline {
+            display: inline-flex; align-items: center; gap: 0.55rem;
+            background: transparent; color: var(--taupe) !important;
+            border: 1.5px solid var(--taupe); border-radius: var(--r-pill);
+            padding: 0.83rem 2.2rem;
+            font-family: 'DM Sans', sans-serif; font-size: 0.80rem;
+            font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase;
+            text-decoration: none; cursor: pointer; transition: var(--t);
+        }
+        .btn-outline:hover {
+            background: var(--taupe); color: var(--white) !important;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 36px rgba(183,155,127,0.38);
+        }
+
+        /* ╔══════════════════════════════════════════════════════╗
+           ║  SHARED COMPONENTS                                   ║
+           ╚══════════════════════════════════════════════════════╝ */
+        .eyebrow {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.68rem; font-weight: 500;
+            letter-spacing: 0.26em; text-transform: uppercase;
+            color: var(--sage-dark);
+            background: var(--sage-ultra);
+            border: 1px solid rgba(122,134,97,0.20);
+            border-radius: var(--r-pill);
+            padding: 0.3rem 1.1rem 0.3rem 0.8rem;
+            margin-bottom: 1.2rem;
+        }
+        .eyebrow-dot {
+            width: 6px; height: 6px;
+            background: var(--sage-light); border-radius: 50%; flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: clamp(2.2rem, 4.5vw, 3.6rem);
+            font-weight: 300; margin-bottom: 0.6rem; letter-spacing: -0.01em;
+        }
+        .section-title em {
+            font-family: 'Playfair Display', serif;
+            font-style: italic; color: var(--sage); font-weight: 400;
+        }
+        .section-sub {
+            font-size: 1rem; color: var(--text-muted);
+            font-weight: 300; max-width: 520px; line-height: 1.85;
+        }
+        .divider-leaf {
+            display: flex; align-items: center; gap: 0.8rem;
+            margin: 1.4rem 0 2rem;
+        }
+        .divider-leaf::before, .divider-leaf::after {
+            content: ''; flex: 1; max-width: 36px; height: 1px;
+            background: linear-gradient(90deg, var(--taupe), transparent);
+        }
+        .divider-leaf::after {
+            background: linear-gradient(270deg, var(--sage-light), transparent);
+        }
+        .divider-leaf span { font-size: 1rem; opacity: 0.6; }
+
+        /* Organic card */
+        .o-card {
+            background: var(--white);
+            border: 1px solid rgba(183,155,127,0.13);
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow-md);
+            transition: var(--t);
+        }
+        .o-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+            border-color: rgba(122,134,97,0.20);
+        }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0; transform: translateY(36px);
+            transition: opacity 0.75s var(--ease), transform 0.75s var(--ease);
+        }
+        .reveal.in-view { opacity: 1; transform: none; }
+        .reveal-left  { opacity: 0; transform: translateX(-36px); transition: opacity 0.75s var(--ease), transform 0.75s var(--ease); }
+        .reveal-left.in-view  { opacity: 1; transform: none; }
+        .reveal-right { opacity: 0; transform: translateX(36px);  transition: opacity 0.75s var(--ease), transform 0.75s var(--ease); }
+        .reveal-right.in-view { opacity: 1; transform: none; }
+        .d1 { transition-delay: 0.08s; }
+        .d2 { transition-delay: 0.18s; }
+        .d3 { transition-delay: 0.28s; }
+        .d4 { transition-delay: 0.38s; }
+
+        /* ╔══════════════════════════════════════════════════════╗
+           ║  §1  HERO                                            ║
+           ╚══════════════════════════════════════════════════════╝ */
+        #hero {
+            min-height: 100vh;
+            padding: 140px 0 100px;
+            background: linear-gradient(160deg, #faf7f0 0%, #f0ebe0 40%, #eaf0e6 100%);
+            position: relative;
+            display: flex; align-items: center;
+            overflow: hidden;
+        }
+
+        /* Organic background shapes */
+        .hero-shape {
+            position: absolute; pointer-events: none; border-radius: 50%;
+            filter: blur(80px);
+        }
+        .hs-1 {
+            width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(122,134,97,0.22) 0%, transparent 65%);
+            top: -250px; right: -250px;
+        }
+        .hs-2 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(183,155,127,0.20) 0%, transparent 65%);
+            bottom: -150px; left: -150px;
+        }
+        .hs-3 {
+            width: 350px; height: 350px;
+            background: radial-gradient(circle, rgba(155,168,130,0.18) 0%, transparent 65%);
+            top: 30%; left: 35%;
+        }
+
+        /* Big decorative leaf SVGs */
+        .bg-leaf-1 {
+            position: absolute; top: -60px; right: 5%;
+            width: 340px; opacity: 0.06;
+            animation: leaf-float 12s ease-in-out infinite;
+        }
+        .bg-leaf-2 {
+            position: absolute; bottom: 0; left: 2%;
+            width: 260px; opacity: 0.05;
+            animation: leaf-float 15s ease-in-out infinite reverse;
+        }
+
+        /* Hero frosted card */
+        .hero-card {
+            background: rgba(255,255,255,0.55);
+            border: 1px solid rgba(255,255,255,0.70);
+            border-radius: var(--r-xl);
+            box-shadow: var(--shadow-xl),
+                        inset 0 1px 0 rgba(255,255,255,0.80);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 4rem;
+        }
+
+        .hero-kicker {
+            font-size: 0.70rem; font-weight: 500;
+            letter-spacing: 0.28em; text-transform: uppercase;
+            color: var(--sage-dark); margin-bottom: 1.6rem;
+            display: flex; align-items: center; gap: 0.7rem;
+        }
+        .hero-kicker::before {
+            content: '';
+            width: 28px; height: 1px;
+            background: var(--sage-light);
+        }
+
+        .hero-headline {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 300; line-height: 1.05; margin-bottom: 1.6rem;
+            letter-spacing: -0.02em;
+        }
+        .hero-headline .italic-word {
+            font-family: 'Playfair Display', serif;
+            font-style: italic; font-weight: 400;
+            color: var(--sage);
+        }
+        .hero-tagline {
+            font-size: 1.05rem; color: var(--text-muted);
+            font-weight: 300; max-width: 440px;
+            margin-bottom: 2.6rem; line-height: 1.85;
+        }
+
+        /* Trust badges */
+        .trust-row {
+            display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2.6rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(183,155,127,0.15);
+        }
+        .trust-badge {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.78rem; color: var(--text-muted); font-weight: 400;
+        }
+        .trust-badge i { color: var(--sage); font-size: 0.9rem; }
+
+        /* Hero right — visual */
+        .hero-visual {
+            position: relative; display: flex;
+            align-items: center; justify-content: center;
+            min-height: 500px;
+        }
+
+        /* Main circle */
+        .hero-circle-main {
+            width: 320px; height: 320px;
+            background: linear-gradient(145deg,
+                rgba(238,240,233,0.9) 0%,
+                rgba(255,255,255,0.95) 50%,
+                rgba(230,236,225,0.85) 100%);
+            border-radius: 50%;
+            border: 1px solid rgba(122,134,97,0.15);
+            box-shadow: var(--shadow-xl);
+            display: flex; align-items: center; justify-content: center;
+            position: relative; z-index: 2;
+            overflow: hidden;
+        }
+        .hero-circle-main::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(circle at 30% 30%,
+                rgba(255,255,255,0.6) 0%, transparent 60%);
+        }
+        .hero-circle-emoji {
+            font-size: 7rem; position: relative; z-index: 1;
+            animation: gentle-bob 6s ease-in-out infinite;
+        }
+        @keyframes gentle-bob {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50%       { transform: translateY(-10px) scale(1.04); }
+        }
+
+        /* Orbit rings */
+        .orbit-ring {
+            position: absolute; border-radius: 50%;
+        }
+        .or-1 {
+            width: 380px; height: 380px;
+            border: 1px solid rgba(122,134,97,0.12);
+        }
+        .or-2 {
+            width: 460px; height: 460px;
+            border: 1px dashed rgba(183,155,127,0.15);
+            animation: slow-spin 60s linear infinite;
+        }
+        .or-3 {
+            width: 540px; height: 540px;
+            border: 1px solid rgba(122,134,97,0.07);
+            animation: slow-spin 90s linear infinite reverse;
+        }
+        @keyframes slow-spin { to { transform: rotate(360deg); } }
+
+        /* Floating ingredient chips */
+        .ingredient-chip {
+            position: absolute;
+            display: flex; align-items: center; gap: 0.6rem;
+            background: rgba(255,255,255,0.94);
+            border: 1px solid rgba(183,155,127,0.18);
+            border-radius: var(--r-pill);
+            box-shadow: var(--shadow-md);
+            backdrop-filter: blur(10px);
+            padding: 0.6rem 1.2rem;
+            font-size: 0.80rem; font-weight: 400;
+            white-space: nowrap; z-index: 3;
+            animation: chip-float 6s ease-in-out infinite;
+        }
+        .chip-icon {
+            width: 28px; height: 28px;
+            background: var(--sage-faint);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem;
+        }
+        .ic-1 { top: 12px;  right: 20px;  animation-delay: 0s; }
+        .ic-2 { bottom: 80px; left: 0;    animation-delay: -2s; }
+        .ic-3 { top: 48%;  right: -10px; transform: translateY(-50%); animation-delay: -4s; }
+        @keyframes chip-float {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-8px); }
+        }
+        .ic-3 { animation: chip-float-mid 7s ease-in-out infinite; }
+        @keyframes chip-float-mid {
+            0%, 100% { transform: translateY(-50%); }
+            50%       { transform: translateY(calc(-50% - 8px)); }
+        }
+
+        /* ╔══════════════════════════════════════════════════════╗
+           ║  INGREDIENT STRIP (new — between hero & about)       ║
+           ╚══════════════════════════════════════════════════════╝ */
+        .ingredient-strip {
+            background: var(--sage-dark);
+            padding: 1.2rem 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .ingredient-strip-track {
+            display: flex; gap: 3rem; align-items: center;
+            animation: marquee 28s linear infinite;
+            width: max-content;
+        }
+        .ingredient-strip-track:hover { animation-play-state: paused; }
+        .strip-item {
+            display: flex; align-items: center; gap: 0.6rem;
+            font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+            color: rgba(255,255,255,0.65); white-space: nowrap; font-weight: 400;
+        }
+        .strip-item span { color: rgba(255,255,255,0.25); }
+        @keyframes marquee {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+        }
+
+        /* ╔══════════════════════════════════════════════════════╗
+           ║  §2  ABOUT                                           ║
+           ╚══════════════════════════════════════════════════════╝ */
+        #about {
+            padding: 130px 0;
+            background: linear-gradient(180deg, var(--cream-mid) 0%, var(--cream) 100%);
+            position: relative; overflow: hidden;
+        }
+
+        .about-image-wrap { position: relative; }
+
+        /* Organic blob shape behind image */
+        .about-blob {
+            position: absolute;
+            width: 110%; height: 110%;
+            top: -5%; left: -5%;
+            background: radial-gradient(ellipse, var(--sage-faint) 0%, transparent 70%);
+            border-radius: 60% 40% 55% 45% / 45% 55% 40% 60%;
+            z-index: 0;
+            animation: blob-morph 12s ease-in-out infinite;
+        }
+        @keyframes blob-morph {
+            0%,100% { border-radius: 60% 40% 55% 45% / 45% 55% 40% 60%; }
+            33%     { border-radius: 50% 50% 40% 60% / 55% 40% 60% 45%; }
+            66%     { border-radius: 40% 60% 60% 40% / 40% 60% 45% 55%; }
+        }
+
+        .about-panel {
+            aspect-ratio: 3 / 4;
+            background: linear-gradient(145deg,
+                rgba(238,240,233,0.8) 0%,
+                rgba(255,255,255,0.6) 100%);
+            border-radius: 50% 40% 50% 40% / 40% 50% 40% 50%;
+            border: 1px solid rgba(122,134,97,0.14);
+            box-shadow: var(--shadow-lg);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 9rem; position: relative; overflow: hidden; z-index: 1;
+            transition: border-radius 1.5s var(--ease);
+        }
+        .about-panel:hover {
+            border-radius: 40% 50% 40% 50% / 50% 40% 50% 40%;
+        }
+        .about-panel::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(circle at 25% 25%,
+                rgba(255,255,255,0.4) 0%, transparent 55%);
+        }
+
+        /* Floating stat cards */
+        .stat-float {
+            position: absolute; z-index: 2;
+            background: var(--white);
+            border: 1px solid rgba(183,155,127,0.15);
+            border-radius: var(--r-md);
+            box-shadow: var(--shadow-md);
+            padding: 1rem 1.4rem;
+            text-align: center;
+        }
+        .sf-1 { bottom: 24px; right: -28px; min-width: 130px; }
+        .sf-2 { top: 40px;   left: -24px;  min-width: 120px; }
+        .stat-float-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem; font-weight: 500;
+            color: var(--sage-dark); line-height: 1;
+        }
+        .stat-float-lbl {
+            font-size: 0.68rem; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--text-muted); margin-top: 0.2rem;
+        }
+
+        /* About values row */
+        .value-pill {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: var(--sage-ultra);
+            border: 1px solid rgba(122,134,97,0.16);
+            border-radius: var(--r-pill);
+            padding: 0.4rem 1rem;
+            font-size: 0.80rem; color: var(--sage-dark); font-weight: 400;
+        }
+        .value-pill i { font-size: 0.85rem; }
+
+        /* Metrics grid */
+        .metrics-grid {
+            display: grid; grid-template-columns: repeat(3,1fr);
+            gap: 1rem; margin-top: 2.4rem;
+        }
+        .metric-box {
+            background: var(--white);
+            border: 1px solid rgba(183,155,127,0.13);
+            border-radius: var(--r-md);
+            box-shadow: var(--shadow-sm);
+            padding: 1.2rem 1rem; text-align: center;
+            transition: var(--t);
+        }
+        .metric-box:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+        .metric-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem; font-weight: 500;
+            color: var(--sage-dark); line-height: 1;
+        }
+        .metric-lbl {
+            font-size: 0.72rem; color: var(--text-muted);
+            letter-spacing: 0.10em; text-transform: uppercase; margin-top: 0.25rem;
+        }
+
+        /* ╔══════════════════════════════════════════════════════╗
+           ║  §3  FEATURES                                        ║
+           ╚══════════════════════════════════════════════════════╝ */
+        #features {
+            padding: 130px 0;
+            background: var(--cream);
+            position: relative; overflow: hidden;
+        }
+
+        /* Big section watermark */
+        .section-watermark {
+            position: absolute;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18vw; font-weight: 300;
+            color: rgba(122,134,97,0.04);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap; pointer-events: none;
+            user-select: none; letter-spacing: -0.05em;
+        }
+
+        .feat-card {
+            padding: 2.4rem 2.2rem;
+            position: relative; overflow: hidden;
+        }
+        .feat-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--sage-light), var(--taupe-light));
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        .feat-card:hover::before { opacity: 1; }
+
+        .feat-icon-wrap {
+            width: 60px; height: 60px; border-radius: var(--r-md);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin-bottom: 1.6rem;
+            position: relative;
+        }
+        .fi-sage  { background: var(--sage-ultra);        color: var(--sage-dark); }
+        .fi-taupe { background: rgba(183,155,127,0.10);   color: var(--taupe);     }
+        .fi-olive { background: rgba(74,82,64,0.08);      color: var(--moss);      }
+        .fi-warm  { background: rgba(212,195,174,0.20);   color: #7a5f48;          }
+
+        .feat-card h4 {
+            font-size: 1.3rem; font-weight: 500; margin-bottom: 0.6rem;
+            letter-spacing: -0.01em;
+        }
+        .feat-card p  { font-size: 0.92rem; color: var(--text-muted); margin: 0; line-height: 1.75; }
+
+        /* Feature learn-more link */
+        .feat-more {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--sage); font-weight: 400;
+            margin-top: 1.2rem; text-decoration: none;
+            transition: gap 0.3s;
+        }
+        .feat-more:hover { gap: 0.7rem; color: var(--sage-dark); }
+
+        /* Green CTA strip */
+        .feat-strip {
+            background: linear-gradient(135deg, var(--moss) 0%, var(--sage-dark) 50%, var(--sage) 100%);
+            border-radius: var(--r-xl);
+            padding: 3.5rem 4rem; margin-top: 3.5rem;
+            position: relative; overflow: hidden;
+        }
+        .feat-strip::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            background-size: 400px;
+        }
+        .feat-strip::after {
+            content: '🌿';
+            position: absolute; right: 3rem; top: 50%;
+            transform: translateY(-50%);
+            font-size: 8rem; opacity: 0.10;
+            pointer-events: none;
+        }
+        .feat-strip-eyebrow {
+            font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase;
+            color: rgba(255,255,255,0.50); margin-bottom: 0.6rem;
+        }
+        .feat-strip h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 300; color: var(--white);
+            position: relative;
+        }
+        .feat-strip p {
+            color: rgba(255,255,255,0.62); font-size: 0.95rem;
+            max-width: 420px; margin-top: 0.8rem; position: relative;
+        }
+        .btn-white {
+            display: inline-flex; align-items: center; gap: 0.55rem;
+            background: rgba(255,255,255,0.14);
+            border: 1px solid rgba(255,255,255,0.28);
+            color: var(--white) !important; border-radius: var(--r-pill);
+            padding: 0.82rem 2rem; font-size: 0.78rem;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            text-decoration: none; transition: var(--t);
+            backdrop-filter: blur(8px); position: relative;
+        }
+        .btn-white:hover {
+            background: rgba(255,255,255,0.26);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        /* ╔══════════════════════════════════════════════════════╗
+           ║  §4  BENEFITS                                        ║
+           ╚══════════════════════════════════════════════════════╝ */
+        #benefits {
+            padding: 130px 0;
+            background: linear-gradient(180deg, var(--cream-mid) 0%, var(--cream) 100%);
+            position: relative;
+        }
+
+        .benefits-wrap {
+            background: var(--white);
+            border: 1px solid rgba(183,155,127,0.13);
+            border-radius: var(--r-xl);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .benefits-left  { padding: 3.5rem; }
+        .benefits-right {
+            background: linear-gradient(160deg,
+                var(--sage-ultra) 0%,
+                rgba(238,240,233,0.6) 100%);
+            padding: 3.5rem;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
+            border-left: 1px solid rgba(122,134,97,0.12);
+            position: relative; overflow: hidden;
+        }
+        .benefits-right::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Ccircle cx='30' cy='30' r='1' fill='%237a8661' opacity='0.15'/%3E%3C/svg%3E");
+            background-size: 30px;
+        }
+
+        .benefit-item {
+            display: flex; align-items: flex-start; gap: 1rem;
+            padding: 1.1rem 0;
+            border-bottom: 1px solid rgba(183,155,127,0.09);
+        }
+        .benefit-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .benefit-item:first-child { padding-top: 0; }
+
+        .b-check {
+            width: 32px; height: 32px;
+            background: var(--sage-faint);
+            border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--sage-dark); font-size: 0.85rem;
+            border: 1px solid rgba(122,134,97,0.18);
+            margin-top: 0.1rem;
+            transition: var(--t);
+        }
+        .benefit-item:hover .b-check {
+            background: var(--sage-dark); color: var(--white);
+            transform: scale(1.1);
+        }
+        .b-body h5 { font-size: 1.08rem; font-weight: 500; margin-bottom: 0.15rem; }
+        .b-body p  { font-size: 0.875rem; color: var(--text-muted); margin: 0; }
+
+        /* Right panel content */
+        .quote-leaf { font-size: 5rem; margin-bottom: 1.6rem; position: relative; z-index: 1; }
+        .big-quote {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.5rem, 2.5vw, 2rem);
+            font-style: italic; font-weight: 400;
+            color: var(--sage-dark); line-height: 1.4;
+            position: relative; z-index: 1;
+        }
+        .big-quote-mark {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 5rem; line-height: 0.5;
+            color: var(--sage-light); opacity: 0.4;
+            display: block; margin-bottom: 0.5rem;
+        }
+        .quote-attr {
+            font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase;
+            color: var(--taupe); margin-top: 1.4rem; position: relative; z-index: 1;
+        }
+
+        /* ╔══════════════════════════════════════════════════════╗
+           ║  §5  CONTACT                                         ║
+           ╚══════════════════════════════════════════════════════╝ */
+        #contact {
+            padding: 130px 0;
+            background: var(--cream);
+            position: relative; overflow: hidden;
+        }
+        #contact::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 50% 100%,
+                rgba(122,134,97,0.12) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .contact-wrap {
+            background: linear-gradient(150deg,
+                var(--white) 0%,
+                rgba(238,240,233,0.5) 100%);
+            border: 1px solid rgba(122,134,97,0.14);
+            border-radius: var(--r-xl);
+            box-shadow: var(--shadow-lg);
+            padding: 6rem 4rem;
+            text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .contact-wrap::before {
+            content: '';
+            position: absolute;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(122,134,97,0.10) 0%, transparent 65%);
+            top: -180px; right: -150px; border-radius: 50%;
+            pointer-events: none;
+        }
+        .contact-wrap::after {
+            content: '';
+            position: absolute;
+            width: 350px; height: 350px;
+            background: radial-gradient(circle, rgba(183,155,127,0.10) 0%, transparent 65%);
+            bottom: -100px; left: -100px; border-radius: 50%;
+            pointer-events: none;
+        }
+        .contact-wrap > * { position: relative; z-index: 1; }
+
+        .contact-wrap h2 {
+            font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+            font-weight: 300; margin-bottom: 1rem;
+        }
+        .contact-wrap h2 em {
+            font-family: 'Playfair Display', serif;
+            font-style: italic; color: var(--sage); font-weight: 400;
+        }
+        .contact-wrap p { max-width: 460px; margin: 0 auto 2.8rem; }
+
+        .contact-email {
+            display: inline-flex; align-items: center; gap: 0.7rem;
+            background: rgba(255,255,255,0.85);
+            border: 1px solid rgba(183,155,127,0.20);
+            border-radius: var(--r-pill);
+            padding: 0.65rem 1.6rem; font-size: 0.9rem;
+            color: var(--taupe); margin-bottom: 2.8rem;
+            transition: var(--t);
+        }
+        .contact-email:hover {
+            background: var(--white);
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-2px);
+        }
+
+        /* ╔══════════════════════════════════════════════════════╗
+           ║  §6  FOOTER                                          ║
+           ╚══════════════════════════════════════════════════════╝ */
+        #footer {
+            background: var(--moss);
+            padding: 72px 0 44px;
+            position: relative; overflow: hidden;
+        }
+        #footer::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.80' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            background-size: 300px; pointer-events: none;
+        }
+        .footer-logo img { height: 40px; width: auto; object-fit: contain; opacity: 0.85; }
+        .footer-tagline {
+            font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase;
+            color: rgba(255,255,255,0.32); margin-top: 0.5rem;
+        }
+        .footer-desc {
+            font-size: 0.85rem; color: rgba(255,255,255,0.36);
+            max-width: 220px; line-height: 1.7; margin-top: 1.2rem;
+        }
+        .footer-col-title {
+            font-size: 0.68rem; letter-spacing: 0.20em; text-transform: uppercase;
+            color: rgba(255,255,255,0.30); margin-bottom: 1.2rem; font-weight: 500;
+        }
+        .f-link {
+            display: block; font-size: 0.82rem;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.50);
+            text-decoration: none; transition: color 0.25s;
+            padding: 0.2rem 0;
+        }
+        .f-link:hover { color: rgba(255,255,255,0.90); }
+
+        .footer-divider { border-color: rgba(255,255,255,0.08); margin: 2.5rem 0 2rem; }
+        .footer-copy    { font-size: 0.74rem; color: rgba(255,255,255,0.25); }
+        .footer-copy a  { color: rgba(255,255,255,0.35); text-decoration: none; transition: color 0.25s; }
+        .footer-copy a:hover { color: rgba(255,255,255,0.75); }
+        .f-dot { color: rgba(183,155,127,0.6); margin: 0 0.6rem; }
+
+        .footer-social a {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 38px; height: 38px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 50%; color: rgba(255,255,255,0.45);
+            font-size: 0.95rem; text-decoration: none; transition: var(--t);
+        }
+        .footer-social a:hover {
+            background: rgba(255,255,255,0.16);
+            color: rgba(255,255,255,0.92);
+            transform: translateY(-3px);
+        }
+
+        /* ╔══════════════════════════════════════════════════════╗
+           ║  RESPONSIVE                                          ║
+           ╚══════════════════════════════════════════════════════╝ */
+        @media (max-width: 992px) {
+            .hero-card        { padding: 2.8rem 2.2rem; }
+            .sf-1, .sf-2      { display: none; }
+            .or-2, .or-3      { display: none; }
+            .ic-3             { display: none; }
+            .feat-strip       { padding: 2.8rem 2.2rem; }
+            .feat-strip::after { display: none; }
+            .benefits-left, .benefits-right { padding: 2.5rem 2rem; }
+            .benefits-right   { border-left: none; border-top: 1px solid rgba(122,134,97,0.12); }
+            .contact-wrap     { padding: 4rem 2.5rem; }
+        }
+        @media (max-width: 768px) {
+            .hero-visual   { min-height: 340px; margin-top: 2.5rem; }
+            .metrics-grid  { grid-template-columns: repeat(2, 1fr); }
+            .feat-strip .text-lg-end { text-align: left !important; margin-top: 1.5rem; }
+            .about-panel   { font-size: 6rem; }
+        }
+        @media (max-width: 576px) {
+            .metrics-grid  { grid-template-columns: 1fr; }
+            .trust-row     { flex-direction: column; gap: 0.6rem; }
+            .contact-wrap  { padding: 3rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+{# ═══════════════════════════════════════════════════════
+   NAVBAR
+═══════════════════════════════════════════════════════ #}
+<nav class="n-nav" id="mainNav">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between">
+
+            <a class="brand-logo" href="{{ path('app_landing') }}">
+                <img src="{{ asset('image/LOGO.png') }}" alt="Naturaé Skincare">
+            </a>
+
+            <button class="navbar-toggler border-0 bg-transparent d-lg-none"
+                    type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navLinks" aria-label="Toggle navigation">
+                <i class="bi bi-list fs-3" style="color:var(--sage-dark);"></i>
+            </button>
+
+            <div class="collapse navbar-collapse d-lg-flex align-items-center justify-content-end gap-1"
+                 id="navLinks">
+                <a class="n-link" href="#about">About</a>
+                <a class="n-link" href="#features">Features</a>
+                <a class="n-link" href="#benefits">Benefits</a>
+                <a class="n-link" href="#contact">Contact</a>
+                <a class="btn-primary ms-lg-3"
+                   style="padding:0.62rem 1.5rem; font-size:0.74rem;"
+                   href="#features">Get Started</a>
+            </div>
+
+        </div>
+    </div>
+</nav>
+
+
+{# ═══════════════════════════════════════════════════════
+   §1  HERO
+═══════════════════════════════════════════════════════ #}
+<section id="hero">
+    {# Ambient blobs #}
+    <div class="hero-shape hs-1"></div>
+    <div class="hero-shape hs-2"></div>
+    <div class="hero-shape hs-3"></div>
+
+    {# Big decorative leaf SVGs #}
+    <svg class="bg-leaf-1" viewBox="0 0 200 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M100 10 C100 10 180 80 160 180 C140 260 60 270 40 200 C20 130 60 40 100 10Z" fill="#5f6b4d"/>
+        <path d="M100 10 C100 10 100 150 100 270" stroke="#5f6b4d" stroke-width="2"/>
+        <path d="M100 80 C80 70 60 90 50 110" stroke="#5f6b4d" stroke-width="1.5"/>
+        <path d="M100 120 C130 105 150 115 160 135" stroke="#5f6b4d" stroke-width="1.5"/>
+        <path d="M100 160 C75 148 58 162 52 178" stroke="#5f6b4d" stroke-width="1.5"/>
+    </svg>
+    <svg class="bg-leaf-2" viewBox="0 0 200 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M100 10 C100 10 180 80 160 180 C140 260 60 270 40 200 C20 130 60 40 100 10Z" fill="#7a8661"/>
+        <path d="M100 10 C100 10 100 150 100 270" stroke="#7a8661" stroke-width="2"/>
+    </svg>
+
+    <div class="container" style="position:relative;z-index:1;">
+        <div class="row align-items-center g-5">
+
+            {# Left — hero card #}
+            <div class="col-lg-6">
+                <div class="hero-card reveal">
+                    <div class="hero-kicker">
+                        Pure &nbsp;·&nbsp; Organic &nbsp;·&nbsp; Natural
+                    </div>
+                    <h1 class="hero-headline">
+                        Glow Naturally<br>
+                        with <span class="italic-word">Naturaé</span><br>
+                        Skincare
+                    </h1>
+                    <p class="hero-tagline">
+                        A refined platform for managing organic skincare inventory,
+                        orders, and analytics — where nature meets precision.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="#features" class="btn-primary">
+                            <i class="bi bi-arrow-right-circle"></i> Explore System
+                        </a>
+                        <a href="#contact" class="btn-outline">
+                            <i class="bi bi-envelope"></i> Contact Us
+                        </a>
+                    </div>
+                    <div class="trust-row">
+                        <div class="trust-badge">
+                            <i class="bi bi-patch-check-fill"></i> 100% Organic Focused
+                        </div>
+                        <div class="trust-badge">
+                            <i class="bi bi-shield-check"></i> Secure Platform
+                        </div>
+                        <div class="trust-badge">
+                            <i class="bi bi-leaf-fill"></i> Eco-Conscious
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Right — visual #}
+            <div class="col-lg-6">
+                <div class="hero-visual reveal d2">
+                    <div class="orbit-ring or-3"></div>
+                    <div class="orbit-ring or-2"></div>
+                    <div class="orbit-ring or-1"></div>
+                    <div class="hero-circle-main">
+                        <span class="hero-circle-emoji">🌿</span>
+                    </div>
+
+                    <div class="ingredient-chip ic-1">
+                        <div class="chip-icon">🍃</div>
+                        480+ Products tracked
+                    </div>
+                    <div class="ingredient-chip ic-2">
+                        <div class="chip-icon">🌸</div>
+                        Real-time stock alerts
+                    </div>
+                    <div class="ingredient-chip ic-3">
+                        <div class="chip-icon">📊</div>
+                        Orders dashboard
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+{# ═══════════════════════════════════════════════════════
+   INGREDIENT MARQUEE STRIP
+═══════════════════════════════════════════════════════ #}
+<div class="ingredient-strip">
+    <div class="ingredient-strip-track">
+        {# Duplicated for seamless loop #}
+        {% for i in 1..2 %}
+            <div class="strip-item">🌿 <span>&nbsp;·&nbsp;</span> Aloe Vera</div>
+            <div class="strip-item">🌸 <span>&nbsp;·&nbsp;</span> Rose Hip Oil</div>
+            <div class="strip-item">🍃 <span>&nbsp;·&nbsp;</span> Green Tea Extract</div>
+            <div class="strip-item">🌼 <span>&nbsp;·&nbsp;</span> Chamomile</div>
+            <div class="strip-item">🥥 <span>&nbsp;·&nbsp;</span> Coconut Oil</div>
+            <div class="strip-item">🌱 <span>&nbsp;·&nbsp;</span> Jojoba Oil</div>
+            <div class="strip-item">🫐 <span>&nbsp;·&nbsp;</span> Vitamin C</div>
+            <div class="strip-item">🌾 <span>&nbsp;·&nbsp;</span> Shea Butter</div>
+            <div class="strip-item">🌺 <span>&nbsp;·&nbsp;</span> Hyaluronic Acid</div>
+            <div class="strip-item">🍯 <span>&nbsp;·&nbsp;</span> Raw Honey</div>
+        {% endfor %}
+    </div>
+</div>
+
+
+{# ═══════════════════════════════════════════════════════
+   §2  ABOUT
+═══════════════════════════════════════════════════════ #}
+<section id="about">
+    <div class="container">
+        <div class="row align-items-center g-5 g-xl-6">
+
+            {# Left — organic image panel #}
+            <div class="col-lg-5 reveal-left">
+                <div class="about-image-wrap">
+                    <div class="about-blob"></div>
+                    <div class="about-panel">
+                        <span style="position:relative;z-index:1;">🌸</span>
+                        <div class="stat-float sf-1">
+                            <div class="stat-float-num">3k+</div>
+                            <div class="stat-float-lbl">Orders Managed</div>
+                        </div>
+                        <div class="stat-float sf-2">
+                            <div class="stat-float-num">99%</div>
+                            <div class="stat-float-lbl">Accuracy Rate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Right — text #}
+            <div class="col-lg-7 reveal-right">
+                <div class="eyebrow"><span class="eyebrow-dot"></span> Our Purpose</div>
+                <h2 class="section-title">
+                    Built for <em>Organic</em><br>Skincare Brands
+                </h2>
+                <div class="divider-leaf"><span>🌿</span></div>
+                <p style="max-width:500px; margin-bottom:1rem;">
+                    Naturaé is a thoughtfully crafted management system designed around
+                    the unique rhythm of organic skincare brands. From ingredient sourcing
+                    to shelf-ready products, we give you clarity at every step.
+                </p>
+                <p style="max-width:500px; margin-bottom:2rem;">
+                    We believe that managing your brand should feel as pure and effortless
+                    as the ingredients in your formulas — no clutter, just clean precision.
+                </p>
+
+                {# Value pills #}
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                    <span class="value-pill"><i class="bi bi-leaf-fill"></i> Natural Ingredients</span>
+                    <span class="value-pill"><i class="bi bi-recycle"></i> Sustainable Practices</span>
+                    <span class="value-pill"><i class="bi bi-heart-fill"></i> Cruelty Free</span>
+                    <span class="value-pill"><i class="bi bi-shield-fill-check"></i> Lab Tested</span>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <div class="metric-num">99%</div>
+                        <div class="metric-lbl">Accuracy</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-num">24/7</div>
+                        <div class="metric-lbl">Uptime</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-num">50+</div>
+                        <div class="metric-lbl">Categories</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+{# ═══════════════════════════════════════════════════════
+   §3  FEATURES
+═══════════════════════════════════════════════════════ #}
+<section id="features">
+    <div class="section-watermark">Naturaé</div>
+    <div class="container" style="position:relative;z-index:1;">
+
+        <div class="text-center mb-5 reveal">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> What We Offer</div>
+            <h2 class="section-title">Tools as <em>Pure</em><br>as Your Products</h2>
+            <p class="section-sub mx-auto mt-2">
+                Every feature is designed to feel natural — supporting your brand
+                without adding complexity.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3 reveal d1">
+                <div class="o-card feat-card h-100">
+                    <div class="feat-icon-wrap fi-sage">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    <h4>Inventory Tracking</h4>
+                    <p>Monitor stock levels, set reorder thresholds, and keep your organic shelves perfectly balanced.</p>
+                    <a href="#contact" class="feat-more">Learn more <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 reveal d2">
+                <div class="o-card feat-card h-100">
+                    <div class="feat-icon-wrap fi-taupe">
+                        <i class="bi bi-bag-check"></i>
+                    </div>
+                    <h4>Orders Management</h4>
+                    <p>Process, track, and fulfill customer orders seamlessly — from first drop to final delivery.</p>
+                    <a href="#contact" class="feat-more">Learn more <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 reveal d3">
+                <div class="o-card feat-card h-100">
+                    <div class="feat-icon-wrap fi-olive">
+                        <i class="bi bi-eye"></i>
+                    </div>
+                    <h4>Product Monitoring</h4>
+                    <p>Track expiration dates, formulation versions, and certifications with automated alerts.</p>
+                    <a href="#contact" class="feat-more">Learn more <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 reveal d4">
+                <div class="o-card feat-card h-100">
+                    <div class="feat-icon-wrap fi-warm">
+                        <i class="bi bi-bar-chart-line"></i>
+                    </div>
+                    <h4>Analytics Reports</h4>
+                    <p>Understand your best-sellers, seasonal trends, and growth with beautifully clear insights.</p>
+                    <a href="#contact" class="feat-more">Learn more <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="feat-strip reveal">
+            <div class="row align-items-center g-3">
+                <div class="col-lg-8">
+                    <p class="feat-strip-eyebrow">Ready to begin?</p>
+                    <h3>Everything your organic brand needs, in one serene space.</h3>
+                    <p>Naturaé brings inventory, orders, and analytics together — so you can spend more time on what truly matters: your formulas.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="#contact" class="btn-white">
+                        Begin Your Journey &nbsp;<i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+{# ═══════════════════════════════════════════════════════
+   §4  BENEFITS
+═══════════════════════════════════════════════════════ #}
+<section id="benefits">
+    <div class="container">
+
+        <div class="text-center mb-5 reveal">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> Why Choose Naturaé</div>
+            <h2 class="section-title">Designed <em>Around</em> You</h2>
+        </div>
+
+        <div class="benefits-wrap reveal">
+            <div class="row g-0">
+
+                {# Left — checklist #}
+                <div class="col-lg-7 benefits-left">
+                    <div class="row g-0">
+                        <div class="col-sm-6 pe-sm-3">
+                            <div class="benefit-item">
+                                <div class="b-check"><i class="bi bi-check-lg"></i></div>
+                                <div class="b-body">
+                                    <h5>Effortless Onboarding</h5>
+                                    <p>Up and running in minutes — no tech team needed.</p>
+                                </div>
+                            </div>
+                            <div class="benefit-item">
+                                <div class="b-check"><i class="bi bi-check-lg"></i></div>
+                                <div class="b-body">
+                                    <h5>Clean, Calm Interface</h5>
+                                    <p>A workspace as serene as your products.</p>
+                                </div>
+                            </div>
+                            <div class="benefit-item">
+                                <div class="b-check"><i class="bi bi-check-lg"></i></div>
+                                <div class="b-body">
+                                    <h5>Mobile Friendly</h5>
+                                    <p>Manage from anywhere, on any device.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 ps-sm-3">
+                            <div class="benefit-item">
+                                <div class="b-check"><i class="bi bi-check-lg"></i></div>
+                                <div class="b-body">
+                                    <h5>Role-Based Access</h5>
+                                    <p>Flexible permissions for every team member.</p>
+                                </div>
+                            </div>
+                            <div class="benefit-item">
+                                <div class="b-check"><i class="bi bi-check-lg"></i></div>
+                                <div class="b-body">
+                                    <h5>Smart Notifications</h5>
+                                    <p>Never miss a low-stock or expiry alert.</p>
+                                </div>
+                            </div>
+                            <div class="benefit-item">
+                                <div class="b-check"><i class="bi bi-check-lg"></i></div>
+                                <div class="b-body">
+                                    <h5>Secure &amp; Reliable</h5>
+                                    <p>Enterprise security with daily backups.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {# Right — quote panel #}
+                <div class="col-lg-5 benefits-right">
+                    <div class="quote-leaf">🌿</div>
+                    <span class="big-quote-mark">"</span>
+                    <p class="big-quote">
+                        Where nature meets precision — built for brands that care.
+                    </p>
+                    <p class="quote-attr">— Naturaé Philosophy</p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+{# ═══════════════════════════════════════════════════════
+   §5  CONTACT
+═══════════════════════════════════════════════════════ #}
+<section id="contact">
+    <div class="container">
+        <div class="contact-wrap reveal">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> Get In Touch</div>
+            <h2>We'd Love to <em>Hear</em><br>From You</h2>
+            <p class="section-sub">
+                Whether you have a question, a custom request, or simply want to
+                learn how Naturaé can nurture your brand — we're here.
+            </p>
+            <a class="contact-email" href="mailto:hello@naturae-skincare.com">
+                <i class="bi bi-envelope-at"></i>
+                hello@naturae-skincare.com
+            </a>
+            <div>
+                <a href="/contact" class="btn-primary">
+                    <i class="bi bi-send"></i> Reach Out
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{# ═══════════════════════════════════════════════════════
+   §6  FOOTER
+═══════════════════════════════════════════════════════ #}
+<footer id="footer">
+    <div class="container" style="position:relative;z-index:1;">
+        <div class="row g-4 align-items-start">
+
+            <div class="col-md-4">
+                <a class="footer-logo" href="{{ path('app_landing') }}">
+                    <img src="{{ asset('image/LOGO.png') }}" alt="Naturaé Skincare">
+                </a>
+                <p class="footer-tagline">Pure · Organic · Natural</p>
+                <p class="footer-desc">
+                    Bringing clarity and elegance to organic skincare management, one dashboard at a time.
+                </p>
+            </div>
+
+            <div class="col-md-2">
+                <p class="footer-col-title">Navigate</p>
+                <a class="f-link" href="#hero">Home</a>
+                <a class="f-link" href="#about">About</a>
+                <a class="f-link" href="#features">Features</a>
+                <a class="f-link" href="#benefits">Benefits</a>
+                <a class="f-link" href="#contact">Contact</a>
+            </div>
+
+            <div class="col-md-3">
+                <p class="footer-col-title">Our Values</p>
+                <a class="f-link" href="#">Natural Ingredients</a>
+                <a class="f-link" href="#">Sustainability</a>
+                <a class="f-link" href="#">Cruelty Free</a>
+                <a class="f-link" href="#">Transparency</a>
+            </div>
+
+            <div class="col-md-3">
+                <p class="footer-col-title">Follow Us</p>
+                <div class="footer-social d-flex gap-2 mb-3">
+                    <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" aria-label="Pinterest"><i class="bi bi-pinterest"></i></a>
+                    <a href="#" aria-label="TikTok"><i class="bi bi-tiktok"></i></a>
+                </div>
+                <p class="footer-desc" style="margin-top:0;">
+                    hello@naturae-skincare.com
+                </p>
+            </div>
+
+        </div>
+
+        <hr class="footer-divider">
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <p class="footer-copy mb-0">
+                © {{ "now"|date("Y") }} Naturaé Skincare. All rights reserved.
+            </p>
+            <p class="footer-copy mb-0">
+                <a href="#">Privacy Policy</a>
+                <span class="f-dot">·</span>
+                <a href="#">Terms of Use</a>
+                <span class="f-dot">·</span>
+                <a href="#">Cookie Policy</a>
+            </p>
+        </div>
+
+    </div>
+</footer>
+
+
+{# ═══════════════════════════════════════════════════════
+   SCRIPTS
+═══════════════════════════════════════════════════════ #}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    /* ── 1. Unified scroll-reveal ─────────────────────── */
+    const allReveal = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+    const revealIO  = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('in-view');
+                revealIO.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.10, rootMargin: '0px 0px -50px 0px' });
+    allReveal.forEach(el => revealIO.observe(el));
+
+    /* ── 2. Navbar — scroll shadow + size ─────────────── */
+    const nav = document.getElementById('mainNav');
+    window.addEventListener('scroll', () => {
+        nav.classList.toggle('scrolled', window.scrollY > 60);
+    }, { passive: true });
+
+    /* ── 3. Active nav-link on scroll ─────────────────── */
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.n-nav a.n-link');
+    const activeIO = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                navLinks.forEach(l => l.classList.remove('active'));
+                const a = document.querySelector('.n-nav a[href="#' + e.target.id + '"]');
+                if (a) a.classList.add('active');
+            }
+        });
+    }, { threshold: 0.40 });
+    sections.forEach(s => activeIO.observe(s));
+})();
+</script>
+
+</body>
+</html>
