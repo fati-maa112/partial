@@ -15,7 +15,7 @@ chown -R www-data:www-data /app/var
 chmod -R 775 /app/var
 
 echo "Running database migrations..."
-php /app/bin/console doctrine:migrations:migrate --no-interaction --env=prod
+php /app/bin/console doctrine:migrations:migrate --no-interaction --env=prod || true
 
 echo "Starting PHP-FPM..."
 php-fpm -F &
