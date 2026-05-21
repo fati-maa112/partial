@@ -1,0 +1,1038 @@
+{% extends 'base_public.html.twig' %}
+
+{% block title %}Contact Us — Naturaé Skincare{% endblock %}
+{% block nav_class %}nav-dark{% endblock %}
+
+{% block extra_styles %}
+
+/* ── RESET & SHARED ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+.eyebrow {
+    font-size: 0.68rem; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--sage); font-weight: 400; display: flex; align-items: center;
+    gap: 0.55rem; margin-bottom: 1rem;
+}
+.eyebrow-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--sage); flex-shrink: 0; }
+
+/* ── SCROLL REVEAL ── */
+.reveal, .reveal-left, .reveal-right {
+    opacity: 0; transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+}
+.reveal       { transform: translateY(32px); }
+.reveal-left  { transform: translateX(-40px); }
+.reveal-right { transform: translateX(40px); }
+.reveal.in-view, .reveal-left.in-view, .reveal-right.in-view { opacity: 1; transform: none; }
+.d1{transition-delay:.05s} .d2{transition-delay:.15s} .d3{transition-delay:.25s}
+.d4{transition-delay:.35s} .d5{transition-delay:.45s} .d6{transition-delay:.55s}
+
+/* ══════════════════════════════════════
+   §1  HERO
+══════════════════════════════════════ */
+#contact-hero {
+    position: relative; min-height: 72vh;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--moss); overflow: hidden; padding: 160px 0 100px;
+}
+#contact-hero::after {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px; opacity: 0.6;
+}
+.hero-orb {
+    position: absolute; border-radius: 50%; pointer-events: none;
+}
+.hero-orb-1 {
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(155,168,130,0.16) 0%, transparent 65%);
+    top: -300px; right: -180px;
+}
+.hero-orb-2 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(183,155,127,0.12) 0%, transparent 65%);
+    bottom: -180px; left: -120px;
+}
+.hero-grid-lines {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 72px 72px;
+}
+
+.contact-hero-content {
+    position: relative; z-index: 2; text-align: center; padding: 0 1.5rem;
+}
+.hero-tag {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 999px; padding: 0.45rem 1.3rem;
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: rgba(255,255,255,0.65); backdrop-filter: blur(12px);
+    margin-bottom: 2rem;
+    animation: hero-rise 1s var(--ease) 0.1s both;
+}
+.hero-tag-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--sage-light);
+    box-shadow: 0 0 6px rgba(155,168,130,0.8);
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+    0%,100% { box-shadow: 0 0 4px rgba(155,168,130,0.6); }
+    50%      { box-shadow: 0 0 12px rgba(155,168,130,1); }
+}
+.contact-hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.5rem, 9vw, 7.5rem);
+    font-weight: 300; line-height: 0.92;
+    color: var(--white); letter-spacing: -0.025em;
+    margin-bottom: 1.8rem;
+    animation: hero-rise 1s var(--ease) 0.25s both;
+}
+.contact-hero-title .italic-line {
+    font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400;
+    color: rgba(212,195,174,0.90); display: block; margin-top: 0.06em;
+}
+.contact-hero-sub {
+    font-size: 1rem; color: rgba(255,255,255,0.48); max-width: 460px;
+    margin: 0 auto 3rem; line-height: 1.9; font-weight: 300;
+    animation: hero-rise 1s var(--ease) 0.40s both;
+}
+.contact-hero-pills {
+    display: flex; gap: 0.65rem; justify-content: center; flex-wrap: wrap;
+    animation: hero-rise 1s var(--ease) 0.55s both;
+}
+.hero-pill {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 999px; padding: 0.5rem 1.2rem;
+    font-size: 0.76rem; letter-spacing: 0.08em; color: rgba(255,255,255,0.68);
+    backdrop-filter: blur(8px); transition: all 0.3s var(--ease);
+}
+.hero-pill:hover {
+    background: rgba(255,255,255,0.12); border-color: rgba(155,168,130,0.4);
+    color: rgba(255,255,255,0.92); transform: translateY(-2px);
+}
+.hero-pill i { color: var(--sage-light); }
+
+.hero-rule {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.12) 30%, rgba(255,255,255,0.12) 70%, transparent);
+}
+.hero-scroll-indicator {
+    position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 0.6rem; z-index: 2;
+    animation: hero-rise 1s var(--ease) 0.85s both;
+}
+.scroll-bar {
+    width: 1px; height: 48px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+    animation: scroll-pulse 2.4s ease-in-out infinite;
+}
+@keyframes scroll-pulse { 0%,100%{opacity:.3;transform:scaleY(1)} 50%{opacity:.8;transform:scaleY(1.2)} }
+.scroll-txt { font-size: 0.54rem; letter-spacing: 0.30em; text-transform: uppercase; color: rgba(255,255,255,0.28); }
+@keyframes hero-rise { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:none} }
+
+/* ══════════════════════════════════════
+   §2  CONTACT OPTIONS (cards)
+══════════════════════════════════════ */
+#contact-options {
+    padding: 130px 0 100px; background: var(--white);
+    position: relative; overflow: hidden;
+}
+#contact-options::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(ellipse at 85% 0%, rgba(122,134,97,0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 15% 100%, rgba(183,155,127,0.06) 0%, transparent 50%);
+}
+.options-header { text-align: center; margin-bottom: 4.5rem; }
+.options-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 300; letter-spacing: -0.02em; line-height: 1.0; margin-bottom: 1rem;
+}
+.options-title em { font-family: 'Playfair Display', serif; font-style: italic; color: var(--sage); font-weight: 400; }
+.options-sub { font-size: 0.96rem; color: var(--text-muted); max-width: 440px; margin: 0 auto; line-height: 1.9; font-weight: 300; }
+
+.options-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+    position: relative; z-index: 1;
+}
+.option-card {
+    background: var(--cream); border: 1px solid rgba(183,155,127,0.12); border-radius: 0;
+    padding: 2.8rem 2.2rem; text-align: center;
+    cursor: pointer; transition: all 0.5s cubic-bezier(0.23,1,0.32,1);
+    position: relative; overflow: hidden;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+.option-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(to right, transparent, rgba(122,134,97,0.55), transparent);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.23,1,0.32,1);
+}
+.option-card:hover::before { transform: scaleX(1); }
+.option-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 28px 70px rgba(60,52,40,0.12);
+    border-color: rgba(122,134,97,0.22);
+    background: var(--white);
+}
+.option-icon-wrap {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--sage-faint), var(--cream-mid));
+    border: 1px solid rgba(122,134,97,0.18);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.4rem;
+    font-size: 1.4rem;
+    transition: all 0.5s cubic-bezier(0.23,1,0.32,1);
+    box-shadow: 0 4px 16px rgba(95,107,77,0.10);
+}
+.option-card:hover .option-icon-wrap {
+    background: linear-gradient(135deg, var(--sage-light), var(--sage-dark));
+    box-shadow: 0 8px 28px rgba(95,107,77,0.28);
+    transform: scale(1.08) rotate(-4deg);
+}
+.option-card:hover .option-icon-wrap i { color: var(--white); }
+.option-icon-wrap i { font-size: 1.3rem; color: var(--sage-dark); transition: color 0.3s; }
+.option-name {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.45rem; font-weight: 400;
+    color: var(--text); margin-bottom: 0.6rem; letter-spacing: -0.01em;
+}
+.option-desc { font-size: 0.84rem; color: var(--text-muted); line-height: 1.75; font-weight: 300; margin-bottom: 1.4rem; }
+.option-detail {
+    font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--sage-dark); font-weight: 400;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    transition: gap 0.3s;
+}
+.option-card:hover .option-detail { gap: 0.8rem; }
+
+/* ══════════════════════════════════════
+   §3  MAIN CONTACT FORM + SIDEBAR
+══════════════════════════════════════ */
+#contact-form-section {
+    padding: 120px 0 130px; background: var(--cream);
+    position: relative; overflow: hidden;
+}
+#contact-form-section::before {
+    content: 'Contact'; position: absolute;
+    font-family: 'Cormorant Garamond', serif; font-size: 20vw; font-weight: 300;
+    color: rgba(122,134,97,0.030); top: 50%; left: 50%;
+    transform: translate(-50%,-50%); white-space: nowrap; pointer-events: none;
+    letter-spacing: -0.06em; user-select: none; line-height: 1;
+}
+.form-layout {
+    display: grid; grid-template-columns: 1fr 380px;
+    gap: 5rem; align-items: start; position: relative; z-index: 1;
+}
+
+/* ── Form card ── */
+.form-card {
+    background: var(--white); border: 1px solid rgba(183,155,127,0.12);
+    padding: 3.5rem; position: relative; overflow: hidden;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    box-shadow: 0 20px 60px rgba(60,52,40,0.07);
+}
+.form-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(to right, transparent, rgba(183,155,127,0.55), transparent);
+    pointer-events: none;
+}
+.form-card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem; font-weight: 300; color: var(--text);
+    letter-spacing: -0.015em; margin-bottom: 0.5rem;
+}
+.form-card-title em { font-family: 'Playfair Display', serif; font-style: italic; color: var(--sage); font-weight: 400; }
+.form-card-sub { font-size: 0.88rem; color: var(--text-muted); line-height: 1.75; font-weight: 300; margin-bottom: 2.5rem; }
+
+/* Form fields */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem; }
+.form-group { display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 1.2rem; }
+.form-group:last-of-type { margin-bottom: 0; }
+.form-label {
+    font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--text-muted); font-weight: 400;
+}
+.form-control {
+    width: 100%; background: var(--cream); border: 1px solid rgba(183,155,127,0.22); border-radius: 0;
+    padding: 0.85rem 1.1rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem; color: var(--text); font-weight: 300;
+    transition: all 0.35s cubic-bezier(0.23,1,0.32,1); outline: none;
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+}
+.form-control::placeholder { color: rgba(60,52,40,0.30); }
+.form-control:focus {
+    border-color: rgba(122,134,97,0.55); background: var(--white);
+    box-shadow: 0 0 0 3px rgba(122,134,97,0.08);
+}
+textarea.form-control { resize: vertical; min-height: 130px; line-height: 1.7; }
+select.form-control { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a8661' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1.1rem center; padding-right: 2.5rem; }
+
+/* Checkbox & policy */
+.form-check { display: flex; align-items: flex-start; gap: 0.75rem; margin: 1.5rem 0; }
+.form-check-input {
+    width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px;
+    border: 1px solid rgba(122,134,97,0.35); border-radius: 0; cursor: pointer;
+    accent-color: var(--sage-dark);
+    clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+}
+.form-check-label {
+    font-size: 0.82rem; color: var(--text-muted); font-weight: 300; line-height: 1.65;
+}
+.form-check-label a { color: var(--sage-dark); text-decoration: underline; text-underline-offset: 2px; }
+
+/* Submit button */
+.btn-submit {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.7rem;
+    background: var(--moss); color: var(--white); border: none; border-radius: 0;
+    padding: 1.15rem 2rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.70rem; font-weight: 400; letter-spacing: 0.26em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.5s cubic-bezier(0.23,1,0.32,1);
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    box-shadow: 0 8px 28px rgba(74,82,64,0.22);
+    margin-top: 1.8rem;
+    position: relative; overflow: hidden;
+}
+.btn-submit::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.07) 50%, transparent 100%);
+    transform: translateX(-100%); transition: transform 0.6s cubic-bezier(0.23,1,0.32,1);
+}
+.btn-submit:not(:disabled):hover::before { transform: translateX(100%); }
+.btn-submit:not(:disabled):hover {
+    background: var(--sage-dark); transform: translateY(-3px);
+    box-shadow: 0 18px 44px rgba(74,82,64,0.30);
+}
+.btn-submit:disabled { opacity: 0.72; cursor: not-allowed; transform: none !important; box-shadow: none; }
+
+/* Spinner inside button */
+.btn-spinner {
+    width: 15px; height: 15px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.30);
+    border-top-color: var(--white);
+    animation: spin 0.7s linear infinite; display: none; flex-shrink: 0;
+}
+.btn-submit.is-loading .btn-spinner { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Inline field validation */
+.field-error {
+    font-size: 0.70rem; color: #c0392b; font-weight: 400;
+    display: none; align-items: center; gap: 0.3rem;
+    margin-top: 0.35rem; letter-spacing: 0.01em; line-height: 1.4;
+}
+.field-error.is-visible { display: flex; }
+.form-control.is-invalid {
+    border-color: rgba(192,57,43,0.55) !important;
+    background: rgba(192,57,43,0.03) !important;
+    box-shadow: 0 0 0 3px rgba(192,57,43,0.07) !important;
+}
+.form-control.is-valid { border-color: rgba(122,134,97,0.55) !important; }
+
+/* Error toast banner */
+.form-toast {
+    display: none; align-items: flex-start; gap: 0.9rem;
+    padding: 1rem 1.2rem; margin-top: 1.2rem;
+    border: 1px solid rgba(192,57,43,0.22);
+    background: rgba(192,57,43,0.04);
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    animation: toast-in 0.35s cubic-bezier(0.23,1,0.32,1) both;
+}
+.form-toast.is-visible { display: flex; }
+@keyframes toast-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+.toast-icon { font-size: 1rem; color: #c0392b; flex-shrink: 0; margin-top: 1px; }
+.toast-text { font-size: 0.82rem; color: #7a2a20; line-height: 1.65; font-weight: 300; }
+.toast-text strong { font-weight: 500; display: block; margin-bottom: 0.15rem; font-size: 0.84rem; }
+
+/* Success state */
+.form-success {
+    display: none; text-align: center; padding: 3.5rem 2rem;
+    flex-direction: column; align-items: center; gap: 1.1rem;
+}
+.form-success.is-visible { display: flex; }
+.success-icon-wrap { position: relative; display: flex; align-items: center; justify-content: center; width: 96px; height: 96px; }
+.success-ring {
+    position: absolute; inset: 0; border-radius: 50%;
+    border: 1px solid rgba(122,134,97,0.25);
+    animation: ring-expand 0.7s cubic-bezier(0.23,1,0.32,1) 0.3s both;
+}
+@keyframes ring-expand { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+.success-icon {
+    width: 68px; height: 68px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--sage-light), var(--sage-dark));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; color: var(--white);
+    box-shadow: 0 8px 28px rgba(95,107,77,0.30);
+    animation: pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes pop-in { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+.success-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 400; color: var(--text); animation: hero-rise 0.6s var(--ease) 0.2s both; }
+.success-sub { font-size: 0.88rem; color: var(--text-muted); font-weight: 300; line-height: 1.75; max-width: 320px; animation: hero-rise 0.6s var(--ease) 0.35s both; }
+.success-divider { width: 40px; height: 1px; background: linear-gradient(to right, transparent, var(--sage), transparent); }
+.success-details {
+    display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 300px;
+    animation: hero-rise 0.6s var(--ease) 0.45s both;
+}
+.success-detail-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.78rem; padding: 0.6rem 1rem;
+    background: var(--cream); border: 1px solid rgba(183,155,127,0.12);
+    clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+}
+.sdr-label { color: var(--text-muted); font-weight: 300; }
+.sdr-val { color: var(--text); font-weight: 400; }
+
+/* ── Sidebar ── */
+.form-sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.sidebar-info-card {
+    background: var(--white); border: 1px solid rgba(183,155,127,0.12);
+    padding: 2rem 1.8rem; position: relative; overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+.sidebar-info-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(to right, transparent, rgba(183,155,127,0.55), transparent);
+}
+.sidebar-info-card:hover {
+    transform: translateY(-4px); box-shadow: 0 16px 48px rgba(60,52,40,0.10);
+    border-color: rgba(122,134,97,0.20);
+}
+.sic-icon {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--sage-faint), var(--cream-mid));
+    border: 1px solid rgba(122,134,97,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.05rem; margin-bottom: 1rem;
+    box-shadow: 0 3px 12px rgba(95,107,77,0.10);
+}
+.sic-icon i { color: var(--sage-dark); }
+.sic-label {
+    font-size: 0.60rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--sage); font-weight: 400; margin-bottom: 0.3rem;
+}
+.sic-value {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 400;
+    color: var(--text); line-height: 1.25; margin-bottom: 0.3rem;
+}
+.sic-sub { font-size: 0.78rem; color: var(--text-muted); font-weight: 300; line-height: 1.55; }
+.sic-link {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.70rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--sage-dark); text-decoration: none; margin-top: 0.6rem; font-weight: 400;
+    transition: gap 0.3s;
+}
+.sic-link:hover { gap: 0.7rem; color: var(--moss); }
+
+/* Sage accent card */
+.sidebar-accent-card {
+    background: linear-gradient(150deg, var(--moss) 0%, var(--sage-dark) 55%, #7a8a5f 100%);
+    border: none; padding: 2.2rem 1.8rem; position: relative; overflow: hidden;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    box-shadow: 0 12px 40px rgba(74,82,64,0.24);
+}
+.sidebar-accent-card::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.80' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px;
+}
+.sac-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 300;
+    color: var(--white); line-height: 1.1; margin-bottom: 0.6rem; position: relative;
+}
+.sac-title em { font-family: 'Playfair Display', serif; font-style: italic; color: rgba(212,195,174,0.88); font-weight: 400; }
+.sac-text {
+    font-size: 0.82rem; color: rgba(255,255,255,0.50); line-height: 1.70;
+    font-weight: 300; margin-bottom: 1.3rem; position: relative;
+}
+.sac-hours { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.4rem; position: relative; }
+.sac-hour-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.78rem; padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.sac-day { color: rgba(255,255,255,0.55); font-weight: 300; }
+.sac-time { color: rgba(255,255,255,0.85); font-weight: 400; }
+.sac-badge {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 999px; padding: 0.3rem 0.85rem;
+    font-size: 0.60rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(155,168,130,0.90); position: relative;
+}
+.sac-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--sage-light); animation: pulse-dot 2s infinite; }
+
+/* ══════════════════════════════════════
+   §4  FAQ
+══════════════════════════════════════ */
+#contact-faq {
+    padding: 120px 0 130px; background: var(--cream-mid);
+    position: relative; overflow: hidden;
+}
+#contact-faq::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(ellipse at 15% 50%, rgba(122,134,97,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 20%, rgba(183,155,127,0.07) 0%, transparent 50%);
+}
+.faq-layout {
+    display: grid; grid-template-columns: 360px 1fr;
+    gap: 6rem; align-items: start; position: relative; z-index: 1;
+}
+.faq-left {}
+.faq-left h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.4rem, 4.5vw, 3.8rem);
+    font-weight: 300; letter-spacing: -0.02em; line-height: 1.02;
+    color: var(--text); margin-bottom: 1rem;
+}
+.faq-left h2 em { font-family: 'Playfair Display', serif; font-style: italic; color: var(--sage); font-weight: 400; }
+.faq-left-sub { font-size: 0.92rem; color: var(--text-muted); line-height: 1.85; font-weight: 300; margin-bottom: 2rem; }
+.faq-stat-block { display: flex; flex-direction: column; gap: 1.2rem; margin-top: 2.5rem; }
+.faq-stat {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1rem 1.2rem;
+    background: var(--white); border: 1px solid rgba(183,155,127,0.10);
+    clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+}
+.faq-stat-num { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; color: var(--sage-dark); line-height: 1; }
+.faq-stat-lbl { font-size: 0.72rem; color: var(--text-muted); font-weight: 300; line-height: 1.4; }
+
+/* FAQ accordion */
+.faq-accordion { display: flex; flex-direction: column; }
+.faq-item { border-top: 1px solid rgba(183,155,127,0.18); overflow: hidden; }
+.faq-item:last-child { border-bottom: 1px solid rgba(183,155,127,0.18); }
+.faq-trigger {
+    width: 100%; background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.4rem 0; text-align: left; transition: all 0.3s;
+}
+.faq-trigger:hover .faq-q { color: var(--sage-dark); }
+.faq-q {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 400;
+    color: var(--text); letter-spacing: -0.01em; transition: color 0.3s; line-height: 1.2;
+}
+.faq-item.is-open .faq-q { color: var(--sage-dark); }
+.faq-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1px solid rgba(122,134,97,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; color: var(--sage); flex-shrink: 0;
+    transition: all 0.4s cubic-bezier(0.23,1,0.32,1); background: transparent;
+}
+.faq-item.is-open .faq-icon {
+    background: var(--sage-dark); color: var(--white);
+    border-color: var(--sage-dark); transform: rotate(45deg);
+}
+.faq-body {
+    display: grid; grid-template-rows: 0fr;
+    transition: grid-template-rows 0.45s cubic-bezier(0.23,1,0.32,1);
+}
+.faq-item.is-open .faq-body { grid-template-rows: 1fr; }
+.faq-body-inner { overflow: hidden; }
+.faq-body-content { padding: 0 0 1.5rem; }
+.faq-a { font-size: 0.90rem; color: var(--text-muted); line-height: 1.85; font-weight: 300; }
+
+/* ══════════════════════════════════════
+   §5  SOCIAL / CLOSING CTA
+══════════════════════════════════════ */
+#contact-closing {
+    padding: 120px 0; background: var(--cream);
+    position: relative; overflow: hidden;
+}
+#contact-closing::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 100%, rgba(122,134,97,0.10) 0%, transparent 60%);
+}
+.closing-inner {
+    background: linear-gradient(150deg, var(--moss) 0%, var(--sage-dark) 55%, #6e7d56 100%);
+    padding: 6rem 4rem; text-align: center; position: relative; overflow: hidden;
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    box-shadow: 0 40px 100px rgba(74,82,64,0.28);
+}
+.closing-inner::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.80' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px;
+}
+.closing-inner::after {
+    content: ''; position: absolute;
+    width: 600px; height: 600px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 60%);
+    top: -300px; right: -150px; pointer-events: none;
+}
+.closing-inner > * { position: relative; z-index: 1; }
+.closing-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.65rem; letter-spacing: 0.26em; text-transform: uppercase;
+    color: rgba(155,168,130,0.85); margin-bottom: 1.2rem; font-weight: 400;
+}
+.closing-eyebrow-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--sage-light); animation: pulse-dot 2s infinite; }
+.closing-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.4rem, 4.5vw, 3.8rem);
+    font-weight: 300; color: var(--white); margin-bottom: 1rem;
+    line-height: 1.0; letter-spacing: -0.02em;
+}
+.closing-title em { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400; color: rgba(212,195,174,0.88); }
+.closing-sub { font-size: 0.96rem; color: rgba(255,255,255,0.44); max-width: 420px; margin: 0 auto 2.8rem; line-height: 1.9; font-weight: 300; }
+
+.social-links { display: flex; align-items: center; justify-content: center; gap: 0.8rem; margin-bottom: 2.8rem; }
+.social-btn {
+    width: 46px; height: 46px;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.65); font-size: 1rem; text-decoration: none;
+    transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
+    clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+    backdrop-filter: blur(8px);
+}
+.social-btn:hover {
+    background: rgba(255,255,255,0.18); border-color: rgba(155,168,130,0.50);
+    color: var(--white); transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.20);
+}
+.closing-btns { display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+.btn-closing-primary {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    background: var(--white); color: var(--moss) !important;
+    border: none; border-radius: 0; padding: 1.05rem 2.8rem;
+    font-family: 'DM Sans', sans-serif; font-size: 0.70rem; font-weight: 400;
+    letter-spacing: 0.20em; text-transform: uppercase; cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
+    text-decoration: none;
+    box-shadow: 0 10px 36px rgba(0,0,0,0.22);
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+.btn-closing-primary:hover {
+    transform: translateY(-3px); box-shadow: 0 20px 50px rgba(0,0,0,0.28);
+    background: var(--cream); color: var(--moss) !important;
+}
+.btn-closing-ghost {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    background: rgba(255,255,255,0.07); color: var(--white) !important;
+    border: 1.5px solid rgba(255,255,255,0.28);
+    padding: 1.03rem 2.4rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.70rem; font-weight: 400; letter-spacing: 0.20em;
+    text-transform: uppercase; cursor: pointer; text-decoration: none;
+    backdrop-filter: blur(12px); transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
+    clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+}
+.btn-closing-ghost:hover {
+    background: rgba(255,255,255,0.16); border-color: rgba(255,255,255,0.55);
+    transform: translateY(-3px); color: var(--white) !important;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+    .form-layout { grid-template-columns: 1fr; gap: 3.5rem; }
+    .form-sidebar { flex-direction: row; flex-wrap: wrap; }
+    .sidebar-info-card, .sidebar-accent-card { flex: 1 1 260px; }
+}
+@media (max-width: 992px) {
+    .options-grid { grid-template-columns: repeat(2, 1fr); }
+    .faq-layout { grid-template-columns: 1fr; gap: 3.5rem; }
+    .faq-stat-block { flex-direction: row; flex-wrap: wrap; }
+    .closing-inner { padding: 4.5rem 2.5rem; }
+}
+@media (max-width: 576px) {
+    .options-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .form-card { padding: 2rem 1.5rem; }
+    .closing-inner { padding: 3.5rem 1.5rem; }
+    .contact-hero-title { font-size: clamp(3rem, 14vw, 4.5rem); }
+}
+
+{% endblock %}
+
+
+{% block body %}
+
+{# ════════ §1 HERO ════════ #}
+<section id="contact-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-grid-lines"></div>
+
+    <div class="contact-hero-content container">
+        <div class="hero-tag">
+            <span class="hero-tag-dot"></span>
+            Contact & Assistance
+        </div>
+        <h1 class="contact-hero-title">
+            We'd love to<br>
+            <span class="italic-line">hear from you</span>
+        </h1>
+        <p class="contact-hero-sub">
+            Questions, custom requests, or just curious about what goes into
+            your favourite serum? We're always here.
+        </p>
+        <div class="contact-hero-pills">
+            <span class="hero-pill"><i class="bi bi-clock"></i> Replies within 24 h</span>
+            <span class="hero-pill"><i class="bi bi-shield-check"></i> Secure & Private</span>
+            <span class="hero-pill"><i class="bi bi-chat-heart"></i> Real People, Real Care</span>
+        </div>
+    </div>
+
+    <div class="hero-rule"></div>
+    <div class="hero-scroll-indicator">
+        <div class="scroll-bar"></div>
+        <span class="scroll-txt">Scroll</span>
+    </div>
+</section>
+
+
+{# ════════ §2 CONTACT OPTIONS ════════ #}
+<section id="contact-options">
+    <div class="container">
+        <div class="options-header reveal">
+            <div class="eyebrow" style="justify-content:center;"><span class="eyebrow-dot"></span> How to Reach Us</div>
+            <h2 class="options-title">Reach us <em>your way</em></h2>
+            <p class="options-sub">Choose the channel that suits you best — every message is read by a real person on our team.</p>
+        </div>
+        <div class="options-grid">
+            <div class="option-card reveal d1">
+                <div class="option-icon-wrap"><i class="bi bi-envelope-at"></i></div>
+                <div class="option-name">Email Support</div>
+                <p class="option-desc">Send us an email for product details, order help, or general questions. We reply within one business day.</p>
+                <a href="mailto:hello@naturae.ph" class="option-detail">hello@naturae.ph <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="option-card reveal d2">
+                <div class="option-icon-wrap"><i class="bi bi-telephone"></i></div>
+                <div class="option-name">Phone Assistance</div>
+                <p class="option-desc">Call for prompt support with your skincare questions, product guidance, or order updates.</p>
+                <span class="option-detail">Mon – Fri, 9 AM – 6 PM <i class="bi bi-arrow-right"></i></span>
+            </div>
+            <div class="option-card reveal d3">
+                <div class="option-icon-wrap"><i class="bi bi-chat-dots"></i></div>
+                <div class="option-name">Live Chat</div>
+                <p class="option-desc">Chat with our team for fast answers during business hours — no waiting, no bots.</p>
+                <span class="option-detail">Available 9 AM – 6 PM <i class="bi bi-arrow-right"></i></span>
+            </div>
+            <div class="option-card reveal d4">
+                <div class="option-icon-wrap"><i class="bi bi-geo-alt"></i></div>
+                <div class="option-name">Visit Our Store</div>
+                <p class="option-desc">Browse products in person and get tailored skincare advice from our experts.</p>
+                <span class="option-detail">Cebu City, Philippines <i class="bi bi-arrow-right"></i></span>
+            </div>
+            <div class="option-card reveal d5">
+                <div class="option-icon-wrap"><i class="bi bi-heart"></i></div>
+                <div class="option-name">Customer Care</div>
+                <p class="option-desc">Get help with returns, exchanges, or in-depth product guidance from our support team.</p>
+                <a href="#contact-form-section" class="option-detail">Start a request <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="option-card reveal d6">
+                <div class="option-icon-wrap"><i class="bi bi-megaphone"></i></div>
+                <div class="option-name">Press Inquiries</div>
+                <p class="option-desc">For media requests, partnership proposals, or collaboration opportunities, reach out here.</p>
+                <a href="mailto:press@naturae.ph" class="option-detail">press@naturae.ph <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{# ════════ §3 FORM + SIDEBAR ════════ #}
+<section id="contact-form-section">
+    <div class="container">
+        <div class="form-layout">
+
+            {# ── Form ── #}
+            <div class="form-card reveal-left">
+                {# Form body #}
+                <div id="contactFormBody">
+                    <div class="eyebrow"><span class="eyebrow-dot"></span> Send a Message</div>
+                    <h2 class="form-card-title">Tell us <em>what you need</em></h2>
+                    <p class="form-card-sub">Fill in the form and our team will get back to you within one business day. All fields marked are required.</p>
+
+                    <div id="contactFormBody">
+
+
+    <!-- GOOGLE FORM EMBED -->
+    <div style="width:100%; margin-top:20px;">
+        <iframe
+            src="https://docs.google.com/forms/d/e/1FAIpQLSepUbIeKHpaY3Np8aqM4BhQcnf6Legcycy6jJJMpot8YiQBow/viewform?embedded=true"
+            width="100%"
+            height="900"
+            frameborder="0"
+            marginheight="0"
+            marginwidth="0"
+            style="border:0; border-radius:12px;">
+            Loading…
+        </iframe>
+    </div>
+
+</div>
+                </div>
+                {# Success state — shown after Brevo API call succeeds #}
+                <div class="form-success" id="formSuccess" role="status" aria-live="polite">
+                    <div class="success-icon-wrap">
+                        <div class="success-ring"></div>
+                        <div class="success-icon">✓</div>
+                    </div>
+                    <div class="success-title">Message sent!</div>
+                    <div class="success-divider"></div>
+                    <p class="success-sub">Thank you, <strong id="successName" class="success-name"></strong> — our team will reply to you within one business day.</p>
+                    <div class="success-details">
+                        <div class="success-detail-row">
+                            <span class="sdr-label">Sent to</span>
+                            <span class="sdr-val" id="successEmail"></span>
+                        </div>
+                        <div class="success-detail-row">
+                            <span class="sdr-label">Topic</span>
+                            <span class="sdr-val" id="successTopic"></span>
+                        </div>
+                        <div class="success-detail-row">
+                            <span class="sdr-label">Response by</span>
+                            <span class="sdr-val">Within 24 hours</span>
+                        </div>
+                    </div>
+                    <a href="{{ path('app_shop') }}" class="option-detail" style="margin-top:.8rem;">Browse our products <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+
+            {# ── Sidebar ── #}
+            <aside class="form-sidebar reveal-right">
+
+                <div class="sidebar-info-card">
+                    <div class="sic-icon"><i class="bi bi-envelope-at"></i></div>
+                    <div class="sic-label">Email</div>
+                    <div class="sic-value">hello@naturae.ph</div>
+                    <div class="sic-sub">For general inquiries, orders and support.</div>
+                    <a href="mailto:hello@naturae.ph" class="sic-link">Write to us <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <div class="sidebar-info-card">
+                    <div class="sic-icon"><i class="bi bi-geo-alt"></i></div>
+                    <div class="sic-label">Location</div>
+                    <div class="sic-value">Cebu City, Philippines</div>
+                    <div class="sic-sub">Visit us in-store or send us a message online.</div>
+                    <a href="#" class="sic-link">Get directions <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <div class="sidebar-info-card">
+                    <div class="sic-icon"><i class="bi bi-instagram"></i></div>
+                    <div class="sic-label">Social</div>
+                    <div class="sic-value">@naturae.ph</div>
+                    <div class="sic-sub">Follow us for tips, new arrivals and behind-the-scenes.</div>
+                    <a href="#" class="sic-link">Follow along <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <div class="sidebar-accent-card">
+                    <div class="sac-title">Our business<br><em>hours</em></div>
+                    <p class="sac-text">We're available Monday to Saturday to assist you with anything you need.</p>
+                    <div class="sac-hours">
+                        <div class="sac-hour-row"><span class="sac-day">Mon – Fri</span><span class="sac-time">9:00 AM – 6:00 PM</span></div>
+                        <div class="sac-hour-row"><span class="sac-day">Saturday</span><span class="sac-time">10:00 AM – 4:00 PM</span></div>
+                        <div class="sac-hour-row"><span class="sac-day">Sunday</span><span class="sac-time">Closed</span></div>
+                    </div>
+                    <div class="sac-badge">
+                        <span class="sac-badge-dot"></span>
+                        Replies within 24 h
+                    </div>
+                </div>
+
+            </aside>
+
+        </div>
+    </div>
+</section>
+
+
+{# ════════ §4 FAQ ════════ #}
+<section id="contact-faq">
+    <div class="container">
+        <div class="faq-layout">
+
+            <div class="faq-left reveal-left">
+                <div class="eyebrow"><span class="eyebrow-dot"></span> FAQ</div>
+                <h2>Your questions,<br><em>clearly answered</em></h2>
+                <p class="faq-left-sub">Browse our most frequently asked questions about our organic skincare and support.</p>
+                <div class="faq-stat-block">
+                    <div class="faq-stat">
+                        <div class="faq-stat-num">24h</div>
+                        <div class="faq-stat-lbl">Average response time</div>
+                    </div>
+                    <div class="faq-stat">
+                        <div class="faq-stat-num">98%</div>
+                        <div class="faq-stat-lbl">Customer satisfaction</div>
+                    </div>
+                    <div class="faq-stat">
+                        <div class="faq-stat-num">50k+</div>
+                        <div class="faq-stat-lbl">Happy customers served</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion reveal-right">
+                <div class="faq-item is-open">
+                    <button class="faq-trigger" aria-expanded="true">
+                        <span class="faq-q">How do I place an order?</span>
+                        <span class="faq-icon"><i class="bi bi-plus"></i></span>
+                    </button>
+                    <div class="faq-body">
+                        <div class="faq-body-inner">
+                            <div class="faq-body-content">
+                                <p class="faq-a">Order directly on our website by browsing the shop, adding your chosen products to the cart, and completing checkout. For any assistance placing your order, our team is happy to guide you via email or chat.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-trigger" aria-expanded="false">
+                        <span class="faq-q">Are your products safe for sensitive skin?</span>
+                        <span class="faq-icon"><i class="bi bi-plus"></i></span>
+                    </button>
+                    <div class="faq-body">
+                        <div class="faq-body-inner">
+                            <div class="faq-body-content">
+                                <p class="faq-a">All Naturaé formulas use gentle, organic ingredients that are dermatologist tested and free from parabens, sulphates, and artificial fragrances. If you have a specific skin condition or allergy, please review the ingredient list on each product page or contact us directly.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-trigger" aria-expanded="false">
+                        <span class="faq-q">What is your return policy?</span>
+                        <span class="faq-icon"><i class="bi bi-plus"></i></span>
+                    </button>
+                    <div class="faq-body">
+                        <div class="faq-body-inner">
+                            <div class="faq-body-content">
+                                <p class="faq-a">We accept returns within 30 days of delivery for unopened, unused items in their original packaging. To start a return, simply contact our support team with your order number and we will guide you through the process.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-trigger" aria-expanded="false">
+                        <span class="faq-q">How can I track my order?</span>
+                        <span class="faq-icon"><i class="bi bi-plus"></i></span>
+                    </button>
+                    <div class="faq-body">
+                        <div class="faq-body-inner">
+                            <div class="faq-body-content">
+                                <p class="faq-a">Once your order has shipped, a tracking link will be emailed to you automatically. You can use this link to follow your package in real time. For further updates, reach out to our customer support team.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-trigger" aria-expanded="false">
+                        <span class="faq-q">Do you ship internationally?</span>
+                        <span class="faq-icon"><i class="bi bi-plus"></i></span>
+                    </button>
+                    <div class="faq-body">
+                        <div class="faq-body-inner">
+                            <div class="faq-body-content">
+                                <p class="faq-a">Yes! We ship across the Philippines and have begun international shipping to selected countries. Shipping rates and estimated delivery times are shown at checkout based on your location.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-trigger" aria-expanded="false">
+                        <span class="faq-q">Are Naturaé products cruelty-free?</span>
+                        <span class="faq-icon"><i class="bi bi-plus"></i></span>
+                    </button>
+                    <div class="faq-body">
+                        <div class="faq-body-inner">
+                            <div class="faq-body-content">
+                                <p class="faq-a">Absolutely. Every Naturaé product is 100% cruelty-free and will never be tested on animals — at any stage of development or production. We are committed to this as a permanent and non-negotiable value.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+{# ════════ §5 CLOSING CTA ════════ #}
+<section id="contact-closing">
+    <div class="container">
+        <div class="closing-inner reveal">
+            <div class="closing-eyebrow">
+                <span class="closing-eyebrow-dot"></span> Stay Connected
+            </div>
+            <h2 class="closing-title">Follow our <em>natural</em><br>journey</h2>
+            <p class="closing-sub">Join our community for skincare tips, new arrivals, and behind-the-scenes moments from the Naturaé team.</p>
+            <div class="social-links">
+                <a class="social-btn" href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                <a class="social-btn" href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                <a class="social-btn" href="#" aria-label="TikTok"><i class="bi bi-tiktok"></i></a>
+                <a class="social-btn" href="#" aria-label="Pinterest"><i class="bi bi-pinterest"></i></a>
+            </div>
+            <div class="closing-btns">
+                <a href="{{ path('app_shop') }}" class="btn-closing-primary">
+                    Shop Now &nbsp;<i class="bi bi-arrow-right"></i>
+                </a>
+                <a href="{{ path('app_about') }}" class="btn-closing-ghost">
+                    <i class="bi bi-leaf"></i> &nbsp;Our Story
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+(function () {
+    'use strict';
+
+    /* ══════════════════════════════════════
+       Scroll Reveal
+    ══════════════════════════════════════ */
+    const revealEls = document.querySelectorAll('.reveal,.reveal-left,.reveal-right');
+
+    const revealIO = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('in-view');
+                revealIO.unobserve(e.target);
+            }
+        });
+    }, {
+        threshold: 0.10,
+        rootMargin: '0px 0px -40px 0px'
+    });
+
+    revealEls.forEach(el => revealIO.observe(el));
+
+
+    /* ══════════════════════════════════════
+       FAQ Accordion
+    ══════════════════════════════════════ */
+    document.querySelectorAll('.faq-item').forEach(item => {
+        const trigger = item.querySelector('.faq-trigger');
+
+        trigger.addEventListener('click', () => {
+            const isOpen = item.classList.contains('is-open');
+
+            document.querySelectorAll('.faq-item').forEach(i => {
+                i.classList.remove('is-open');
+                i.querySelector('.faq-trigger')
+                    .setAttribute('aria-expanded', 'false');
+            });
+
+            if (!isOpen) {
+                item.classList.add('is-open');
+                trigger.setAttribute('aria-expanded', 'true');
+            }
+        });
+    });
+
+})();
+</script>
+{% endblock %}

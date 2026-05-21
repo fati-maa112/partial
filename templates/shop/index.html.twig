@@ -1,0 +1,2705 @@
+{% extends 'base_public.html.twig' %}
+
+{% block title %}Shop — Naturaé Skincare{% endblock %}
+{% block nav_class %}nav-dark{% endblock %}
+
+{% block extra_styles %}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+.eyebrow {
+    font-size: 0.68rem; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--sage); font-weight: 400; display: flex; align-items: center;
+    gap: 0.55rem; margin-bottom: 1rem;
+}
+.eyebrow-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--sage); flex-shrink: 0; }
+
+/* ── Scroll Reveal ── */
+.reveal, .reveal-left, .reveal-right {
+    opacity: 0; transition: opacity 0.85s cubic-bezier(0.23,1,0.32,1), transform 0.85s cubic-bezier(0.23,1,0.32,1);
+}
+.reveal       { transform: translateY(28px); }
+.reveal-left  { transform: translateX(-32px); }
+.reveal-right { transform: translateX(32px); }
+.reveal.in-view, .reveal-left.in-view, .reveal-right.in-view { opacity: 1; transform: none; }
+.d1{transition-delay:.05s} .d2{transition-delay:.13s} .d3{transition-delay:.21s}
+.d4{transition-delay:.29s} .d5{transition-delay:.37s} .d6{transition-delay:.45s}
+
+/* ══════════════════════════════════════
+   §1  SHOP HERO — split layout
+══════════════════════════════════════ */
+#shop-hero {
+    display: grid; grid-template-columns: 1fr 1fr;
+    min-height: 88vh; overflow: hidden;
+    background: var(--moss);
+}
+.shop-hero-copy {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 140px 5vw 80px 5vw;
+    background: var(--moss); position: relative; overflow: hidden; z-index: 1;
+}
+.shop-hero-copy::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px; opacity: 0.65;
+}
+.shop-hero-copy::after {
+    content: ''; position: absolute;
+    width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(155,168,130,0.18) 0%, transparent 65%);
+    bottom: -200px; left: -100px; pointer-events: none;
+}
+.shop-hero-copy > * { position: relative; z-index: 1; }
+
+.shop-hero-tag {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 999px; padding: 0.4rem 1.1rem;
+    font-size: 0.62rem; letter-spacing: 0.26em; text-transform: uppercase;
+    color: rgba(255,255,255,0.60); margin-bottom: 2rem; width: fit-content;
+    animation: hero-rise 1s cubic-bezier(0.23,1,0.32,1) 0.1s both;
+}
+.shop-hero-tag-dot {
+    width: 5px; height: 5px; border-radius: 50%; background: var(--sage-light);
+    box-shadow: 0 0 6px rgba(155,168,130,0.9);
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot { 0%,100%{box-shadow:0 0 4px rgba(155,168,130,0.5)} 50%{box-shadow:0 0 12px rgba(155,168,130,1)} }
+
+.shop-hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.2rem, 5.5vw, 6rem);
+    font-weight: 300; line-height: 0.92;
+    color: var(--white); letter-spacing: -0.025em;
+    margin-bottom: 1.6rem;
+    animation: hero-rise 1s cubic-bezier(0.23,1,0.32,1) 0.22s both;
+}
+.shop-hero-title .italic-line {
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-weight: 400; color: rgba(212,195,174,0.90); display: block;
+}
+.shop-hero-sub {
+    font-size: 0.95rem; color: rgba(255,255,255,0.46); max-width: 380px;
+    line-height: 1.90; font-weight: 300; margin-bottom: 2.8rem;
+    animation: hero-rise 1s cubic-bezier(0.23,1,0.32,1) 0.36s both;
+}
+.shop-hero-stats {
+    display: flex; gap: 2rem; margin-bottom: 2.8rem;
+    animation: hero-rise 1s cubic-bezier(0.23,1,0.32,1) 0.46s both;
+}
+.shop-hero-stat { display: flex; flex-direction: column; gap: 2px; }
+.shs-num { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; color: var(--white); line-height: 1; }
+.shs-lbl { font-size: 0.60rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+.shop-hero-stat-sep { width: 1px; background: rgba(255,255,255,0.10); align-self: stretch; }
+
+.shop-hero-actions {
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    animation: hero-rise 1s cubic-bezier(0.23,1,0.32,1) 0.56s both;
+}
+.btn-hero-shop {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    background: rgba(255,255,255,0.96); color: var(--moss) !important;
+    border: none; padding: 1rem 2.6rem;
+    font-family: 'DM Sans', sans-serif; font-size: 0.68rem; font-weight: 400;
+    letter-spacing: 0.26em; text-transform: uppercase; text-decoration: none;
+    transition: all 0.45s cubic-bezier(0.23,1,0.32,1);
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    box-shadow: 0 8px 28px rgba(0,0,0,0.22);
+}
+.btn-hero-shop:hover {
+    background: var(--white); transform: translateY(-3px);
+    box-shadow: 0 16px 44px rgba(0,0,0,0.28); color: var(--moss) !important;
+}
+.btn-hero-ghost-sm {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: transparent; color: rgba(255,255,255,0.70) !important;
+    border: 1px solid rgba(255,255,255,0.22); padding: 0.98rem 2.2rem;
+    font-family: 'DM Sans', sans-serif; font-size: 0.68rem; font-weight: 400;
+    letter-spacing: 0.22em; text-transform: uppercase; text-decoration: none;
+    transition: all 0.4s cubic-bezier(0.23,1,0.32,1); cursor: pointer;
+    clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+    backdrop-filter: blur(8px);
+}
+.btn-hero-ghost-sm:hover {
+    background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.55);
+    color: var(--white) !important; transform: translateY(-2px);
+}
+
+@keyframes hero-rise { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:none} }
+
+.shop-hero-img {
+    position: relative; overflow: hidden;
+}
+.shop-hero-img img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    filter: brightness(0.82) saturate(0.88);
+    animation: subtle-zoom 22s ease-in-out infinite alternate;
+}
+@keyframes subtle-zoom { from{transform:scale(1)} to{transform:scale(1.07)} }
+.shop-hero-img-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to right, rgba(74,82,64,0.55) 0%, transparent 45%);
+}
+.shop-hero-badge {
+    position: absolute; bottom: 2.5rem; left: 2.5rem;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid rgba(122,134,97,0.16);
+    padding: 1rem 1.4rem;
+    display: flex; align-items: center; gap: 0.8rem;
+    box-shadow: 0 12px 40px rgba(60,52,40,0.18);
+    animation: float-badge 4s ease-in-out infinite;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+@keyframes float-badge { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+.shb-icon {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--sage-light), var(--sage-dark));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; box-shadow: 0 4px 14px rgba(95,107,77,0.30);
+}
+.shb-text { display: flex; flex-direction: column; gap: 1px; }
+.shb-num { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--text); line-height: 1; }
+.shb-lbl { font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+
+/* ══════════════════════════════════════
+   §1.5  SAFETY CHECKER BANNER
+══════════════════════════════════════ */
+#safety-banner {
+    background: linear-gradient(135deg, #fdf6ee 0%, #f7f0e8 100%);
+    border-bottom: 1px solid rgba(183,155,127,0.18);
+    padding: 0.85rem 0;
+}
+.safety-banner-inner {
+    display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap;
+}
+.safety-banner-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #f0c14b, #e67e22);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(230,126,34,0.25);
+}
+.safety-banner-text { flex: 1; min-width: 200px; }
+.safety-banner-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 500;
+    color: var(--text); margin-bottom: 0.1rem;
+}
+.safety-banner-sub {
+    font-size: 0.72rem; color: var(--text-muted); font-weight: 300; letter-spacing: 0.04em;
+}
+.safety-banner-actions { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; }
+.safety-profile-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.safety-chip {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    border: 1px solid rgba(183,155,127,0.30); border-radius: 999px;
+    padding: 0.28rem 0.75rem; font-size: 0.65rem; letter-spacing: 0.10em;
+    text-transform: uppercase; cursor: pointer; font-weight: 400;
+    background: var(--white); color: var(--text-muted);
+    transition: all 0.3s cubic-bezier(0.23,1,0.32,1);
+    white-space: nowrap;
+}
+.safety-chip:hover { border-color: rgba(122,134,97,0.55); color: var(--sage-dark); }
+.safety-chip.active-warn {
+    background: rgba(231,76,60,0.09); border-color: rgba(231,76,60,0.40);
+    color: #c0392b; font-weight: 500;
+}
+.safety-chip.active-warn .chip-dot { background: #c0392b; box-shadow: 0 0 6px rgba(192,57,43,0.6); }
+.safety-chip.active-ok {
+    background: rgba(39,174,96,0.08); border-color: rgba(39,174,96,0.35);
+    color: #27ae60; font-weight: 500;
+}
+.safety-chip.active-ok .chip-dot { background: #27ae60; }
+.chip-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: rgba(183,155,127,0.45); flex-shrink: 0; transition: all 0.3s;
+}
+.btn-safety-setup {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    background: var(--moss); color: var(--white); border: none;
+    padding: 0.55rem 1.3rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem; font-weight: 400; letter-spacing: 0.18em;
+    text-transform: uppercase; cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.23,1,0.32,1);
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    white-space: nowrap;
+}
+.btn-safety-setup:hover { background: var(--sage-dark); transform: translateY(-1px); }
+
+/* ══════════════════════════════════════
+   §2  CATEGORY BAR + FILTERS
+══════════════════════════════════════ */
+#shop-controls {
+    background: var(--white);
+    border-bottom: 1px solid rgba(183,155,127,0.12);
+    position: sticky; top: 0; z-index: 50;
+    box-shadow: 0 2px 20px rgba(60,52,40,0.06);
+}
+.controls-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; padding: 0; height: 64px;
+}
+.category-tabs {
+    display: flex; align-items: center; gap: 0; height: 100%; overflow-x: auto;
+    scrollbar-width: none; -ms-overflow-style: none; flex: 1;
+}
+.category-tabs::-webkit-scrollbar { display: none; }
+.cat-tab {
+    display: inline-flex; align-items: center; gap: 0.45rem; height: 100%;
+    padding: 0 1.3rem; border: none; background: transparent; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.68rem; font-weight: 400;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-muted); position: relative; white-space: nowrap;
+    transition: color 0.3s;
+}
+.cat-tab::after {
+    content: ''; position: absolute; bottom: 0; left: 50%; right: 50%;
+    height: 2px; background: var(--sage-dark); border-radius: 2px 2px 0 0;
+    transition: all 0.35s cubic-bezier(0.23,1,0.32,1);
+}
+.cat-tab:hover { color: var(--sage-dark); }
+.cat-tab:hover::after { left: 1.3rem; right: 1.3rem; }
+.cat-tab.active { color: var(--sage-dark); font-weight: 500; }
+.cat-tab.active::after { left: 1.3rem; right: 1.3rem; }
+.cat-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--sage-faint); border: 1px solid rgba(122,134,97,0.22);
+    font-size: 0.58rem; color: var(--sage-dark); font-weight: 500;
+    transition: all 0.3s;
+}
+.cat-tab.active .cat-count { background: var(--sage-dark); color: var(--white); border-color: var(--sage-dark); }
+
+.controls-right { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
+.sort-select {
+    appearance: none; background: var(--cream);
+    border: 1px solid rgba(183,155,127,0.22); border-radius: 0; padding: 0.55rem 2.2rem 0.55rem 1rem;
+    font-family: 'DM Sans', sans-serif; font-size: 0.68rem; font-weight: 400;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted);
+    cursor: pointer; outline: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237a8661' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 0.7rem center;
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    transition: all 0.3s;
+}
+.sort-select:focus { border-color: rgba(122,134,97,0.45); color: var(--text); }
+.view-toggle { display: flex; border: 1px solid rgba(183,155,127,0.22); overflow: hidden;
+    clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px)); }
+.view-btn {
+    width: 36px; height: 36px; background: transparent; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted); transition: all 0.3s; font-size: 0.9rem;
+}
+.view-btn.active { background: var(--sage-dark); color: var(--white); }
+.view-btn:hover:not(.active) { background: var(--sage-faint); color: var(--sage-dark); }
+.results-count {
+    font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-muted); font-weight: 300; white-space: nowrap;
+}
+
+/* ══════════════════════════════════════
+   §3  MAIN SHOP GRID
+══════════════════════════════════════ */
+#shop-main {
+    padding: 60px 0 120px; background: var(--cream);
+    position: relative; overflow: hidden;
+}
+#shop-main::before {
+    content: 'Shop'; position: absolute;
+    font-family: 'Cormorant Garamond', serif; font-size: 22vw; font-weight: 300;
+    color: rgba(122,134,97,0.028); top: 50%; left: 50%;
+    transform: translate(-50%,-50%); white-space: nowrap; pointer-events: none;
+    letter-spacing: -0.06em; user-select: none;
+}
+
+.shop-layout {
+    display: grid; grid-template-columns: 240px 1fr;
+    gap: 3rem; align-items: start; position: relative; z-index: 1;
+}
+
+/* ── Sidebar Filters ── */
+.shop-sidebar {
+    position: sticky; top: 80px;
+}
+.sidebar-section { margin-bottom: 2rem; }
+.sidebar-section-title {
+    font-size: 0.62rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--sage); font-weight: 400; margin-bottom: 0.9rem;
+    padding-bottom: 0.6rem; border-bottom: 1px solid rgba(183,155,127,0.14);
+    display: flex; align-items: center; justify-content: space-between;
+}
+.sidebar-clear-btn {
+    font-size: 0.58rem; color: var(--text-muted); text-decoration: none;
+    letter-spacing: 0.10em; cursor: pointer; border: none; background: none;
+    transition: color 0.25s; padding: 0;
+}
+.sidebar-clear-btn:hover { color: var(--sage-dark); }
+
+.price-range-track {
+    position: relative; height: 3px; background: rgba(183,155,127,0.22);
+    border-radius: 2px; margin: 1.2rem 0 0.8rem;
+}
+.price-range-fill {
+    position: absolute; height: 100%;
+    background: linear-gradient(to right, var(--sage), var(--sage-dark));
+    border-radius: 2px; left: 0%; right: 0%;
+    transition: left 0.1s, right 0.1s;
+}
+.price-range-inputs { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+.price-input {
+    width: 72px; border: 1px solid rgba(183,155,127,0.22); border-radius: 0;
+    padding: 0.4rem 0.6rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem; color: var(--text); background: var(--white);
+    outline: none; text-align: center; font-weight: 300;
+    clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+    transition: border-color 0.3s;
+}
+.price-input:focus { border-color: rgba(122,134,97,0.45); }
+.price-sep { font-size: 0.75rem; color: var(--text-muted); }
+.price-apply-btn {
+    width: 100%; margin-top: 0.8rem; padding: 0.6rem;
+    background: transparent; border: 1px solid rgba(122,134,97,0.28); border-radius: 0;
+    font-family: 'DM Sans', sans-serif; font-size: 0.62rem; font-weight: 400;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--sage-dark);
+    cursor: pointer; transition: all 0.3s;
+    clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+}
+.price-apply-btn:hover { background: var(--sage-dark); color: var(--white); border-color: var(--sage-dark); }
+
+.filter-check-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.filter-check {
+    display: flex; align-items: center; gap: 0.7rem; cursor: pointer;
+    padding: 0.3rem 0; transition: all 0.25s;
+}
+.filter-check input[type="checkbox"] {
+    width: 14px; height: 14px; flex-shrink: 0;
+    border: 1px solid rgba(122,134,97,0.30); border-radius: 0;
+    accent-color: var(--sage-dark); cursor: pointer;
+    clip-path: polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px));
+}
+.filter-check-label {
+    font-size: 0.82rem; color: var(--text-muted); font-weight: 300;
+    transition: color 0.25s; display: flex; align-items: center; gap: 0.5rem; flex: 1;
+}
+.filter-check:hover .filter-check-label { color: var(--sage-dark); }
+.filter-check input:checked + .filter-check-label { color: var(--sage-dark); font-weight: 400; }
+.fcheck-count { margin-left: auto; font-size: 0.70rem; color: var(--text-muted); }
+
+.skin-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.skin-btn {
+    padding: 0.5rem 0.4rem; border: 1px solid rgba(183,155,127,0.18); border-radius: 0;
+    background: var(--white); font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--text-muted); cursor: pointer; text-align: center;
+    transition: all 0.3s; font-weight: 300;
+    clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+}
+.skin-btn.active, .skin-btn:hover {
+    background: var(--sage-dark); color: var(--white); border-color: var(--sage-dark);
+}
+.active-filters-bar {
+    display: none; flex-wrap: wrap; gap: 0.4rem; padding-top: 1rem;
+    border-top: 1px solid rgba(183,155,127,0.12);
+}
+.active-filters-bar.has-filters { display: flex; }
+.active-filter-tag {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: rgba(122,134,97,0.10); border: 1px solid rgba(122,134,97,0.22);
+    padding: 0.25rem 0.65rem; font-size: 0.62rem; letter-spacing: 0.10em;
+    text-transform: uppercase; color: var(--sage-dark); font-weight: 400;
+    clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+    cursor: pointer; transition: all 0.25s;
+}
+.active-filter-tag:hover { background: rgba(122,134,97,0.20); }
+.active-filter-tag i { font-size: 0.6rem; }
+
+/* ── Product Grid ── */
+.products-wrap {}
+.products-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 2rem; padding-bottom: 1.2rem;
+    border-bottom: 1px solid rgba(183,155,127,0.14);
+}
+.products-showing {
+    font-size: 0.80rem; color: var(--text-muted); font-weight: 300;
+}
+.products-showing strong { color: var(--text); font-weight: 500; }
+
+.product-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1.8rem; transition: opacity 0.3s;
+}
+.product-grid.is-filtering { opacity: 0.4; pointer-events: none; }
+.product-grid.view-2col { grid-template-columns: repeat(2, 1fr); }
+.product-grid.view-list { grid-template-columns: 1fr; }
+
+/* ── Product Card ── */
+.product-card {
+    background: var(--white); border-radius: 0;
+    border: 1px solid rgba(183,155,127,0.12); cursor: pointer;
+    transition: all 0.55s cubic-bezier(0.23,1,0.32,1);
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column;
+}
+.product-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(to right, transparent, rgba(183,155,127,0.65), transparent);
+    transform: scaleX(0); transform-origin: left; z-index: 2;
+    transition: transform 0.55s cubic-bezier(0.23,1,0.32,1);
+}
+.product-card:hover::before { transform: scaleX(1); }
+.product-card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 28px 70px rgba(60,52,40,0.13);
+    border-color: rgba(122,134,97,0.22);
+}
+
+/* Warning state on card */
+.product-card.has-warning {
+    border-color: rgba(231,76,60,0.28) !important;
+}
+.product-card.has-warning::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: rgba(231,76,60,0.03); z-index: 0;
+}
+
+/* List view card */
+.product-grid.view-list .product-card {
+    flex-direction: row; transform: none !important;
+}
+.product-grid.view-list .product-card:hover {
+    box-shadow: 0 8px 32px rgba(60,52,40,0.10);
+    border-color: rgba(122,134,97,0.22);
+}
+.product-grid.view-list .product-img-wrap {
+    width: 220px; flex-shrink: 0; aspect-ratio: 1;
+}
+.product-grid.view-list .product-info { flex: 1; padding: 2rem; }
+.product-grid.view-list .product-info .product-desc { display: block; }
+.product-grid.view-list .product-info .product-actions { margin-top: auto; }
+
+.product-img-wrap {
+    width: 100%; overflow: hidden;
+    background: var(--cream-mid); position: relative; aspect-ratio: 4/4.5;
+}
+.product-img-wrap img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: transform 0.9s cubic-bezier(0.23,1,0.32,1);
+    filter: saturate(0.88);
+}
+.product-card:hover .product-img-wrap img { transform: scale(1.06); filter: saturate(1.02); }
+
+/* Badges */
+.product-badge {
+    position: absolute; top: 12px; left: 12px; z-index: 2;
+    background: rgba(255,255,255,0.96); border: none; border-radius: 0;
+    padding: 4px 12px; font-size: 0.56rem;
+    letter-spacing: 0.20em; text-transform: uppercase;
+    color: var(--sage-dark); font-weight: 500;
+    box-shadow: 0 2px 10px rgba(60,52,40,0.08);
+    clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+}
+.product-badge.sale {
+    background: rgba(192,57,43,0.90); color: #fff; left: auto; right: 12px;
+}
+.product-badge.new-badge { background: var(--sage-dark); color: var(--white); }
+
+/* Wishlist */
+.product-wishlist {
+    position: absolute; top: 12px; right: 12px; z-index: 3;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(255,255,255,0.90); border: 1px solid rgba(183,155,127,0.20);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; color: var(--text-muted); cursor: pointer;
+    opacity: 0; transform: translateY(-4px);
+    transition: all 0.35s cubic-bezier(0.23,1,0.32,1);
+    box-shadow: 0 2px 10px rgba(60,52,40,0.10);
+}
+.product-card:hover .product-wishlist { opacity: 1; transform: translateY(0); }
+.product-wishlist:hover { background: var(--white); color: #c0392b; border-color: rgba(192,57,43,0.25); }
+.product-wishlist.is-liked { color: #c0392b; opacity: 1; transform: translateY(0); }
+
+/* Quick add overlay */
+.product-quick-add {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 3;
+    background: rgba(74,82,64,0.92); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    padding: 0.9rem;
+    font-family: 'DM Sans', sans-serif; font-size: 0.62rem;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--white); cursor: pointer; font-weight: 400;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.23,1,0.32,1);
+}
+.product-card:hover .product-quick-add { transform: translateY(0); }
+.product-quick-add:hover { background: rgba(95,107,77,0.96); }
+
+/* Product Info */
+.product-info {
+    padding: 1.3rem 1.4rem 1.5rem;
+    border-top: 1px solid rgba(183,155,127,0.10);
+    display: flex; flex-direction: column; gap: 0.4rem; flex: 1;
+    position: relative; z-index: 1;
+}
+.product-category {
+    font-size: 0.58rem; letter-spacing: 0.20em; text-transform: uppercase;
+    color: var(--sage); font-weight: 400;
+}
+.product-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.12rem; font-weight: 400;
+    color: var(--text); letter-spacing: -0.005em; line-height: 1.2;
+    transition: color 0.3s;
+}
+.product-card:hover .product-name { color: var(--sage-dark); }
+.product-desc {
+    font-size: 0.80rem; color: var(--text-muted); font-weight: 300;
+    line-height: 1.65; display: none;
+    margin-top: 0.2rem;
+}
+.product-stars { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.2rem; }
+.stars-row { display: flex; gap: 2px; }
+.star-icon { font-size: 0.65rem; color: var(--taupe); }
+.review-count { font-size: 0.68rem; color: var(--text-muted); font-weight: 300; }
+
+.product-price-row {
+    display: flex; align-items: baseline; gap: 0.6rem; margin-top: 0.3rem;
+}
+.product-price {
+    font-family: 'DM Sans', sans-serif; font-size: 0.90rem;
+    font-weight: 400; color: var(--text); letter-spacing: 0.04em;
+}
+.product-price-orig {
+    font-size: 0.78rem; color: var(--text-muted); text-decoration: line-through;
+    font-weight: 300;
+}
+.product-price-sale { color: #c0392b; }
+.product-save-tag {
+    font-size: 0.58rem; letter-spacing: 0.10em; text-transform: uppercase;
+    color: #c0392b; font-weight: 500;
+    background: rgba(192,57,43,0.08); padding: 2px 6px;
+}
+
+.product-actions {
+    display: flex; align-items: center; gap: 0.55rem; margin-top: 0.6rem;
+}
+.qty-stepper {
+    display: flex; align-items: center;
+    border: 1px solid rgba(122,134,97,0.22); overflow: hidden;
+    background: var(--white); flex-shrink: 0;
+    clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+}
+.qty-btn {
+    width: 28px; height: 28px; background: transparent; border: none;
+    cursor: pointer; font-size: 0.95rem; color: var(--sage-dark);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s; font-family: 'DM Sans', sans-serif; font-weight: 300;
+}
+.qty-btn:hover { background: var(--sage-faint); }
+.qty-val { min-width: 24px; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 400; color: var(--text); user-select: none; }
+.btn-add-cart {
+    flex: 1; height: 28px; background: var(--moss); color: var(--white);
+    border: none; font-family: 'DM Sans', sans-serif; font-size: 0.60rem;
+    font-weight: 400; letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
+    clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+    white-space: nowrap; position: relative; overflow: hidden;
+}
+.btn-add-cart:hover { background: var(--sage-dark); transform: translateY(-1px); box-shadow: 0 5px 16px rgba(74,82,64,0.28); }
+.btn-add-cart.added { background: var(--sage); pointer-events: none; }
+
+/* ══════════════════════════════════════
+   INGREDIENT WARNING BADGE ON CARD
+══════════════════════════════════════ */
+.product-warning-strip {
+    display: none; /* shown via JS when profile active */
+    align-items: center; gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid rgba(231,76,60,0.15);
+    background: rgba(231,76,60,0.06);
+    cursor: pointer;
+    transition: background 0.25s;
+    position: relative; z-index: 1;
+}
+.product-warning-strip:hover { background: rgba(231,76,60,0.10); }
+.product-warning-strip.is-visible { display: flex; }
+.warn-strip-icon {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(231,76,60,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; color: #c0392b; flex-shrink: 0;
+}
+.warn-strip-text { flex: 1; }
+.warn-strip-title {
+    font-size: 0.60rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #c0392b; font-weight: 500; line-height: 1.2;
+}
+.warn-strip-sub {
+    font-size: 0.62rem; color: rgba(192,57,43,0.70); font-weight: 300; margin-top: 1px;
+}
+.warn-strip-arrow { font-size: 0.65rem; color: rgba(192,57,43,0.50); }
+
+/* ══════════════════════════════════════
+   INGREDIENT WARNING MODAL
+══════════════════════════════════════ */
+.warn-modal-overlay {
+    position: fixed; inset: 0; background: rgba(15,12,10,0.60);
+    z-index: 300; opacity: 0; pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(0.23,1,0.32,1);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+}
+.warn-modal-overlay.is-open { opacity: 1; pointer-events: all; }
+
+.warn-modal {
+    background: var(--white); max-width: 520px; width: 100%;
+    position: relative; overflow: hidden;
+    transform: scale(0.94) translateY(16px);
+    transition: transform 0.4s cubic-bezier(0.23,1,0.32,1);
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    box-shadow: 0 40px 100px rgba(60,52,40,0.22);
+}
+.warn-modal-overlay.is-open .warn-modal { transform: scale(1) translateY(0); }
+
+.warn-modal-header {
+    padding: 1.8rem 2rem 1.4rem;
+    display: flex; align-items: flex-start; gap: 1rem;
+    border-bottom: 1px solid rgba(183,155,127,0.14);
+    position: relative;
+}
+.warn-modal-icon-wrap {
+    width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(231,76,60,0.15), rgba(192,57,43,0.20));
+    border: 1px solid rgba(231,76,60,0.25);
+    display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+}
+.warn-modal-heading { flex: 1; }
+.warn-modal-eyebrow {
+    font-size: 0.58rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: #c0392b; font-weight: 500; margin-bottom: 0.3rem;
+    display: flex; align-items: center; gap: 0.4rem;
+}
+.warn-modal-eyebrow-dot { width: 4px; height: 4px; border-radius: 50%; background: #c0392b; }
+.warn-modal-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.5rem;
+    font-weight: 400; color: var(--text); letter-spacing: -0.01em; line-height: 1.15;
+}
+.warn-modal-product-name {
+    font-style: italic; color: var(--sage-dark);
+}
+.warn-modal-close {
+    position: absolute; top: 1.2rem; right: 1.2rem;
+    width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(183,155,127,0.22);
+    background: transparent; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; font-size: 0.85rem; color: var(--text-muted);
+    transition: all 0.3s;
+}
+.warn-modal-close:hover { background: var(--sage-dark); color: var(--white); border-color: var(--sage-dark); }
+
+.warn-modal-body { padding: 1.6rem 2rem; }
+
+/* Profile summary row */
+.warn-modal-profile-row {
+    display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.4rem;
+    padding-bottom: 1.2rem; border-bottom: 1px solid rgba(183,155,127,0.10);
+}
+.warn-profile-tag {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    background: rgba(122,134,97,0.09); border: 1px solid rgba(122,134,97,0.20);
+    border-radius: 999px; padding: 0.22rem 0.7rem;
+    font-size: 0.60rem; letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--sage-dark); font-weight: 400;
+}
+.warn-profile-tag i { font-size: 0.6rem; }
+
+/* Warning items */
+.warn-items-list { display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1.4rem; }
+.warn-item {
+    display: flex; gap: 0.9rem; align-items: flex-start;
+    background: rgba(231,76,60,0.04); border: 1px solid rgba(231,76,60,0.14);
+    padding: 0.9rem 1rem;
+    clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+}
+.warn-item-icon {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(231,76,60,0.12); border: 1px solid rgba(231,76,60,0.22);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; color: #c0392b; margin-top: 1px;
+}
+.warn-item-body {}
+.warn-item-ingredient {
+    font-family: 'DM Sans', sans-serif; font-size: 0.80rem; font-weight: 500;
+    color: var(--text); margin-bottom: 0.2rem;
+}
+.warn-item-reason {
+    font-size: 0.74rem; color: var(--text-muted); font-weight: 300; line-height: 1.55;
+}
+.warn-item-tags { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.4rem; }
+.warn-item-tag {
+    font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase;
+    background: rgba(231,76,60,0.08); border: 1px solid rgba(231,76,60,0.18);
+    color: #c0392b; padding: 2px 7px; font-weight: 500;
+    clip-path: polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px));
+}
+
+/* Safe ingredients note */
+.warn-safe-note {
+    background: rgba(39,174,96,0.06); border: 1px solid rgba(39,174,96,0.18);
+    padding: 0.8rem 1rem; display: flex; gap: 0.7rem; align-items: flex-start;
+    clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+    margin-bottom: 1.4rem;
+}
+.warn-safe-icon { font-size: 0.85rem; color: #27ae60; flex-shrink: 0; margin-top: 1px; }
+.warn-safe-text { font-size: 0.74rem; color: #27ae60; font-weight: 300; line-height: 1.55; }
+.warn-safe-text strong { font-weight: 500; }
+
+.warn-disclaimer {
+    font-size: 0.68rem; color: var(--text-muted); font-weight: 300; line-height: 1.60;
+    background: rgba(183,155,127,0.06); border-left: 2px solid rgba(183,155,127,0.28);
+    padding: 0.7rem 0.9rem; margin-bottom: 1.4rem;
+}
+
+.warn-modal-footer {
+    display: flex; gap: 0.8rem; padding: 1.2rem 2rem 1.8rem;
+    border-top: 1px solid rgba(183,155,127,0.10);
+}
+.btn-warn-close {
+    flex: 1; padding: 0.85rem; background: transparent;
+    border: 1px solid rgba(122,134,97,0.28); font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem; font-weight: 400; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--sage-dark); cursor: pointer;
+    transition: all 0.3s;
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+}
+.btn-warn-close:hover { background: var(--sage-faint); }
+.btn-warn-add-anyway {
+    flex: 1.5; padding: 0.85rem; background: var(--moss);
+    border: none; font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem; font-weight: 400; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--white); cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.23,1,0.32,1);
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+}
+.btn-warn-add-anyway:hover { background: var(--sage-dark); transform: translateY(-1px); }
+
+/* ══════════════════════════════════════
+   SAFETY PROFILE MODAL
+══════════════════════════════════════ */
+.profile-modal-overlay {
+    position: fixed; inset: 0; background: rgba(15,12,10,0.60);
+    z-index: 300; opacity: 0; pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(0.23,1,0.32,1);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+}
+.profile-modal-overlay.is-open { opacity: 1; pointer-events: all; }
+
+.profile-modal {
+    background: var(--white); max-width: 560px; width: 100%;
+    position: relative; max-height: 88vh; overflow-y: auto;
+    transform: scale(0.94) translateY(16px);
+    transition: transform 0.4s cubic-bezier(0.23,1,0.32,1);
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    box-shadow: 0 40px 100px rgba(60,52,40,0.22);
+}
+.profile-modal-overlay.is-open .profile-modal { transform: scale(1) translateY(0); }
+
+.profile-modal-header {
+    padding: 2rem 2.2rem 1.4rem;
+    border-bottom: 1px solid rgba(183,155,127,0.14);
+    position: sticky; top: 0; background: var(--white); z-index: 5;
+}
+.profile-modal-eyebrow {
+    font-size: 0.58rem; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--sage); font-weight: 400; margin-bottom: 0.4rem;
+    display: flex; align-items: center; gap: 0.45rem;
+}
+.profile-modal-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;
+    font-weight: 300; color: var(--text); letter-spacing: -0.02em;
+}
+.profile-modal-sub {
+    font-size: 0.78rem; color: var(--text-muted); font-weight: 300;
+    line-height: 1.65; margin-top: 0.5rem;
+}
+.profile-modal-close {
+    position: absolute; top: 1.5rem; right: 1.5rem;
+    width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(183,155,127,0.22);
+    background: transparent; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; font-size: 0.85rem; color: var(--text-muted); transition: all 0.3s;
+}
+.profile-modal-close:hover { background: var(--sage-dark); color: var(--white); border-color: var(--sage-dark); }
+
+.profile-modal-body { padding: 1.8rem 2.2rem; }
+
+.profile-section { margin-bottom: 2rem; }
+.profile-section-title {
+    font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--sage-dark); font-weight: 500; margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem;
+}
+.profile-section-title::after {
+    content: ''; flex: 1; height: 1px; background: rgba(183,155,127,0.18);
+}
+
+.concern-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.concern-btn {
+    display: flex; align-items: center; gap: 0.65rem;
+    border: 1px solid rgba(183,155,127,0.22); background: var(--white);
+    padding: 0.7rem 0.85rem; cursor: pointer; transition: all 0.3s;
+    clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+    font-family: 'DM Sans', sans-serif; text-align: left;
+}
+.concern-btn:hover { border-color: rgba(122,134,97,0.40); background: var(--sage-faint); }
+.concern-btn.active {
+    background: rgba(231,76,60,0.07); border-color: rgba(231,76,60,0.35);
+}
+.concern-btn .cb-icon {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(183,155,127,0.12); display: flex; align-items: center;
+    justify-content: center; font-size: 0.9rem; transition: all 0.3s;
+}
+.concern-btn.active .cb-icon { background: rgba(231,76,60,0.12); }
+.concern-btn .cb-text { display: flex; flex-direction: column; gap: 1px; }
+.concern-btn .cb-label {
+    font-size: 0.75rem; font-weight: 400; color: var(--text); transition: color 0.3s;
+}
+.concern-btn.active .cb-label { color: #c0392b; font-weight: 500; }
+.concern-btn .cb-sub {
+    font-size: 0.62rem; color: var(--text-muted); font-weight: 300;
+}
+.concern-btn .cb-check {
+    margin-left: auto; width: 16px; height: 16px; border-radius: 50%;
+    border: 1px solid rgba(183,155,127,0.30); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s;
+}
+.concern-btn.active .cb-check {
+    background: #c0392b; border-color: #c0392b; color: #fff; font-size: 0.55rem;
+}
+
+.allergy-input-wrap { position: relative; }
+.allergy-input {
+    width: 100%; border: 1px solid rgba(183,155,127,0.22); border-radius: 0;
+    padding: 0.7rem 1rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem; color: var(--text); background: var(--cream);
+    outline: none; font-weight: 300; line-height: 1.6; resize: vertical; min-height: 80px;
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    transition: border-color 0.3s;
+}
+.allergy-input:focus { border-color: rgba(122,134,97,0.45); background: var(--white); }
+.allergy-input::placeholder { color: rgba(120,110,100,0.45); }
+.allergy-hint {
+    font-size: 0.65rem; color: var(--text-muted); font-weight: 300; margin-top: 0.4rem;
+}
+.allergy-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.6rem; }
+.allergy-preset-tag {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    border: 1px solid rgba(183,155,127,0.22); border-radius: 999px;
+    padding: 0.22rem 0.65rem; font-size: 0.62rem; cursor: pointer;
+    background: var(--white); color: var(--text-muted); transition: all 0.25s;
+    letter-spacing: 0.06em;
+}
+.allergy-preset-tag:hover { border-color: rgba(231,76,60,0.35); color: #c0392b; background: rgba(231,76,60,0.05); }
+.allergy-preset-tag.active-tag { background: rgba(231,76,60,0.08); border-color: rgba(231,76,60,0.35); color: #c0392b; }
+
+.profile-modal-footer {
+    padding: 1.2rem 2.2rem 2rem;
+    border-top: 1px solid rgba(183,155,127,0.10);
+    display: flex; gap: 0.8rem;
+    position: sticky; bottom: 0; background: var(--white);
+}
+.btn-profile-cancel {
+    padding: 0.85rem 1.8rem; background: transparent;
+    border: 1px solid rgba(183,155,127,0.28); font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem; font-weight: 400; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--text-muted); cursor: pointer;
+    transition: all 0.3s;
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+}
+.btn-profile-cancel:hover { border-color: rgba(122,134,97,0.45); color: var(--sage-dark); }
+.btn-profile-save {
+    flex: 1; padding: 0.85rem; background: var(--moss);
+    border: none; font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem; font-weight: 400; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--white); cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.23,1,0.32,1);
+    clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+}
+.btn-profile-save:hover { background: var(--sage-dark); transform: translateY(-1px); }
+
+/* ── Empty state ── */
+.shop-empty {
+    grid-column: 1 / -1; text-align: center; padding: 5rem 2rem;
+    display: none;
+}
+.shop-empty.is-visible { display: block; }
+.shop-empty i { font-size: 2.5rem; color: rgba(183,155,127,0.35); margin-bottom: 1rem; display: block; }
+.shop-empty-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 300; color: var(--text); margin-bottom: 0.5rem; }
+.shop-empty-sub { font-size: 0.88rem; color: var(--text-muted); font-weight: 300; }
+
+/* ── Load more ── */
+.load-more-wrap { text-align: center; margin-top: 3.5rem; }
+.btn-load-more {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    background: transparent; color: var(--sage-dark) !important;
+    border: 1px solid rgba(122,134,97,0.32); padding: 0.85rem 2.8rem;
+    font-family: 'DM Sans', sans-serif; font-size: 0.68rem; font-weight: 400;
+    letter-spacing: 0.22em; text-transform: uppercase; text-decoration: none;
+    cursor: pointer; transition: all 0.45s cubic-bezier(0.23,1,0.32,1);
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+.btn-load-more:hover {
+    background: var(--sage-dark); color: var(--white) !important;
+    transform: translateY(-2px); box-shadow: 0 10px 30px rgba(95,107,77,0.26);
+}
+
+/* ══════════════════════════════════════
+   §4  PROMISE STRIP
+══════════════════════════════════════ */
+#promise-strip {
+    background: var(--moss); border-top: 1px solid rgba(255,255,255,0.06);
+}
+.promise-inner {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-left: 1px solid rgba(255,255,255,0.06);
+}
+.promise-item {
+    padding: 2.2rem 1.8rem; text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    transition: background 0.3s;
+}
+.promise-item:hover { background: rgba(255,255,255,0.04); }
+.promise-icon { font-size: 1.4rem; margin-bottom: 0.7rem; display: block; }
+.promise-title { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 400; color: var(--white); margin-bottom: 0.25rem; }
+.promise-sub { font-size: 0.72rem; color: rgba(255,255,255,0.38); font-weight: 300; line-height: 1.55; }
+
+/* ══════════════════════════════════════
+   §5  CART DRAWER
+══════════════════════════════════════ */
+.cart-overlay {
+    position: fixed; inset: 0; background: rgba(15,12,10,0.55);
+    z-index: 200; opacity: 0; pointer-events: none;
+    transition: opacity 0.4s cubic-bezier(0.23,1,0.32,1);
+    backdrop-filter: blur(4px);
+}
+.cart-overlay.is-open { opacity: 1; pointer-events: all; }
+.cart-drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; width: 420px;
+    background: var(--white); z-index: 201;
+    transform: translateX(100%);
+    transition: transform 0.5s cubic-bezier(0.23,1,0.32,1);
+    display: flex; flex-direction: column;
+    box-shadow: -20px 0 60px rgba(60,52,40,0.16);
+}
+.cart-drawer.is-open { transform: translateX(0); }
+
+.cart-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.5rem 2rem; border-bottom: 1px solid rgba(183,155,127,0.14);
+    flex-shrink: 0;
+}
+.cart-title { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; color: var(--text); letter-spacing: -0.01em; }
+.cart-item-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--sage-dark); color: var(--white);
+    font-size: 0.65rem; font-weight: 500; margin-left: 0.5rem;
+}
+.cart-close {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid rgba(122,134,97,0.22); background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem; color: var(--text-muted); cursor: pointer;
+    transition: all 0.3s;
+}
+.cart-close:hover { background: var(--sage-dark); color: var(--white); border-color: var(--sage-dark); }
+
+.cart-items { flex: 1; overflow-y: auto; padding: 1.2rem 2rem; }
+.cart-empty {
+    text-align: center; padding: 3rem 1rem;
+    display: flex; flex-direction: column; align-items: center; gap: 0.8rem;
+}
+.cart-empty i { font-size: 2rem; color: rgba(183,155,127,0.35); }
+.cart-empty-txt { font-size: 0.88rem; color: var(--text-muted); font-weight: 300; }
+
+.cart-item {
+    display: flex; gap: 1rem; padding: 1rem 0;
+    border-bottom: 1px solid rgba(183,155,127,0.10);
+    animation: hero-rise 0.4s cubic-bezier(0.23,1,0.32,1) both;
+}
+.cart-item-img {
+    width: 72px; height: 72px; border-radius: 0; overflow: hidden;
+    background: var(--cream-mid); flex-shrink: 0;
+    clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+}
+.cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
+.cart-item-body { flex: 1; display: flex; flex-direction: column; gap: 0.25rem; }
+.cart-item-name { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 400; color: var(--text); line-height: 1.2; }
+.cart-item-cat { font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sage); }
+.cart-item-row { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+.cart-item-price { font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 400; color: var(--text); }
+.cart-item-remove { font-size: 0.70rem; color: var(--text-muted); cursor: pointer; border: none; background: none; transition: color 0.25s; letter-spacing: 0.08em; }
+.cart-item-remove:hover { color: #c0392b; }
+.cart-item-qty-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.3rem; }
+.ci-qty-btn { width: 22px; height: 22px; border: 1px solid rgba(122,134,97,0.22); background: transparent; cursor: pointer; font-size: 0.85rem; color: var(--sage-dark); display: flex; align-items: center; justify-content: center; transition: all 0.2s; border-radius: 0; }
+.ci-qty-btn:hover { background: var(--sage-dark); color: var(--white); border-color: var(--sage-dark); }
+.ci-qty-val { font-size: 0.80rem; font-weight: 400; color: var(--text); min-width: 20px; text-align: center; }
+
+.cart-footer {
+    padding: 1.5rem 2rem; border-top: 1px solid rgba(183,155,127,0.14);
+    flex-shrink: 0;
+    background: linear-gradient(to top, var(--cream) 0%, var(--white) 100%);
+}
+.cart-subtotal-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; }
+.cart-subtotal-lbl { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); font-weight: 300; }
+.cart-subtotal-val { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 400; color: var(--text); }
+.cart-free-ship {
+    font-size: 0.72rem; color: var(--sage-dark); font-weight: 400; margin-bottom: 1.2rem;
+    display: flex; align-items: center; gap: 0.4rem;
+}
+.cart-free-ship-bar { height: 2px; background: rgba(183,155,127,0.20); border-radius: 2px; margin-bottom: 1.2rem; position: relative; overflow: hidden; }
+.cart-free-ship-fill { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(to right, var(--sage), var(--sage-dark)); border-radius: 2px; transition: width 0.5s cubic-bezier(0.23,1,0.32,1); }
+.btn-checkout {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+    background: var(--moss); color: var(--white); border: none; padding: 1.1rem 2rem;
+    font-family: 'DM Sans', sans-serif; font-size: 0.68rem; font-weight: 400;
+    letter-spacing: 0.24em; text-transform: uppercase; cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    box-shadow: 0 8px 28px rgba(74,82,64,0.22); margin-bottom: 0.75rem;
+}
+.btn-checkout:hover { background: var(--sage-dark); transform: translateY(-2px); box-shadow: 0 16px 40px rgba(74,82,64,0.30); }
+.btn-continue-shop {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    background: transparent; color: var(--sage-dark); border: 1px solid rgba(122,134,97,0.28);
+    padding: 0.85rem 2rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem; font-weight: 400; letter-spacing: 0.20em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.35s;
+    clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+}
+.btn-continue-shop:hover { background: var(--sage-faint); }
+
+/* ── Floating cart pill ── */
+.cart-pill {
+    position: fixed; bottom: 2.2rem; right: 2.2rem; z-index: 100;
+    display: flex; align-items: center; gap: 0.7rem;
+    background: var(--moss); color: var(--white);
+    border: none; padding: 0.9rem 1.8rem;
+    font-family: 'DM Sans', sans-serif; font-size: 0.68rem;
+    font-weight: 400; letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.5s cubic-bezier(0.23,1,0.32,1);
+    box-shadow: 0 12px 40px rgba(74,82,64,0.35);
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    transform: translateY(100px); opacity: 0;
+}
+.cart-pill.is-visible { transform: translateY(0); opacity: 1; }
+.cart-pill:hover { background: var(--sage-dark); transform: translateY(-3px); box-shadow: 0 20px 50px rgba(74,82,64,0.40); }
+.cart-pill-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(255,255,255,0.25); font-size: 0.65rem; font-weight: 500;
+}
+
+/* ── Toast notification ── */
+.add-toast {
+    position: fixed; bottom: 6rem; right: 2.2rem; z-index: 150;
+    background: var(--white); border: 1px solid rgba(122,134,97,0.20);
+    padding: 0.9rem 1.4rem;
+    display: flex; align-items: center; gap: 0.8rem;
+    box-shadow: 0 12px 40px rgba(60,52,40,0.14);
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    transform: translateX(130%);
+    transition: transform 0.45s cubic-bezier(0.23,1,0.32,1);
+    pointer-events: none; max-width: 280px;
+}
+.add-toast.is-visible { transform: translateX(0); }
+.toast-check { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--sage-light), var(--sage-dark)); display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 0.75rem; flex-shrink: 0; }
+.toast-content { display: flex; flex-direction: column; gap: 1px; }
+.toast-msg { font-size: 0.78rem; color: var(--text); font-weight: 400; }
+.toast-sub-msg { font-size: 0.68rem; color: var(--text-muted); font-weight: 300; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+    .shop-layout { grid-template-columns: 200px 1fr; gap: 2rem; }
+    .product-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 992px) {
+    #shop-hero { grid-template-columns: 1fr; min-height: auto; }
+    .shop-hero-img { height: 50vw; min-height: 300px; }
+    .shop-layout { grid-template-columns: 1fr; }
+    .shop-sidebar { position: static; }
+    .promise-inner { grid-template-columns: repeat(2, 1fr); }
+    .cart-drawer { width: 100%; max-width: 420px; }
+    .concern-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .controls-inner { gap: 0.5rem; }
+    .sort-select { font-size: 0.60rem; padding: 0.5rem 1.8rem 0.5rem 0.7rem; }
+    .safety-banner-inner { gap: 0.8rem; }
+    .concern-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 576px) {
+    .product-grid { grid-template-columns: 1fr; }
+    .shop-hero-copy { padding: 100px 1.5rem 60px; }
+    .promise-inner { grid-template-columns: 1fr; }
+    .cart-pill { right: 1rem; bottom: 1.5rem; }
+    .warn-modal-footer { flex-direction: column; }
+    .profile-modal-footer { flex-direction: column; }
+}
+
+{% endblock %}
+
+
+{% block body %}
+
+{# ════════ §1 SHOP HERO ════════ #}
+<section id="shop-hero">
+    <div class="shop-hero-copy">
+        <div class="shop-hero-tag">
+            <span class="shop-hero-tag-dot"></span>
+            Our Collection
+        </div>
+        <h1 class="shop-hero-title">
+            Refined skincare,<br>
+            <span class="italic-line">naturally elevated</span>
+        </h1>
+        <p class="shop-hero-sub">
+            Experience pure, organic skincare essentials crafted for balanced,
+            healthy skin. Explore our thoughtfully curated range for a modern,
+            mindful beauty routine.
+        </p>
+        <div class="shop-hero-stats">
+            <div class="shop-hero-stat">
+                <span class="shs-num">28+</span>
+                <span class="shs-lbl">Products</span>
+            </div>
+            <div class="shop-hero-stat-sep"></div>
+            <div class="shop-hero-stat">
+                <span class="shs-num">100%</span>
+                <span class="shs-lbl">Organic</span>
+            </div>
+            <div class="shop-hero-stat-sep"></div>
+            <div class="shop-hero-stat">
+                <span class="shs-num">4.9★</span>
+                <span class="shs-lbl">Rated</span>
+            </div>
+        </div>
+        <div class="shop-hero-actions">
+            <a href="#shop-main" class="btn-hero-shop">
+                Browse Products &nbsp;<i class="bi bi-arrow-down"></i>
+            </a>
+            <button class="btn-hero-ghost-sm" onclick="document.getElementById('shop-main').scrollIntoView({behavior:'smooth'})">
+                <i class="bi bi-funnel"></i> Filter &amp; Sort
+            </button>
+        </div>
+    </div>
+    <div class="shop-hero-img">
+        <img src="{{ asset('images/shopmodel.jpg') }}" alt="Naturaé Skincare Collection">
+        <div class="shop-hero-img-overlay"></div>
+        <div class="shop-hero-badge">
+            <div class="shb-icon">🌿</div>
+            <div class="shb-text">
+                <span class="shb-num">Free Shipping</span>
+                <span class="shb-lbl">Orders over ₱1,500</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{# ════════ §1.5 SAFETY CHECKER BANNER ════════ #}
+<div id="safety-banner">
+    <div class="container">
+        <div class="safety-banner-inner">
+            <div class="safety-banner-icon">🛡️</div>
+            <div class="safety-banner-text">
+                <div class="safety-banner-title">Ingredient Safety Checker</div>
+                <div class="safety-banner-sub">Set your skin concerns, allergies, or conditions (e.g. pregnancy) — we'll flag any products that may not be suitable for you.</div>
+            </div>
+            <div class="safety-banner-actions">
+                <div class="safety-profile-chips" id="safetyChips"></div>
+                <button class="btn-safety-setup" id="openProfileModal">
+                    <i class="bi bi-sliders"></i> Set My Profile
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{# ════════ §2 CONTROLS BAR ════════ #}
+<div id="shop-controls">
+    <div class="container">
+        <div class="controls-inner">
+            <div class="category-tabs" id="categoryTabs">
+                <button class="cat-tab active" data-cat="all">
+                    All <span class="cat-count" id="count-all">12</span>
+                </button>
+                <button class="cat-tab" data-cat="face">
+                    Face <span class="cat-count" id="count-face">5</span>
+                </button>
+                <button class="cat-tab" data-cat="body">
+                    Body <span class="cat-count" id="count-body">3</span>
+                </button>
+                <button class="cat-tab" data-cat="serum">
+                    Serums <span class="cat-count" id="count-serum">4</span>
+                </button>
+                <button class="cat-tab" data-cat="wellness">
+                    Wellness <span class="cat-count" id="count-wellness">2</span>
+                </button>
+                <button class="cat-tab" data-cat="sets">
+                    Sets <span class="cat-count" id="count-sets">2</span>
+                </button>
+            </div>
+            <div class="controls-right">
+                <span class="results-count" id="resultsCount">Showing <strong>12</strong> products</span>
+                <select class="sort-select" id="sortSelect">
+                    <option value="featured">Featured</option>
+                    <option value="price-asc">Price: Low–High</option>
+                    <option value="price-desc">Price: High–Low</option>
+                    <option value="newest">Newest</option>
+                    <option value="rating">Best Rated</option>
+                </select>
+                <div class="view-toggle">
+                    <button class="view-btn active" id="viewGrid" title="Grid view"><i class="bi bi-grid-3x3-gap"></i></button>
+                    <button class="view-btn" id="viewList" title="List view"><i class="bi bi-list-ul"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{# ════════ §3 MAIN SHOP ════════ #}
+<section id="shop-main">
+    <div class="container">
+        <div class="shop-layout">
+
+            {# ── Sidebar ── #}
+            <aside class="shop-sidebar reveal">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">
+                        Price Range
+                        <button class="sidebar-clear-btn" id="clearPrice">Reset</button>
+                    </div>
+                    <div class="price-range-track">
+                        <div class="price-range-fill" id="priceRangeFill"></div>
+                    </div>
+                    <div class="price-range-inputs">
+                        <input class="price-input" type="number" id="priceMin" value="0" min="0" max="5000" placeholder="₱0">
+                        <span class="price-sep">—</span>
+                        <input class="price-input" type="number" id="priceMax" value="5000" min="0" max="5000" placeholder="₱5000">
+                    </div>
+                    <button class="price-apply-btn" id="applyPrice">Apply Price Filter</button>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">
+                        Product Type
+                        <button class="sidebar-clear-btn" id="clearType">Clear</button>
+                    </div>
+                    <div class="filter-check-list">
+                        <label class="filter-check">
+                            <input type="checkbox" name="type" value="cleanser">
+                            <span class="filter-check-label">Cleansers <span class="fcheck-count">3</span></span>
+                        </label>
+                        <label class="filter-check">
+                            <input type="checkbox" name="type" value="moisturiser">
+                            <span class="filter-check-label">Moisturisers <span class="fcheck-count">4</span></span>
+                        </label>
+                        <label class="filter-check">
+                            <input type="checkbox" name="type" value="serum">
+                            <span class="filter-check-label">Serums <span class="fcheck-count">4</span></span>
+                        </label>
+                        <label class="filter-check">
+                            <input type="checkbox" name="type" value="toner">
+                            <span class="filter-check-label">Toners <span class="fcheck-count">2</span></span>
+                        </label>
+                        <label class="filter-check">
+                            <input type="checkbox" name="type" value="mist">
+                            <span class="filter-check-label">Mists &amp; Sprays <span class="fcheck-count">1</span></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Skin Type</div>
+                    <div class="skin-type-grid">
+                        <button class="skin-btn" data-skin="all-types">All Types</button>
+                        <button class="skin-btn" data-skin="dry">Dry</button>
+                        <button class="skin-btn" data-skin="oily">Oily</button>
+                        <button class="skin-btn" data-skin="combo">Combo</button>
+                        <button class="skin-btn" data-skin="sensitive">Sensitive</button>
+                        <button class="skin-btn" data-skin="normal">Normal</button>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Concern</div>
+                    <div class="filter-check-list">
+                        <label class="filter-check">
+                            <input type="checkbox" name="concern" value="brightening">
+                            <span class="filter-check-label">Brightening</span>
+                        </label>
+                        <label class="filter-check">
+                            <input type="checkbox" name="concern" value="hydration">
+                            <span class="filter-check-label">Hydration</span>
+                        </label>
+                        <label class="filter-check">
+                            <input type="checkbox" name="concern" value="antiaging">
+                            <span class="filter-check-label">Anti-Ageing</span>
+                        </label>
+                        <label class="filter-check">
+                            <input type="checkbox" name="concern" value="acne">
+                            <span class="filter-check-label">Acne Control</span>
+                        </label>
+                        <label class="filter-check">
+                            <input type="checkbox" name="concern" value="soothing">
+                            <span class="filter-check-label">Soothing</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="active-filters-bar" id="activeFiltersBar"></div>
+            </aside>
+
+            {# ── Products ── #}
+            <div class="products-wrap">
+                <div class="products-header reveal">
+                    <span class="products-showing" id="productsShowing">Showing <strong>12</strong> of <strong>12</strong> products</span>
+                </div>
+
+                <div class="product-grid" id="productGrid">
+
+                    {# Product 1 #}
+                    <div class="product-card reveal d1"
+                         data-cat="face" data-price="1250" data-rating="4.9" data-date="2026-03-01"
+                         data-ingredients="hyaluronic-acid,shea-butter,glycerin,niacinamide"
+                         data-warnings='{"pregnancy":["niacinamide"],"nut-allergy":["shea-butter"]}'>
+                        <div class="product-img-wrap">
+                            <img src="{{ asset('images/Velvet Veil Moisturiser.jpg') }}" alt="Velvet Veil Moisturiser">
+                            <span class="product-badge">Bestseller</span>
+                            <button class="product-wishlist" title="Save to wishlist"><i class="bi bi-heart"></i></button>
+                            <div class="product-quick-add" onclick="addToCart(this,event)">
+                                <i class="bi bi-bag-plus"></i> Quick Add
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">Face · Moisturiser</span>
+                            <div class="product-name">Velvet Veil Moisturiser</div>
+                            <p class="product-desc">A rich, non-greasy moisturiser that melts into skin leaving a velvety, dewy finish. Enriched with hyaluronic acid and shea butter.</p>
+                            <div class="product-stars">
+                                <div class="stars-row">
+                                    <i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i>
+                                </div>
+                                <span class="review-count">4.9 (124)</span>
+                            </div>
+                            <div class="product-price-row">
+                                <span class="product-price">₱1,250.00</span>
+                            </div>
+                            <div class="product-actions">
+                                <div class="qty-stepper">
+                                    <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                                    <span class="qty-val">1</span>
+                                    <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                                </div>
+                                <button class="btn-add-cart" onclick="addToCart(this,event)">Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-warning-strip" onclick="openWarningModal(this)">
+                            <div class="warn-strip-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                            <div class="warn-strip-text">
+                                <div class="warn-strip-title">Ingredient Alert</div>
+                                <div class="warn-strip-sub">Tap to view details</div>
+                            </div>
+                            <i class="bi bi-chevron-right warn-strip-arrow"></i>
+                        </div>
+                    </div>
+
+                    {# Product 2 #}
+                    <div class="product-card reveal d2"
+                         data-cat="face" data-price="980" data-rating="4.8" data-date="2026-04-01"
+                         data-ingredients="rosewater,aloe-vera,glycerin,fragrance,alcohol"
+                         data-warnings='{"fragrance-sensitive":["fragrance"],"alcohol-free":["alcohol"]}'>
+                        <div class="product-img-wrap">
+                            <img src="{{ asset('images/Nuage Facial Mist.jpg') }}" alt="Nuage Facial Mist">
+                            <span class="product-badge new-badge">New</span>
+                            <button class="product-wishlist" title="Save to wishlist"><i class="bi bi-heart"></i></button>
+                            <div class="product-quick-add" onclick="addToCart(this,event)">
+                                <i class="bi bi-bag-plus"></i> Quick Add
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">Face · Mist</span>
+                            <div class="product-name">Nuage Facial Mist</div>
+                            <p class="product-desc">A weightless hydrating mist infused with rosewater and aloe vera. Refreshes and sets makeup instantly throughout the day.</p>
+                            <div class="product-stars">
+                                <div class="stars-row">
+                                    <i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-half star-icon"></i>
+                                </div>
+                                <span class="review-count">4.8 (87)</span>
+                            </div>
+                            <div class="product-price-row">
+                                <span class="product-price">₱980.00</span>
+                            </div>
+                            <div class="product-actions">
+                                <div class="qty-stepper">
+                                    <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                                    <span class="qty-val">1</span>
+                                    <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                                </div>
+                                <button class="btn-add-cart" onclick="addToCart(this,event)">Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-warning-strip" onclick="openWarningModal(this)">
+                            <div class="warn-strip-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                            <div class="warn-strip-text">
+                                <div class="warn-strip-title">Ingredient Alert</div>
+                                <div class="warn-strip-sub">Tap to view details</div>
+                            </div>
+                            <i class="bi bi-chevron-right warn-strip-arrow"></i>
+                        </div>
+                    </div>
+
+                    {# Product 3 #}
+                    <div class="product-card reveal d3"
+                         data-cat="serum" data-price="650" data-rating="4.9" data-date="2026-02-15"
+                         data-ingredients="vitamin-c,ascorbic-acid,ferulic-acid,vitamin-e,hyaluronic-acid"
+                         data-warnings='{"pregnancy":["ascorbic-acid"],"citrus-allergy":["vitamin-c","ascorbic-acid"]}'>
+                        <div class="product-img-wrap">
+                            <img src="{{ asset('images/Rosée Repair Serum.jpg') }}" alt="Rosée Repair Serum">
+                            <span class="product-badge">Fan Fave</span>
+                            <button class="product-wishlist" title="Save to wishlist"><i class="bi bi-heart"></i></button>
+                            <div class="product-quick-add" onclick="addToCart(this,event)">
+                                <i class="bi bi-bag-plus"></i> Quick Add
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">Serum · Repair</span>
+                            <div class="product-name">Rosée Repair Serum</div>
+                            <p class="product-desc">Vitamin C-rich serum that brightens, evens skin tone, and visibly reduces fine lines with daily use. Lightweight, fast-absorbing.</p>
+                            <div class="product-stars">
+                                <div class="stars-row">
+                                    <i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i>
+                                </div>
+                                <span class="review-count">4.9 (201)</span>
+                            </div>
+                            <div class="product-price-row">
+                                <span class="product-price">₱650.00</span>
+                            </div>
+                            <div class="product-actions">
+                                <div class="qty-stepper">
+                                    <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                                    <span class="qty-val">1</span>
+                                    <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                                </div>
+                                <button class="btn-add-cart" onclick="addToCart(this,event)">Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-warning-strip" onclick="openWarningModal(this)">
+                            <div class="warn-strip-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                            <div class="warn-strip-text">
+                                <div class="warn-strip-title">Ingredient Alert</div>
+                                <div class="warn-strip-sub">Tap to view details</div>
+                            </div>
+                            <i class="bi bi-chevron-right warn-strip-arrow"></i>
+                        </div>
+                    </div>
+
+                    {# Product 4 #}
+                    <div class="product-card reveal d1"
+                         data-cat="face" data-price="520" data-rating="4.7" data-date="2026-01-10"
+                         data-ingredients="salicylic-acid,tea-tree-oil,glycerin,aloe-vera"
+                         data-warnings='{"pregnancy":["salicylic-acid"],"sensitive-skin":["tea-tree-oil","salicylic-acid"]}'>
+                        <div class="product-img-wrap">
+                            <img src="{{ asset('images/organic-cosmetic-product-with-dreamy-aesthetic-fresh-background.jpg') }}" alt="Pure Cleanse Gel">
+                            <span class="product-badge">New</span>
+                            <button class="product-wishlist" title="Save to wishlist"><i class="bi bi-heart"></i></button>
+                            <div class="product-quick-add" onclick="addToCart(this,event)">
+                                <i class="bi bi-bag-plus"></i> Quick Add
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">Face · Cleanser</span>
+                            <div class="product-name">Pure Cleanse Gel</div>
+                            <p class="product-desc">A gentle foaming gel cleanser that removes impurities without stripping the skin's natural moisture barrier. Ideal for daily use.</p>
+                            <div class="product-stars">
+                                <div class="stars-row">
+                                    <i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-half star-icon"></i>
+                                </div>
+                                <span class="review-count">4.7 (68)</span>
+                            </div>
+                            <div class="product-price-row">
+                                <span class="product-price">₱520.00</span>
+                            </div>
+                            <div class="product-actions">
+                                <div class="qty-stepper">
+                                    <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                                    <span class="qty-val">1</span>
+                                    <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                                </div>
+                                <button class="btn-add-cart" onclick="addToCart(this,event)">Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-warning-strip" onclick="openWarningModal(this)">
+                            <div class="warn-strip-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                            <div class="warn-strip-text">
+                                <div class="warn-strip-title">Ingredient Alert</div>
+                                <div class="warn-strip-sub">Tap to view details</div>
+                            </div>
+                            <i class="bi bi-chevron-right warn-strip-arrow"></i>
+                        </div>
+                    </div>
+
+                    {# Product 5 #}
+                    <div class="product-card reveal d2"
+                         data-cat="serum" data-price="799" data-rating="4.9" data-date="2026-03-20"
+                         data-ingredients="vitamin-c,ascorbic-acid,ferulic-acid,vitamin-e,niacinamide"
+                         data-warnings='{"pregnancy":["ascorbic-acid","niacinamide"],"citrus-allergy":["vitamin-c","ascorbic-acid"]}'>
+                        <div class="product-img-wrap">
+                            <img src="{{ asset('images/petaleyeserum.jpg') }}" alt="Rose Ritual Set">
+                            <span class="product-badge">#1 Rated</span>
+                            <span class="product-badge sale">−10%</span>
+                            <button class="product-wishlist" title="Save to wishlist"><i class="bi bi-heart"></i></button>
+                            <div class="product-quick-add" onclick="addToCart(this,event)">
+                                <i class="bi bi-bag-plus"></i> Quick Add
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">Serum · Vitamin C</span>
+                            <div class="product-name">Rose Ritual Set</div>
+                            <p class="product-desc">Our award-winning Vitamin C serum. Brightens, protects, and evens skin tone in as little as two weeks.</p>
+                            <div class="product-stars">
+                                <div class="stars-row">
+                                    <i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i>
+                                </div>
+                                <span class="review-count">4.9 (318)</span>
+                            </div>
+                            <div class="product-price-row">
+                                <span class="product-price product-price-sale">₱719.00</span>
+                                <span class="product-price-orig">₱799.00</span>
+                                <span class="product-save-tag">Save 10%</span>
+                            </div>
+                            <div class="product-actions">
+                                <div class="qty-stepper">
+                                    <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                                    <span class="qty-val">1</span>
+                                    <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                                </div>
+                                <button class="btn-add-cart" onclick="addToCart(this,event)">Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-warning-strip" onclick="openWarningModal(this)">
+                            <div class="warn-strip-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                            <div class="warn-strip-text">
+                                <div class="warn-strip-title">Ingredient Alert</div>
+                                <div class="warn-strip-sub">Tap to view details</div>
+                            </div>
+                            <i class="bi bi-chevron-right warn-strip-arrow"></i>
+                        </div>
+                    </div>
+
+                    {# Product 6 #}
+                    <div class="product-card reveal d3"
+                         data-cat="body" data-price="890" data-rating="4.8" data-date="2026-02-01"
+                         data-ingredients="aloe-vera,green-tea-extract,witch-hazel,glycerin,chamomile"
+                         data-warnings='{"alcohol-free":["witch-hazel"]}'>
+                        <div class="product-img-wrap">
+                            <img src="{{ asset('images/4.jpg') }}" alt="Calm Essence Toner">
+                            <span class="product-badge">Essential</span>
+                            <button class="product-wishlist" title="Save to wishlist"><i class="bi bi-heart"></i></button>
+                            <div class="product-quick-add" onclick="addToCart(this,event)">
+                                <i class="bi bi-bag-plus"></i> Quick Add
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">Body · Toner</span>
+                            <div class="product-name">Calm Essence Toner</div>
+                            <p class="product-desc">A balancing toner rich in antioxidants that soothes and preps skin for the next step. Formulated for sensitive and reactive skin.</p>
+                            <div class="product-stars">
+                                <div class="stars-row">
+                                    <i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-half star-icon"></i>
+                                </div>
+                                <span class="review-count">4.8 (92)</span>
+                            </div>
+                            <div class="product-price-row">
+                                <span class="product-price">₱890.00</span>
+                            </div>
+                            <div class="product-actions">
+                                <div class="qty-stepper">
+                                    <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                                    <span class="qty-val">1</span>
+                                    <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                                </div>
+                                <button class="btn-add-cart" onclick="addToCart(this,event)">Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-warning-strip" onclick="openWarningModal(this)">
+                            <div class="warn-strip-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                            <div class="warn-strip-text">
+                                <div class="warn-strip-title">Ingredient Alert</div>
+                                <div class="warn-strip-sub">Tap to view details</div>
+                            </div>
+                            <i class="bi bi-chevron-right warn-strip-arrow"></i>
+                        </div>
+                    </div>
+
+                    {# Product 7 #}
+                    <div class="product-card reveal d1"
+                         data-cat="wellness" data-price="1480" data-rating="4.8" data-date="2026-03-10"
+                         data-ingredients="vitamin-c,niacinamide,kojic-acid,licorice-root,hyaluronic-acid"
+                         data-warnings='{"pregnancy":["kojic-acid","niacinamide"],"sensitive-skin":["kojic-acid"]}'>
+                        <div class="product-img-wrap">
+                            <img src="{{ asset('images/3.jpg') }}" alt="Glow C Serum">
+                            <span class="product-badge">Soothing</span>
+                            <button class="product-wishlist" title="Save to wishlist"><i class="bi bi-heart"></i></button>
+                            <div class="product-quick-add" onclick="addToCart(this,event)">
+                                <i class="bi bi-bag-plus"></i> Quick Add
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">Wellness · Serum</span>
+                            <div class="product-name">Glow C Serum</div>
+                            <p class="product-desc">Bottled sunshine for your skin. Awakens radiance, fades dark spots and lets your natural light shine through.</p>
+                            <div class="product-stars">
+                                <div class="stars-row">
+                                    <i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-half star-icon"></i>
+                                </div>
+                                <span class="review-count">4.8 (145)</span>
+                            </div>
+                            <div class="product-price-row">
+                                <span class="product-price">₱1,480.00</span>
+                            </div>
+                            <div class="product-actions">
+                                <div class="qty-stepper">
+                                    <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                                    <span class="qty-val">1</span>
+                                    <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                                </div>
+                                <button class="btn-add-cart" onclick="addToCart(this,event)">Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-warning-strip" onclick="openWarningModal(this)">
+                            <div class="warn-strip-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                            <div class="warn-strip-text">
+                                <div class="warn-strip-title">Ingredient Alert</div>
+                                <div class="warn-strip-sub">Tap to view details</div>
+                            </div>
+                            <i class="bi bi-chevron-right warn-strip-arrow"></i>
+                        </div>
+                    </div>
+
+                    {# Product 8 #}
+                    <div class="product-card reveal d2"
+                         data-cat="face" data-price="620" data-rating="4.6" data-date="2026-01-25"
+                         data-ingredients="hyaluronic-acid,ceramides,glycerin,shea-butter,panthenol"
+                         data-warnings='{"nut-allergy":["shea-butter"]}'>
+                        <div class="product-img-wrap">
+                            <img src="{{ asset('images/2.jpg') }}" alt="Dew Hydration Cream">
+                            <span class="product-badge">Bestseller</span>
+                            <button class="product-wishlist" title="Save to wishlist"><i class="bi bi-heart"></i></button>
+                            <div class="product-quick-add" onclick="addToCart(this,event)">
+                                <i class="bi bi-bag-plus"></i> Quick Add
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">Face · Moisturiser</span>
+                            <div class="product-name">Dew Hydration Cream</div>
+                            <p class="product-desc">Like the first touch of morning mist on your skin. Sinks in softly and wraps your face in lasting comfort and a quiet, dewy glow.</p>
+                            <div class="product-stars">
+                                <div class="stars-row">
+                                    <i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-half star-icon"></i>
+                                </div>
+                                <span class="review-count">4.6 (78)</span>
+                            </div>
+                            <div class="product-price-row">
+                                <span class="product-price">₱620.00</span>
+                            </div>
+                            <div class="product-actions">
+                                <div class="qty-stepper">
+                                    <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                                    <span class="qty-val">1</span>
+                                    <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                                </div>
+                                <button class="btn-add-cart" onclick="addToCart(this,event)">Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-warning-strip" onclick="openWarningModal(this)">
+                            <div class="warn-strip-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                            <div class="warn-strip-text">
+                                <div class="warn-strip-title">Ingredient Alert</div>
+                                <div class="warn-strip-sub">Tap to view details</div>
+                            </div>
+                            <i class="bi bi-chevron-right warn-strip-arrow"></i>
+                        </div>
+                    </div>
+
+                    {# Product 9 — Set #}
+                    <div class="product-card reveal d3"
+                         data-cat="sets" data-price="2490" data-rating="5.0" data-date="2026-04-02"
+                         data-ingredients="salicylic-acid,vitamin-c,hyaluronic-acid,shea-butter,niacinamide,aloe-vera"
+                         data-warnings='{"pregnancy":["salicylic-acid","niacinamide"],"nut-allergy":["shea-butter"],"citrus-allergy":["vitamin-c"],"sensitive-skin":["salicylic-acid"]}'>
+                        <div class="product-img-wrap">
+                            <img src="{{ asset('images/silk.jpg') }}" alt="Silk Body Oil">
+                            <span class="product-badge new-badge">Bundle</span>
+                            <span class="product-badge sale">−15%</span>
+                            <button class="product-wishlist" title="Save to wishlist"><i class="bi bi-heart"></i></button>
+                            <div class="product-quick-add" onclick="addToCart(this,event)">
+                                <i class="bi bi-bag-plus"></i> Quick Add
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">Sets · Starter Kit</span>
+                            <div class="product-name">The Glow Starter Set</div>
+                            <p class="product-desc">Everything you need for the perfect routine. Includes our Cleanser, Toner, Moisturiser and Vitamin C Serum.</p>
+                            <div class="product-stars">
+                                <div class="stars-row">
+                                    <i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i>
+                                </div>
+                                <span class="review-count">5.0 (44)</span>
+                            </div>
+                            <div class="product-price-row">
+                                <span class="product-price product-price-sale">₱2,116.00</span>
+                                <span class="product-price-orig">₱2,490.00</span>
+                                <span class="product-save-tag">Save 15%</span>
+                            </div>
+                            <div class="product-actions">
+                                <div class="qty-stepper">
+                                    <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                                    <span class="qty-val">1</span>
+                                    <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                                </div>
+                                <button class="btn-add-cart" onclick="addToCart(this,event)">Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-warning-strip" onclick="openWarningModal(this)">
+                            <div class="warn-strip-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                            <div class="warn-strip-text">
+                                <div class="warn-strip-title">Ingredient Alert</div>
+                                <div class="warn-strip-sub">Tap to view details</div>
+                            </div>
+                            <i class="bi bi-chevron-right warn-strip-arrow"></i>
+                        </div>
+                    </div>
+
+                    {# Product 10 #}
+                    <div class="product-card reveal d1"
+                         data-cat="body" data-price="750" data-rating="4.7" data-date="2026-02-20"
+                         data-ingredients="jojoba-oil,sweet-almond-oil,vitamin-e,fragrance,lavender-oil"
+                         data-warnings='{"nut-allergy":["sweet-almond-oil"],"fragrance-sensitive":["fragrance","lavender-oil"]}'>
+                        <div class="product-img-wrap">
+                            <img src="{{ asset('images/smallmodel.jpg') }}" alt="Silk Body Oil">
+                            <button class="product-wishlist" title="Save to wishlist"><i class="bi bi-heart"></i></button>
+                            <div class="product-quick-add" onclick="addToCart(this,event)">
+                                <i class="bi bi-bag-plus"></i> Quick Add
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">Body · Oil</span>
+                            <div class="product-name">Silk Body Oil</div>
+                            <p class="product-desc">Dry-touch body oil blended with jojoba and sweet almond that absorbs instantly without residue, leaving skin luminous.</p>
+                            <div class="product-stars">
+                                <div class="stars-row">
+                                    <i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-half star-icon"></i>
+                                </div>
+                                <span class="review-count">4.7 (55)</span>
+                            </div>
+                            <div class="product-price-row">
+                                <span class="product-price">₱750.00</span>
+                            </div>
+                            <div class="product-actions">
+                                <div class="qty-stepper">
+                                    <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                                    <span class="qty-val">1</span>
+                                    <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                                </div>
+                                <button class="btn-add-cart" onclick="addToCart(this,event)">Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-warning-strip" onclick="openWarningModal(this)">
+                            <div class="warn-strip-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                            <div class="warn-strip-text">
+                                <div class="warn-strip-title">Ingredient Alert</div>
+                                <div class="warn-strip-sub">Tap to view details</div>
+                            </div>
+                            <i class="bi bi-chevron-right warn-strip-arrow"></i>
+                        </div>
+                    </div>
+
+                    {# Product 11 #}
+                    <div class="product-card reveal d2"
+                         data-cat="serum" data-price="1100" data-rating="4.9" data-date="2026-03-05"
+                         data-ingredients="caffeine,peptides,hyaluronic-acid,vitamin-k,retinol"
+                         data-warnings='{"pregnancy":["retinol"],"sensitive-skin":["retinol","caffeine"]}'>
+                        <div class="product-img-wrap">
+                            <img src="{{ asset('images/cloud.jpg') }}" alt="Cloud 9 Sleep Serum">
+                            <span class="product-badge new-badge">New</span>
+                            <button class="product-wishlist" title="Save to wishlist"><i class="bi bi-heart"></i></button>
+                            <div class="product-quick-add" onclick="addToCart(this,event)">
+                                <i class="bi bi-bag-plus"></i> Quick Add
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">Serum · Eye Care</span>
+                            <div class="product-name">Cloud 9 Sleep Serum</div>
+                            <p class="product-desc">A delicate eye serum with caffeine and peptides that visibly reduces puffiness, dark circles, and fine lines around the eyes.</p>
+                            <div class="product-stars">
+                                <div class="stars-row">
+                                    <i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i>
+                                </div>
+                                <span class="review-count">4.9 (61)</span>
+                            </div>
+                            <div class="product-price-row">
+                                <span class="product-price">₱1,100.00</span>
+                            </div>
+                            <div class="product-actions">
+                                <div class="qty-stepper">
+                                    <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                                    <span class="qty-val">1</span>
+                                    <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                                </div>
+                                <button class="btn-add-cart" onclick="addToCart(this,event)">Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-warning-strip" onclick="openWarningModal(this)">
+                            <div class="warn-strip-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                            <div class="warn-strip-text">
+                                <div class="warn-strip-title">Ingredient Alert</div>
+                                <div class="warn-strip-sub">Tap to view details</div>
+                            </div>
+                            <i class="bi bi-chevron-right warn-strip-arrow"></i>
+                        </div>
+                    </div>
+
+                    {# Product 12 #}
+                    <div class="product-card reveal d3"
+                         data-cat="wellness" data-price="1680" data-rating="5.0" data-date="2026-04-01"
+                         data-ingredients="rosewater,vitamin-c,peptides,retinol,jojoba-oil,fragrance"
+                         data-warnings='{"pregnancy":["retinol"],"fragrance-sensitive":["fragrance","rosewater"],"citrus-allergy":["vitamin-c"]}'>
+                        <div class="product-img-wrap">
+                            <img src="{{ asset('images/3.jpg') }}" alt="Rose Ritual Set">
+                            <span class="product-badge new-badge">Bundle</span>
+                            <span class="product-badge sale">−20%</span>
+                            <button class="product-wishlist" title="Save to wishlist"><i class="bi bi-heart"></i></button>
+                            <div class="product-quick-add" onclick="addToCart(this,event)">
+                                <i class="bi bi-bag-plus"></i> Quick Add
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">Sets · Wellness</span>
+                            <div class="product-name">Rose Ritual Set</div>
+                            <p class="product-desc">A complete self-care set with rosewater mist, petal eye serum, and our signature Glow C Serum — beautifully gift-boxed.</p>
+                            <div class="product-stars">
+                                <div class="stars-row">
+                                    <i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i><i class="bi bi-star-fill star-icon"></i>
+                                </div>
+                                <span class="review-count">5.0 (29)</span>
+                            </div>
+                            <div class="product-price-row">
+                                <span class="product-price product-price-sale">₱1,344.00</span>
+                                <span class="product-price-orig">₱1,680.00</span>
+                                <span class="product-save-tag">Save 20%</span>
+                            </div>
+                            <div class="product-actions">
+                                <div class="qty-stepper">
+                                    <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                                    <span class="qty-val">1</span>
+                                    <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                                </div>
+                                <button class="btn-add-cart" onclick="addToCart(this,event)">Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-warning-strip" onclick="openWarningModal(this)">
+                            <div class="warn-strip-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                            <div class="warn-strip-text">
+                                <div class="warn-strip-title">Ingredient Alert</div>
+                                <div class="warn-strip-sub">Tap to view details</div>
+                            </div>
+                            <i class="bi bi-chevron-right warn-strip-arrow"></i>
+                        </div>
+                    </div>
+
+                    {# Empty state #}
+                    <div class="shop-empty" id="shopEmpty">
+                        <i class="bi bi-search"></i>
+                        <div class="shop-empty-title">No products found</div>
+                        <p class="shop-empty-sub">Try adjusting your filters or browse all products.</p>
+                    </div>
+
+                </div>{# end product-grid #}
+
+                <div class="load-more-wrap reveal">
+                    <button class="btn-load-more" id="loadMoreBtn">
+                        <i class="bi bi-arrow-down"></i> Load More Products
+                    </button>
+                </div>
+            </div>{# end products-wrap #}
+
+        </div>
+    </div>
+</section>
+
+
+{# ════════ §4 PROMISE STRIP ════════ #}
+<section id="promise-strip">
+    <div class="container-fluid px-0">
+        <div class="promise-inner">
+            <div class="promise-item reveal d1">
+                <span class="promise-icon">🚚</span>
+                <div class="promise-title">Free Shipping</div>
+                <div class="promise-sub">On all orders over ₱1,500 nationwide</div>
+            </div>
+            <div class="promise-item reveal d2">
+                <span class="promise-icon">🌿</span>
+                <div class="promise-title">100% Organic</div>
+                <div class="promise-sub">Every ingredient sourced from certified farms</div>
+            </div>
+            <div class="promise-item reveal d3">
+                <span class="promise-icon">🔄</span>
+                <div class="promise-title">30-Day Returns</div>
+                <div class="promise-sub">Unopened items returned hassle-free</div>
+            </div>
+            <div class="promise-item reveal d4">
+                <span class="promise-icon">🐰</span>
+                <div class="promise-title">Cruelty-Free</div>
+                <div class="promise-sub">Never tested on animals, ever</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{# ════════ CART DRAWER ════════ #}
+<div class="cart-overlay" id="cartOverlay"></div>
+<div class="cart-drawer" id="cartDrawer" aria-label="Shopping Cart">
+    <div class="cart-header">
+        <div class="cart-title">Your Bag <span class="cart-item-count" id="cartCount">0</span></div>
+        <button class="cart-close" id="cartClose" aria-label="Close cart"><i class="bi bi-x"></i></button>
+    </div>
+    <div class="cart-items" id="cartItemsList">
+        <div class="cart-empty" id="cartEmptyState">
+            <i class="bi bi-bag"></i>
+            <span class="cart-empty-txt">Your bag is empty.<br>Add something beautiful.</span>
+        </div>
+    </div>
+    <div class="cart-footer" id="cartFooter" style="display:none;">
+        <div class="cart-subtotal-row">
+            <span class="cart-subtotal-lbl">Subtotal</span>
+            <span class="cart-subtotal-val" id="cartSubtotal">₱0.00</span>
+        </div>
+        <div class="cart-free-ship" id="cartFreeShipMsg"></div>
+        <div class="cart-free-ship-bar"><div class="cart-free-ship-fill" id="cartFreeShipFill" style="width:0%"></div></div>
+        <button class="btn-checkout"><i class="bi bi-bag-check"></i> &nbsp;Proceed to Checkout</button>
+        <button class="btn-continue-shop" id="continueShopBtn"><i class="bi bi-arrow-left"></i> &nbsp;Continue Shopping</button>
+    </div>
+</div>
+
+{# ── Floating cart pill ── #}
+<button class="cart-pill" id="cartPill" aria-label="Open cart">
+    <i class="bi bi-bag"></i>
+    <span>My Bag</span>
+    <span class="cart-pill-badge" id="cartPillBadge">0</span>
+</button>
+
+{# ── Add-to-cart toast ── #}
+<div class="add-toast" id="addToast" role="status" aria-live="polite">
+    <div class="toast-check"><i class="bi bi-check"></i></div>
+    <div class="toast-content">
+        <span class="toast-msg" id="toastProductName">Added to bag</span>
+        <span class="toast-sub-msg">View your bag to checkout</span>
+    </div>
+</div>
+
+
+{# ════════ INGREDIENT WARNING MODAL ════════ #}
+<div class="warn-modal-overlay" id="warnModalOverlay">
+    <div class="warn-modal" id="warnModal">
+        <div class="warn-modal-header">
+            <div class="warn-modal-icon-wrap">⚠️</div>
+            <div class="warn-modal-heading">
+                <div class="warn-modal-eyebrow">
+                    <span class="warn-modal-eyebrow-dot"></span>
+                    Ingredient Safety Alert
+                </div>
+                <div class="warn-modal-title">
+                    Concerns found in<br>
+                    <span class="warn-modal-product-name" id="warnModalProductName">Product Name</span>
+                </div>
+            </div>
+            <button class="warn-modal-close" id="warnModalClose"><i class="bi bi-x"></i></button>
+        </div>
+        <div class="warn-modal-body">
+            <div class="warn-modal-profile-row" id="warnModalProfileRow"></div>
+            <div class="warn-items-list" id="warnItemsList"></div>
+            <div class="warn-safe-note" id="warnSafeNote" style="display:none;">
+                <i class="bi bi-shield-check warn-safe-icon"></i>
+                <div class="warn-safe-text" id="warnSafeNoteText"></div>
+            </div>
+            <div class="warn-disclaimer">
+                ℹ️ This alert is for informational purposes only and is based on your personal safety profile. Always consult a dermatologist or healthcare provider before use, especially during pregnancy or if you have known allergies.
+            </div>
+        </div>
+        <div class="warn-modal-footer">
+            <button class="btn-warn-close" id="btnWarnClose">Go Back</button>
+            <button class="btn-warn-add-anyway" id="btnWarnAddAnyway">
+                <i class="bi bi-bag-plus"></i> Add to Cart Anyway
+            </button>
+        </div>
+    </div>
+</div>
+
+
+{# ════════ SAFETY PROFILE MODAL ════════ #}
+<div class="profile-modal-overlay" id="profileModalOverlay">
+    <div class="profile-modal" id="profileModal">
+        <div class="profile-modal-header">
+            <div class="profile-modal-eyebrow">
+                <span style="width:4px;height:4px;border-radius:50%;background:var(--sage);display:inline-block;"></span>
+                Personalise your experience
+            </div>
+            <div class="profile-modal-title">My Safety Profile</div>
+            <div class="profile-modal-sub">
+                Select any conditions or allergies that apply to you. We'll automatically flag ingredients in our products that may affect you.
+            </div>
+            <button class="profile-modal-close" id="profileModalClose"><i class="bi bi-x"></i></button>
+        </div>
+        <div class="profile-modal-body">
+
+            <div class="profile-section">
+                <div class="profile-section-title">Conditions &amp; Sensitivities</div>
+                <div class="concern-grid" id="concernGrid">
+
+                    <button class="concern-btn" data-concern="pregnancy">
+                        <div class="cb-icon">🤰</div>
+                        <div class="cb-text">
+                            <span class="cb-label">Pregnant / Nursing</span>
+                            <span class="cb-sub">Avoid retinol, salicylic acid, etc.</span>
+                        </div>
+                        <div class="cb-check"><i class="bi bi-check" style="display:none;"></i></div>
+                    </button>
+
+                    <button class="concern-btn" data-concern="sensitive-skin">
+                        <div class="cb-icon">🌸</div>
+                        <div class="cb-text">
+                            <span class="cb-label">Sensitive Skin</span>
+                            <span class="cb-sub">Flags common irritants &amp; actives</span>
+                        </div>
+                        <div class="cb-check"><i class="bi bi-check" style="display:none;"></i></div>
+                    </button>
+
+                    <button class="concern-btn" data-concern="fragrance-sensitive">
+                        <div class="cb-icon">🌬️</div>
+                        <div class="cb-text">
+                            <span class="cb-label">Fragrance Sensitive</span>
+                            <span class="cb-sub">Synthetic &amp; natural fragrances</span>
+                        </div>
+                        <div class="cb-check"><i class="bi bi-check" style="display:none;"></i></div>
+                    </button>
+
+                    <button class="concern-btn" data-concern="alcohol-free">
+                        <div class="cb-icon">🚫</div>
+                        <div class="cb-text">
+                            <span class="cb-label">Alcohol-Free</span>
+                            <span class="cb-sub">Denatured &amp; drying alcohols</span>
+                        </div>
+                        <div class="cb-check"><i class="bi bi-check" style="display:none;"></i></div>
+                    </button>
+
+                    <button class="concern-btn" data-concern="nut-allergy">
+                        <div class="cb-icon">🥜</div>
+                        <div class="cb-text">
+                            <span class="cb-label">Nut Allergy</span>
+                            <span class="cb-sub">Shea butter, almond oil, etc.</span>
+                        </div>
+                        <div class="cb-check"><i class="bi bi-check" style="display:none;"></i></div>
+                    </button>
+
+                    <button class="concern-btn" data-concern="citrus-allergy">
+                        <div class="cb-icon">🍋</div>
+                        <div class="cb-text">
+                            <span class="cb-label">Citrus Allergy</span>
+                            <span class="cb-sub">Vitamin C, citric acid, limonene</span>
+                        </div>
+                        <div class="cb-check"><i class="bi bi-check" style="display:none;"></i></div>
+                    </button>
+
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <div class="profile-section-title">Custom Ingredients to Avoid</div>
+                <textarea class="allergy-input" id="customAllergyInput" placeholder="e.g. benzoyl peroxide, lanolin, argan oil..."></textarea>
+                <div class="allergy-hint">Separate multiple ingredients with commas. These will be matched against product ingredient lists.</div>
+                <div class="allergy-tags">
+                    <span class="allergy-preset-tag" data-preset="retinol">Retinol</span>
+                    <span class="allergy-preset-tag" data-preset="parabens">Parabens</span>
+                    <span class="allergy-preset-tag" data-preset="sulfates">Sulfates</span>
+                    <span class="allergy-preset-tag" data-preset="lanolin">Lanolin</span>
+                    <span class="allergy-preset-tag" data-preset="benzoyl-peroxide">Benzoyl Peroxide</span>
+                    <span class="allergy-preset-tag" data-preset="argan-oil">Argan Oil</span>
+                    <span class="allergy-preset-tag" data-preset="silicones">Silicones</span>
+                </div>
+            </div>
+
+        </div>
+        <div class="profile-modal-footer">
+            <button class="btn-profile-cancel" id="profileCancelBtn">Cancel</button>
+            <button class="btn-profile-save" id="profileSaveBtn">
+                <i class="bi bi-shield-check"></i> Save My Profile
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+(function () {
+    'use strict';
+
+    /* ══ Scroll Reveal ══ */
+    const io = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); } });
+    }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+    document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(el => io.observe(el));
+
+    /* ══ Qty Stepper ══ */
+    window.changeQty = function (btn, delta) {
+        const val = btn.parentElement.querySelector('.qty-val');
+        let n = parseInt(val.textContent) + delta;
+        val.textContent = Math.max(1, Math.min(99, n));
+    };
+
+    /* ══ Cart State ══ */
+    let cart = [];
+    const FREE_SHIP_THRESHOLD = 1500;
+
+    function formatPrice(p) {
+        return '₱' + p.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+    }
+    function getCartTotal() { return cart.reduce((s, i) => s + i.price * i.qty, 0); }
+    function saveCart() { try { localStorage.setItem('naturae_cart', JSON.stringify(cart)); } catch(e) {} }
+    function loadCart() { try { const c = localStorage.getItem('naturae_cart'); if (c) cart = JSON.parse(c); } catch(e) {} }
+
+    function updateCartUI() {
+        const total = getCartTotal();
+        const count = cart.reduce((s, i) => s + i.qty, 0);
+        document.getElementById('cartCount').textContent     = count;
+        document.getElementById('cartPillBadge').textContent = count;
+        document.getElementById('cartPill').classList.toggle('is-visible', count > 0);
+        const footer = document.getElementById('cartFooter');
+        const emptyEl = document.getElementById('cartEmptyState');
+        footer.style.display = cart.length ? '' : 'none';
+        emptyEl.style.display = cart.length ? 'none' : '';
+        document.getElementById('cartSubtotal').textContent = formatPrice(total);
+        const pct = Math.min(100, (total / FREE_SHIP_THRESHOLD) * 100);
+        document.getElementById('cartFreeShipFill').style.width = pct + '%';
+        const remaining = FREE_SHIP_THRESHOLD - total;
+        const shipMsg = document.getElementById('cartFreeShipMsg');
+        if (total >= FREE_SHIP_THRESHOLD) {
+            shipMsg.innerHTML = '<i class="bi bi-check-circle"></i> &nbsp;You qualify for <strong>free shipping!</strong>';
+        } else {
+            shipMsg.innerHTML = '<i class="bi bi-truck"></i> &nbsp;Add ' + formatPrice(remaining) + ' more for <strong>free shipping</strong>';
+        }
+        const list = document.getElementById('cartItemsList');
+        const existingEmpty = list.querySelector('.cart-empty');
+        list.querySelectorAll('.cart-item').forEach(el => el.remove());
+        cart.forEach((item, idx) => {
+            const el = document.createElement('div');
+            el.className = 'cart-item';
+            el.innerHTML = `
+                <div class="cart-item-img"><img src="${item.img}" alt="${item.name}"></div>
+                <div class="cart-item-body">
+                    <span class="cart-item-cat">${item.cat}</span>
+                    <div class="cart-item-name">${item.name}</div>
+                    <div class="cart-item-qty-row">
+                        <button class="ci-qty-btn" onclick="cartChangeQty(${idx},-1)">−</button>
+                        <span class="ci-qty-val">${item.qty}</span>
+                        <button class="ci-qty-btn" onclick="cartChangeQty(${idx},1)">+</button>
+                    </div>
+                    <div class="cart-item-row">
+                        <span class="cart-item-price">${formatPrice(item.price * item.qty)}</span>
+                        <button class="cart-item-remove" onclick="removeFromCart(${idx})">Remove</button>
+                    </div>
+                </div>`;
+            list.insertBefore(el, existingEmpty);
+        });
+        saveCart();
+    }
+
+    window.cartChangeQty = function(idx, delta) {
+        if (!cart[idx]) return;
+        cart[idx].qty = Math.max(1, cart[idx].qty + delta);
+        updateCartUI();
+    };
+    window.removeFromCart = function(idx) {
+        cart.splice(idx, 1);
+        updateCartUI();
+    };
+
+    /* ══ Add to Cart ══ */
+    window.addToCart = function (btn, e) {
+        if (e) e.stopPropagation();
+        const card = btn.closest('.product-card');
+        const name  = card.querySelector('.product-name').textContent;
+        const cat   = card.querySelector('.product-category').textContent;
+        const img   = card.querySelector('.product-img-wrap img').src;
+        const qtyEl = card.querySelector('.qty-val');
+        const qty   = qtyEl ? parseInt(qtyEl.textContent) : 1;
+        let priceEl = card.querySelector('.product-price-sale') || card.querySelector('.product-price');
+        let price = parseFloat(priceEl.textContent.replace(/[^0-9.]/g,''));
+        const existing = cart.find(i => i.name === name);
+        if (existing) { existing.qty += qty; } else { cart.push({ name, cat, img, price, qty }); }
+        const addBtns = card.querySelectorAll('.btn-add-cart');
+        addBtns.forEach(b => {
+            b.textContent = '✓ Added'; b.classList.add('added');
+            setTimeout(() => { b.textContent = 'Add to Cart'; b.classList.remove('added'); }, 1800);
+        });
+        updateCartUI();
+        showToast(name);
+    };
+
+    /* ══ Toast ══ */
+    let toastTimer;
+    function showToast(name) {
+        const toast = document.getElementById('addToast');
+        document.getElementById('toastProductName').textContent = name;
+        toast.classList.add('is-visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3200);
+    }
+
+    /* ══ Cart Drawer ══ */
+    function openCart()  { document.getElementById('cartDrawer').classList.add('is-open'); document.getElementById('cartOverlay').classList.add('is-open'); document.body.style.overflow = 'hidden'; }
+    function closeCart() { document.getElementById('cartDrawer').classList.remove('is-open'); document.getElementById('cartOverlay').classList.remove('is-open'); document.body.style.overflow = ''; }
+    document.getElementById('cartPill').addEventListener('click', openCart);
+    document.getElementById('cartClose').addEventListener('click', closeCart);
+    document.getElementById('cartOverlay').addEventListener('click', closeCart);
+    document.getElementById('continueShopBtn').addEventListener('click', closeCart);
+
+    /* ══ Category Filter ══ */
+    const grid  = document.getElementById('productGrid');
+    const cards = Array.from(grid.querySelectorAll('.product-card'));
+    const empty = document.getElementById('shopEmpty');
+
+    function applyFilters() {
+        const cat  = document.querySelector('.cat-tab.active')?.dataset.cat || 'all';
+        const sort = document.getElementById('sortSelect').value;
+        const minP = parseFloat(document.getElementById('priceMin').value) || 0;
+        const maxP = parseFloat(document.getElementById('priceMax').value) || 999999;
+        let visible = cards.filter(c => {
+            const catOk  = cat === 'all' || c.dataset.cat === cat;
+            const priceOk = parseFloat(c.dataset.price) >= minP && parseFloat(c.dataset.price) <= maxP;
+            return catOk && priceOk;
+        });
+        visible.sort((a, b) => {
+            if (sort === 'price-asc')  return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+            if (sort === 'price-desc') return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+            if (sort === 'rating')     return parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating);
+            if (sort === 'newest')     return new Date(b.dataset.date) - new Date(a.dataset.date);
+            return 0;
+        });
+        grid.classList.add('is-filtering');
+        setTimeout(() => {
+            cards.forEach(c => { c.style.display = 'none'; c.style.order = ''; });
+            visible.forEach((c, i) => { c.style.display = ''; c.style.order = i; });
+            empty.classList.toggle('is-visible', visible.length === 0);
+            const n = visible.length;
+            document.getElementById('resultsCount').innerHTML = 'Showing <strong>' + n + '</strong> products';
+            document.getElementById('productsShowing').innerHTML = 'Showing <strong>' + n + '</strong> of <strong>' + cards.length + '</strong> products';
+            grid.classList.remove('is-filtering');
+        }, 250);
+    }
+
+    document.querySelectorAll('.cat-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            applyFilters();
+        });
+    });
+    document.getElementById('sortSelect').addEventListener('change', applyFilters);
+    document.getElementById('applyPrice').addEventListener('click', applyFilters);
+    document.getElementById('clearPrice').addEventListener('click', () => {
+        document.getElementById('priceMin').value = 0;
+        document.getElementById('priceMax').value = 5000;
+        applyFilters();
+    });
+
+    /* ══ View Toggle ══ */
+    document.getElementById('viewGrid').addEventListener('click', function() {
+        this.classList.add('active'); document.getElementById('viewList').classList.remove('active');
+        grid.classList.remove('view-2col', 'view-list');
+    });
+    document.getElementById('viewList').addEventListener('click', function() {
+        this.classList.add('active'); document.getElementById('viewGrid').classList.remove('active');
+        grid.classList.add('view-list'); grid.classList.remove('view-2col');
+    });
+
+    /* ══ Skin type toggle ══ */
+    document.querySelectorAll('.skin-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.skin-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    /* ══ Wishlist toggle ══ */
+    document.querySelectorAll('.product-wishlist').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.classList.toggle('is-liked');
+            const icon = this.querySelector('i');
+            icon.className = this.classList.contains('is-liked') ? 'bi bi-heart-fill' : 'bi bi-heart';
+        });
+    });
+
+    /* ══ Price range visual fill ══ */
+    function updatePriceFill() {
+        const max = 5000;
+        const lo  = Math.max(0, parseFloat(document.getElementById('priceMin').value) || 0);
+        const hi  = Math.min(max, parseFloat(document.getElementById('priceMax').value) || max);
+        const fill = document.getElementById('priceRangeFill');
+        fill.style.left  = ((lo / max) * 100) + '%';
+        fill.style.right = (((max - hi) / max) * 100) + '%';
+    }
+    document.getElementById('priceMin').addEventListener('input', updatePriceFill);
+    document.getElementById('priceMax').addEventListener('input', updatePriceFill);
+    updatePriceFill();
+
+    /* ══ Load More ══ */
+    document.getElementById('loadMoreBtn').addEventListener('click', function() {
+        this.innerHTML = '<span style="opacity:.6;font-size:.68rem;letter-spacing:.18em">All products loaded</span>';
+        this.disabled = true; this.style.opacity = '0.5'; this.style.cursor = 'default';
+    });
+
+    /* ══════════════════════════════════════════
+       SAFETY PROFILE SYSTEM
+    ══════════════════════════════════════════ */
+
+    // Ingredient warning database — maps concern key → ingredient details
+    const INGREDIENT_INFO = {
+        'pregnancy':            {
+            'salicylic-acid':   { name: 'Salicylic Acid',    reason: 'High-dose salicylic acid is associated with risks during pregnancy. Consult your OB-GYN before use.', tags: ['Pregnancy Risk'] },
+            'retinol':          { name: 'Retinol',            reason: 'Vitamin A derivatives (retinoids/retinol) are strongly advised against during pregnancy due to potential developmental risks.', tags: ['Pregnancy — Avoid'] },
+            'ascorbic-acid':    { name: 'Ascorbic Acid (Vit. C)', reason: 'In high concentrations, topical Vitamin C may not be recommended during early pregnancy. Consult your healthcare provider.', tags: ['Pregnancy — Consult'] },
+            'niacinamide':      { name: 'Niacinamide',        reason: 'Generally considered safe in low concentrations, but very high concentrations may warrant caution. Consult your doctor.', tags: ['Pregnancy — Low Risk'] },
+            'kojic-acid':       { name: 'Kojic Acid',         reason: 'Limited safety data for use during pregnancy. Consult your dermatologist or OB-GYN before use.', tags: ['Pregnancy — Consult'] },
+        },
+        'sensitive-skin':       {
+            'salicylic-acid':   { name: 'Salicylic Acid',    reason: 'A potent exfoliating acid that may cause irritation, redness, or peeling on sensitive skin types.', tags: ['Potential Irritant'] },
+            'tea-tree-oil':     { name: 'Tea Tree Oil',       reason: 'While antibacterial, tea tree oil is a known irritant for sensitive skin and may cause contact dermatitis.', tags: ['Known Irritant'] },
+            'retinol':          { name: 'Retinol',            reason: 'Retinol commonly causes redness, dryness, and flaking, especially on sensitive or first-time users.', tags: ['Irritant', 'Start Slowly'] },
+            'caffeine':         { name: 'Caffeine',           reason: 'May cause mild temporary tingling or irritation on very sensitive skin. Typically well-tolerated.', tags: ['Mild Sensitiser'] },
+            'kojic-acid':       { name: 'Kojic Acid',         reason: 'Can cause irritation, contact dermatitis, or increased sun sensitivity on sensitive skin types.', tags: ['Potential Irritant'] },
+        },
+        'fragrance-sensitive':  {
+            'fragrance':        { name: 'Fragrance / Parfum', reason: 'Synthetic fragrance is one of the most common causes of contact allergies and skin reactions.', tags: ['Common Allergen'] },
+            'alcohol':          { name: 'Alcohol / Denatured Alcohol', reason: 'Certain forms of alcohol can be drying and sensitising for fragrance-sensitive individuals.', tags: ['Sensitiser'] },
+            'lavender-oil':     { name: 'Lavender Essential Oil', reason: 'Natural lavender oil contains linalool and linalyl acetate, common sensitisers in fragrance allergy.', tags: ['Natural Fragrance', 'Allergen'] },
+            'rosewater':        { name: 'Rosewater',          reason: 'Derived from Rosa damascena, rosewater may trigger reactions in individuals with floral/fragrance sensitivities.', tags: ['Natural Fragrance'] },
+        },
+        'alcohol-free':         {
+            'alcohol':          { name: 'Alcohol / Denatured Alcohol', reason: 'This product contains alcohol (ethanol or denatured alcohol), which can be drying and may cause irritation.', tags: ['Drying Alcohol'] },
+            'witch-hazel':      { name: 'Witch Hazel',        reason: 'Witch hazel is an astringent that naturally contains tannins and may be processed with alcohol. Can be drying with repeated use.', tags: ['Astringent', 'May Contain Alcohol'] },
+        },
+        'nut-allergy':          {
+            'shea-butter':      { name: 'Shea Butter',        reason: 'Shea butter is derived from the shea tree nut. Those with tree nut allergies should exercise caution and consult an allergist.', tags: ['Tree Nut Derivative'] },
+            'sweet-almond-oil': { name: 'Sweet Almond Oil',   reason: 'Almond oil is a tree nut oil. People with nut allergies, particularly almond allergy, should avoid this product.', tags: ['Nut Oil — Avoid'] },
+        },
+        'citrus-allergy':       {
+            'vitamin-c':        { name: 'Vitamin C (Citrus Extract)', reason: 'Vitamin C derived from citrus sources may cause reactions in individuals with citrus fruit allergies.', tags: ['Citrus Derivative'] },
+            'ascorbic-acid':    { name: 'Ascorbic Acid',      reason: 'Ascorbic acid (synthetic Vitamin C) is generally safe for citrus-allergic individuals, but some may still react. Monitor closely.', tags: ['Citrus-Derived Form'] },
+        },
+    };
+
+    const CONCERN_LABELS = {
+        'pregnancy':           { label: 'Pregnant / Nursing', icon: '🤰' },
+        'sensitive-skin':      { label: 'Sensitive Skin',     icon: '🌸' },
+        'fragrance-sensitive': { label: 'Fragrance Sensitive', icon: '🌬️' },
+        'alcohol-free':        { label: 'Alcohol-Free',       icon: '🚫' },
+        'nut-allergy':         { label: 'Nut Allergy',        icon: '🥜' },
+        'citrus-allergy':      { label: 'Citrus Allergy',     icon: '🍋' },
+    };
+
+    // User safety profile
+    let safetyProfile = {
+        concerns: [],      // array of concern keys
+        customIngredients: []  // array of custom ingredient strings
+    };
+
+    function saveProfile() {
+        try { localStorage.setItem('naturae_safety', JSON.stringify(safetyProfile)); } catch(e) {}
+    }
+    function loadProfile() {
+        try {
+            const s = localStorage.getItem('naturae_safety');
+            if (s) safetyProfile = JSON.parse(s);
+        } catch(e) {}
+    }
+
+    /* ── Check a card for warnings against current profile ── */
+    function getCardWarnings(card) {
+        const warningsData = card.dataset.warnings ? JSON.parse(card.dataset.warnings) : {};
+        const ingredientList = card.dataset.ingredients ? card.dataset.ingredients.split(',').map(s => s.trim()) : [];
+        const triggeredWarnings = []; // { concernKey, ingredientKey, info }
+
+        safetyProfile.concerns.forEach(concernKey => {
+            const concernIngredients = warningsData[concernKey] || [];
+            concernIngredients.forEach(ingredientKey => {
+                const info = INGREDIENT_INFO[concernKey]?.[ingredientKey];
+                if (info) {
+                    triggeredWarnings.push({ concernKey, ingredientKey, info });
+                }
+            });
+        });
+
+        // Custom ingredient matching
+        safetyProfile.customIngredients.forEach(customIng => {
+            const normalized = customIng.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            ingredientList.forEach(cardIng => {
+                const normalizedCard = cardIng.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                if (normalizedCard.includes(normalized) || normalized.includes(normalizedCard)) {
+                    // Check it's not already flagged
+                    const alreadyFlagged = triggeredWarnings.some(w => w.ingredientKey === cardIng);
+                    if (!alreadyFlagged) {
+                        triggeredWarnings.push({
+                            concernKey: 'custom',
+                            ingredientKey: cardIng,
+                            info: {
+                                name: cardIng.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                                reason: 'This ingredient matches your personal avoid list.',
+                                tags: ['Personal Avoid List']
+                            }
+                        });
+                    }
+                }
+            });
+        });
+
+        return triggeredWarnings;
+    }
+
+    /* ── Apply warning badges to all visible cards ── */
+    function applyWarningBadges() {
+        const hasProfile = safetyProfile.concerns.length > 0 || safetyProfile.customIngredients.length > 0;
+        cards.forEach(card => {
+            const strip = card.querySelector('.product-warning-strip');
+            if (!strip) return;
+
+            if (!hasProfile) {
+                strip.classList.remove('is-visible');
+                card.classList.remove('has-warning');
+                return;
+            }
+
+            const warnings = getCardWarnings(card);
+            if (warnings.length > 0) {
+                strip.classList.add('is-visible');
+                card.classList.add('has-warning');
+                const subEl = strip.querySelector('.warn-strip-sub');
+                const count = warnings.length;
+                subEl.textContent = count === 1 ? '1 concern found — tap to view' : count + ' concerns found — tap to view';
+            } else {
+                strip.classList.remove('is-visible');
+                card.classList.remove('has-warning');
+            }
+        });
+    }
+
+    /* ── Open Warning Modal ── */
+    let warnTargetCard = null;
+    window.openWarningModal = function(strip) {
+        const card = strip.closest('.product-card');
+        warnTargetCard = card;
+        const name = card.querySelector('.product-name').textContent;
+        const warnings = getCardWarnings(card);
+
+        document.getElementById('warnModalProductName').textContent = name;
+
+        // Profile chips
+        const profileRow = document.getElementById('warnModalProfileRow');
+        profileRow.innerHTML = '';
+        safetyProfile.concerns.forEach(c => {
+            const info = CONCERN_LABELS[c];
+            if (info) {
+                const tag = document.createElement('span');
+                tag.className = 'warn-profile-tag';
+                tag.innerHTML = `<i class="bi bi-check-circle"></i> ${info.icon} ${info.label}`;
+                profileRow.appendChild(tag);
+            }
+        });
+        if (safetyProfile.customIngredients.length > 0) {
+            const tag = document.createElement('span');
+            tag.className = 'warn-profile-tag';
+            tag.innerHTML = `<i class="bi bi-list-check"></i> ${safetyProfile.customIngredients.length} custom avoid${safetyProfile.customIngredients.length > 1 ? 's' : ''}`;
+            profileRow.appendChild(tag);
+        }
+
+        // Warning items
+        const list = document.getElementById('warnItemsList');
+        list.innerHTML = '';
+        warnings.forEach(w => {
+            const item = document.createElement('div');
+            item.className = 'warn-item';
+            const tagsHtml = w.info.tags.map(t => `<span class="warn-item-tag">${t}</span>`).join('');
+            item.innerHTML = `
+                <div class="warn-item-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                <div class="warn-item-body">
+                    <div class="warn-item-ingredient">${w.info.name}</div>
+                    <div class="warn-item-reason">${w.info.reason}</div>
+                    <div class="warn-item-tags">${tagsHtml}</div>
+                </div>`;
+            list.appendChild(item);
+        });
+
+        // Safe note — check for non-triggered ingredients
+        const allProductIngredients = card.dataset.ingredients ? card.dataset.ingredients.split(',') : [];
+        const triggeredIngredients = warnings.map(w => w.ingredientKey);
+        const safeCount = allProductIngredients.filter(i => !triggeredIngredients.includes(i.trim())).length;
+        const safeNote = document.getElementById('warnSafeNote');
+        const safeNoteText = document.getElementById('warnSafeNoteText');
+        if (safeCount > 0 && allProductIngredients.length > 0) {
+            safeNote.style.display = 'flex';
+            safeNoteText.innerHTML = `<strong>${safeCount} of ${allProductIngredients.length} key ingredients</strong> in this product do not conflict with your safety profile.`;
+        } else {
+            safeNote.style.display = 'none';
+        }
+
+        document.getElementById('warnModalOverlay').classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+    };
+
+    function closeWarnModal() {
+        document.getElementById('warnModalOverlay').classList.remove('is-open');
+        document.body.style.overflow = '';
+        warnTargetCard = null;
+    }
+
+    document.getElementById('warnModalClose').addEventListener('click', closeWarnModal);
+    document.getElementById('btnWarnClose').addEventListener('click', closeWarnModal);
+    document.getElementById('warnModalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeWarnModal();
+    });
+    document.getElementById('btnWarnAddAnyway').addEventListener('click', function() {
+        if (warnTargetCard) {
+            const addBtn = warnTargetCard.querySelector('.btn-add-cart');
+            if (addBtn) addToCart(addBtn, null);
+        }
+        closeWarnModal();
+    });
+
+    /* ── Profile Modal ── */
+    function openProfileModal() {
+        // Sync UI with current profile
+        document.querySelectorAll('.concern-btn').forEach(btn => {
+            const concern = btn.dataset.concern;
+            const isActive = safetyProfile.concerns.includes(concern);
+            btn.classList.toggle('active', isActive);
+            btn.querySelector('.cb-check i').style.display = isActive ? 'block' : 'none';
+        });
+        document.getElementById('customAllergyInput').value = safetyProfile.customIngredients.join(', ');
+        // Sync preset tags
+        document.querySelectorAll('.allergy-preset-tag').forEach(tag => {
+            const preset = tag.dataset.preset;
+            tag.classList.toggle('active-tag', safetyProfile.customIngredients.includes(preset));
+        });
+        document.getElementById('profileModalOverlay').classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeProfileModal() {
+        document.getElementById('profileModalOverlay').classList.remove('is-open');
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('openProfileModal').addEventListener('click', openProfileModal);
+    document.getElementById('profileModalClose').addEventListener('click', closeProfileModal);
+    document.getElementById('profileCancelBtn').addEventListener('click', closeProfileModal);
+    document.getElementById('profileModalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeProfileModal();
+    });
+
+    // Concern button toggles
+    document.querySelectorAll('.concern-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.classList.toggle('active');
+            this.querySelector('.cb-check i').style.display = this.classList.contains('active') ? 'block' : 'none';
+        });
+    });
+
+    // Preset allergy tags
+    document.querySelectorAll('.allergy-preset-tag').forEach(tag => {
+        tag.addEventListener('click', function() {
+            const preset = this.dataset.preset;
+            const input = document.getElementById('customAllergyInput');
+            const current = input.value.split(',').map(s => s.trim()).filter(Boolean);
+            if (this.classList.contains('active-tag')) {
+                const idx = current.indexOf(preset);
+                if (idx > -1) current.splice(idx, 1);
+                this.classList.remove('active-tag');
+            } else {
+                if (!current.includes(preset)) current.push(preset);
+                this.classList.add('active-tag');
+            }
+            input.value = current.join(', ');
+        });
+    });
+
+    // Save profile
+    document.getElementById('profileSaveBtn').addEventListener('click', function() {
+        const activeConcerns = [];
+        document.querySelectorAll('.concern-btn.active').forEach(btn => {
+            activeConcerns.push(btn.dataset.concern);
+        });
+        const customVal = document.getElementById('customAllergyInput').value;
+        const customIngredients = customVal.split(',').map(s => s.trim().toLowerCase().replace(/\s+/g, '-')).filter(Boolean);
+
+        safetyProfile.concerns = activeConcerns;
+        safetyProfile.customIngredients = customIngredients;
+        saveProfile();
+        updateSafetyBannerChips();
+        applyWarningBadges();
+        closeProfileModal();
+    });
+
+    /* ── Safety Banner Chips ── */
+    function updateSafetyBannerChips() {
+        const chipsEl = document.getElementById('safetyChips');
+        chipsEl.innerHTML = '';
+        const allActive = [...safetyProfile.concerns, ...(safetyProfile.customIngredients.length > 0 ? ['__custom__'] : [])];
+        if (allActive.length === 0) return;
+        allActive.slice(0, 3).forEach(key => {
+            const chip = document.createElement('span');
+            chip.className = 'safety-chip active-warn';
+            if (key === '__custom__') {
+                chip.innerHTML = `<span class="chip-dot"></span>${safetyProfile.customIngredients.length} custom`;
+            } else {
+                const info = CONCERN_LABELS[key];
+                chip.innerHTML = `<span class="chip-dot"></span>${info ? info.icon + ' ' + info.label : key}`;
+            }
+            chipsEl.appendChild(chip);
+        });
+        if (allActive.length > 3) {
+            const more = document.createElement('span');
+            more.className = 'safety-chip';
+            more.innerHTML = `<span class="chip-dot"></span>+${allActive.length - 3} more`;
+            chipsEl.appendChild(more);
+        }
+    }
+
+    /* ══ Init ══ */
+    loadCart();
+    updateCartUI();
+    loadProfile();
+    updateSafetyBannerChips();
+    applyWarningBadges();
+
+})();
+</script>
+{% endblock %}

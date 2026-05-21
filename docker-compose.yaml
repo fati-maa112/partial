@@ -1,4 +1,29 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: test_demo_app
+    volumes:
+      - ./src:/app/src
+      - ./templates:/app/templates
+      - ./public:/app/public
+    ports:
+      - "8000:80"
+    environment:
+      DATABASE_URL: "mysql://test_demo_user:test_demo_password@mysql:3306/test_demo_db?serverVersion=8.0.32&charset=utf8mb4"
+      APP_ENV: dev
+      APP_DEBUG: "1"
+      APP_SECRET: "3f8a2b1c9d4e7f6a2b5c8d1e4f7a3b6c"
+      MERCURE_URL: http://mercure:80/.well-known/mercure
+      MERCURE_PUBLIC_URL: http://localhost:3000/.well-known/mercure
+      MERCURE_JWT_SECRET: 'af87a332d040866e12ad9c9695e6b83c8f554b6555e18cc30944fa33bc774918'
+    depends_on:
+      - mysql
+      - mercure
+    networks:
+      - test_demo_network
+
   mysql:
     image: mysql:8.0
     restart: unless-stopped
@@ -25,6 +50,21 @@ services:
       - "8080:80"
     depends_on:
       - mysql
+    networks:
+      - test_demo_network
+
+  mercure:
+    image: dunglas/mercure
+    restart: unless-stopped
+    environment:
+      SERVER_NAME: ':80'
+      MERCURE_PUBLISHER_JWT_KEY: 'af87a332d040866e12ad9c9695e6b83c8f554b6555e18cc30944fa33bc774918'
+      MERCURE_SUBSCRIBER_JWT_KEY: 'af87a332d040866e12ad9c9695e6b83c8f554b6555e18cc30944fa33bc774918'
+      MERCURE_EXTRA_DIRECTIVES: |
+        cors_origins http://localhost:3000 http://127.0.0.1:8000 http://localhost:8000
+        anonymous 1
+    ports:
+      - "3000:80"
     networks:
       - test_demo_network
 

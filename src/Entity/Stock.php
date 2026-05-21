@@ -4,9 +4,11 @@ namespace App\Entity;
 
 use App\Repository\StockRepository;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity(repositoryClass: StockRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[ApiResource]
 class Stock
 {
     #[ORM\Id]

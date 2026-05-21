@@ -1,0 +1,1254 @@
+{% extends 'base_public.html.twig' %}
+
+{% block title %}About Us — Naturaé Skincare{% endblock %}
+{% block nav_class %}nav-dark{% endblock %}
+
+{% block extra_styles %}
+
+/* ── RESET & SHARED ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+.eyebrow {
+    font-size: 0.68rem; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--sage); font-weight: 400; display: flex; align-items: center;
+    gap: 0.55rem; margin-bottom: 1rem;
+}
+.eyebrow-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--sage); flex-shrink: 0; }
+.section-title {
+    font-size: clamp(2.4rem, 5vw, 4rem); font-weight: 300;
+    letter-spacing: -0.02em; line-height: 1.02; margin-bottom: 1.1rem;
+}
+.section-title em { font-family: 'Playfair Display', serif; font-style: italic; color: var(--sage); font-weight: 400; }
+.section-sub { font-size: 0.98rem; color: var(--text-muted); max-width: 540px; line-height: 1.9; font-weight: 300; }
+
+/* ── SCROLL REVEAL ── */
+.reveal, .reveal-left, .reveal-right {
+    opacity: 0; transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+}
+.reveal       { transform: translateY(32px); }
+.reveal-left  { transform: translateX(-40px); }
+.reveal-right { transform: translateX(40px); }
+.reveal.in-view, .reveal-left.in-view, .reveal-right.in-view { opacity: 1; transform: none; }
+.d1{transition-delay:.05s} .d2{transition-delay:.15s} .d3{transition-delay:.25s}
+.d4{transition-delay:.35s} .d5{transition-delay:.45s} .d6{transition-delay:.55s}
+
+/* ══════════════════════════════════════
+   §1  HERO
+══════════════════════════════════════ */
+#about-hero {
+    position: relative; min-height: 96vh;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--moss); overflow: hidden; padding: 160px 0 120px;
+}
+
+/* Noise texture overlay for depth */
+#about-hero::after {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px; opacity: 0.6;
+}
+
+.hero-orb {
+    position: absolute; border-radius: 50%; pointer-events: none;
+}
+.hero-orb-1 {
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(155,168,130,0.16) 0%, transparent 65%);
+    top: -320px; right: -200px;
+}
+.hero-orb-2 {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(183,155,127,0.12) 0%, transparent 65%);
+    bottom: -200px; left: -150px;
+}
+.hero-orb-3 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(122,134,97,0.20) 0%, transparent 70%);
+    top: 40%; left: 25%;
+}
+.hero-grid-lines {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 72px 72px;
+}
+
+.hero-content { position: relative; z-index: 2; text-align: center; padding: 0 1.5rem; }
+
+.hero-tag {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: var(--r-pill); padding: 0.45rem 1.3rem;
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: rgba(255,255,255,0.65); backdrop-filter: blur(12px);
+    margin-bottom: 2.2rem;
+    animation: hero-rise 1s var(--ease) 0.1s both;
+}
+.hero-tag-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--sage-light);
+    box-shadow: 0 0 6px rgba(155,168,130,0.8);
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+    0%,100% { box-shadow: 0 0 4px rgba(155,168,130,0.6); }
+    50%      { box-shadow: 0 0 12px rgba(155,168,130,1); }
+}
+
+.about-hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.8rem, 10vw, 8rem);
+    font-weight: 300; line-height: 0.90;
+    color: var(--white); letter-spacing: -0.025em;
+    margin-bottom: 2rem;
+    animation: hero-rise 1s var(--ease) 0.25s both;
+}
+.about-hero-title .italic-line {
+    font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400;
+    color: rgba(212,195,174,0.90); display: block; margin-top: 0.06em;
+}
+.about-hero-sub {
+    font-size: 1rem; color: rgba(255,255,255,0.48); max-width: 480px;
+    margin: 0 auto 3.2rem; line-height: 1.9; font-weight: 300;
+    animation: hero-rise 1s var(--ease) 0.40s both;
+}
+.hero-pills {
+    display: flex; gap: 0.65rem; justify-content: center; flex-wrap: wrap;
+    animation: hero-rise 1s var(--ease) 0.55s both;
+}
+.hero-pill {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.14);
+    border-radius: var(--r-pill); padding: 0.5rem 1.2rem;
+    font-size: 0.76rem; letter-spacing: 0.08em; color: rgba(255,255,255,0.68);
+    backdrop-filter: blur(8px); transition: all 0.3s var(--ease);
+}
+.hero-pill:hover {
+    background: rgba(255,255,255,0.12); border-color: rgba(155,168,130,0.4);
+    color: rgba(255,255,255,0.92); transform: translateY(-2px);
+}
+.hero-pill i { color: var(--sage-light); font-size: 0.82rem; }
+
+/* Decorative horizontal rule */
+.hero-rule {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.12) 30%, rgba(255,255,255,0.12) 70%, transparent);
+}
+
+.hero-scroll-indicator {
+    position: absolute; bottom: 3.5rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 0.6rem; z-index: 2;
+    animation: hero-rise 1s var(--ease) 0.85s both;
+}
+.scroll-bar {
+    width: 1px; height: 52px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+    animation: scroll-pulse 2.4s ease-in-out infinite;
+}
+@keyframes scroll-pulse { 0%,100%{opacity:.3;transform:scaleY(1)} 50%{opacity:.8;transform:scaleY(1.2)} }
+.scroll-txt { font-size: 0.54rem; letter-spacing: 0.30em; text-transform: uppercase; color: rgba(255,255,255,0.28); }
+@keyframes hero-rise { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:none} }
+
+/* ══════════════════════════════════════
+   §2  STATS STRIP
+══════════════════════════════════════ */
+#stats-strip {
+    background: var(--white);
+    border-bottom: 1px solid rgba(183,155,127,0.10);
+    position: relative; overflow: hidden;
+}
+#stats-strip::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(122,134,97,0.03) 0%, transparent 50%);
+    pointer-events: none;
+}
+.stats-inner {
+    display: grid; grid-template-columns: repeat(4,1fr);
+    border-left: 1px solid rgba(183,155,127,0.08);
+}
+.stat-item {
+    padding: 2.8rem 2rem; text-align: center;
+    border-right: 1px solid rgba(183,155,127,0.08);
+    transition: background 0.35s var(--ease); position: relative; overflow: hidden;
+}
+.stat-item::after {
+    content: ''; position: absolute;
+    bottom: 0; left: 50%; width: 0; height: 2px;
+    background: linear-gradient(to right, var(--sage-light), var(--sage-dark));
+    transform: translateX(-50%); transition: width 0.35s var(--ease);
+    border-radius: 2px;
+}
+.stat-item:hover { background: var(--sage-ultra); }
+.stat-item:hover::after { width: 60%; }
+.stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem; font-weight: 400; color: var(--sage-dark);
+    line-height: 1; margin-bottom: 0.4rem; letter-spacing: -0.02em;
+}
+.stat-lbl { font-size: 0.65rem; letter-spacing: 0.20em; text-transform: uppercase; color: var(--text-muted); }
+
+/* ══════════════════════════════════════
+   §3  OUR STORY
+══════════════════════════════════════ */
+#story {
+    padding: 140px 0; background: var(--cream);
+    position: relative; overflow: hidden;
+}
+/* Giant watermark */
+#story::before {
+    content: 'Story'; position: absolute;
+    font-family: 'Cormorant Garamond', serif; font-size: 22vw; font-weight: 300;
+    color: rgba(122,134,97,0.035); top: 50%; left: 50%;
+    transform: translate(-50%,-50%); white-space: nowrap; pointer-events: none;
+    letter-spacing: -0.06em; user-select: none; line-height: 1;
+}
+/* Subtle grain overlay */
+#story::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 90% 10%, rgba(183,155,127,0.06) 0%, transparent 45%),
+                radial-gradient(ellipse at 10% 90%, rgba(122,134,97,0.06) 0%, transparent 45%);
+}
+
+.story-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6rem; align-items: center; position: relative; z-index: 1;
+}
+
+/* Image column */
+.story-img-col { position: relative; }
+
+.story-img-frame {
+    position: relative; display: inline-block; width: 100%;
+}
+/* Decorative offset border */
+.story-img-frame::before {
+    content: ''; position: absolute;
+    top: 18px; left: -18px; right: 18px; bottom: -18px;
+    border: 1.5px solid rgba(122,134,97,0.22);
+    border-radius: calc(var(--r-lg) + 4px);
+    pointer-events: none; z-index: 0;
+}
+.story-img-main {
+    position: relative; z-index: 1;
+    width: 100%; aspect-ratio: 4/5; object-fit: cover; display: block;
+    border-radius: var(--r-lg);
+    box-shadow: 0 32px 80px rgba(60,52,40,0.18);
+}
+
+.story-img-accent {
+    position: absolute; width: 52%; aspect-ratio: 1;
+    bottom: -3rem; right: -2rem; z-index: 2;
+    border-radius: var(--r-md); object-fit: cover;
+    border: 5px solid var(--cream);
+    box-shadow: 0 16px 48px rgba(60,52,40,0.18);
+}
+
+.story-badge {
+    position: absolute; top: 2.5rem; left: -2rem; z-index: 3;
+    background: var(--white); border: 1px solid rgba(122,134,97,0.14);
+    border-radius: var(--r-md); padding: 1rem 1.4rem;
+    box-shadow: 0 12px 40px rgba(60,52,40,0.14);
+    display: flex; align-items: center; gap: 0.8rem;
+    backdrop-filter: blur(8px);
+    animation: float-badge 4s ease-in-out infinite;
+}
+@keyframes float-badge {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+}
+.badge-icon-wrap {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--sage-light), var(--sage-dark));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(95,107,77,0.35);
+}
+.badge-text-col { display: flex; flex-direction: column; gap: 2px; }
+.badge-num { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--text); line-height: 1; }
+.badge-lbl { font-size: 0.60rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+
+/* Copy column */
+.story-copy { display: flex; flex-direction: column; gap: 1.6rem; }
+.story-divider {
+    width: 52px; height: 2px;
+    background: linear-gradient(to right, var(--sage), var(--taupe-light), transparent);
+    border-radius: 2px;
+}
+.story-text { font-size: 1rem; color: var(--text-mid); line-height: 1.95; font-weight: 300; }
+
+.story-values {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-top: 0.5rem;
+}
+.story-value-item {
+    display: flex; align-items: flex-start; gap: 0.8rem;
+    padding: 1.1rem 1.2rem;
+    background: var(--white);
+    border: 1px solid rgba(183,155,127,0.10);
+    border-radius: var(--r-md);
+    transition: all 0.35s var(--ease); position: relative; overflow: hidden;
+}
+.story-value-item::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(to right, var(--sage-light), transparent);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.35s var(--ease);
+}
+.story-value-item:hover { box-shadow: var(--shadow-sm); transform: translateY(-3px); background: var(--sage-ultra); }
+.story-value-item:hover::before { transform: scaleX(1); }
+.svi-icon {
+    width: 36px; height: 36px; border-radius: var(--r-sm);
+    background: linear-gradient(135deg, var(--sage-faint), var(--cream-mid));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; flex-shrink: 0;
+    border: 1px solid rgba(122,134,97,0.15);
+}
+.svi-text { display: flex; flex-direction: column; gap: 2px; }
+.svi-title { font-size: 0.82rem; font-weight: 500; color: var(--text); line-height: 1.2; }
+.svi-desc { font-size: 0.72rem; color: var(--text-muted); font-weight: 300; line-height: 1.45; }
+
+/* ══════════════════════════════════════
+   §4  PHILOSOPHY
+══════════════════════════════════════ */
+#philosophy {
+    padding: 140px 0; background: var(--moss);
+    position: relative; overflow: hidden;
+}
+#philosophy::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(ellipse at 10% 60%, rgba(155,168,130,0.16) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 15%, rgba(183,155,127,0.12) 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 100%, rgba(74,82,64,0.50) 0%, transparent 55%);
+}
+#philosophy::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.80' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    background-size: 200px;
+}
+.philosophy-header { text-align: center; margin-bottom: 5rem; position: relative; z-index: 1; }
+.philosophy-header .eyebrow { justify-content: center; color: rgba(155,168,130,0.90); }
+.philosophy-header .eyebrow-dot { background: var(--sage-light); }
+.philosophy-header .section-title { color: var(--white); }
+.philosophy-header .section-sub { color: rgba(255,255,255,0.42); margin: 0 auto; }
+
+.philosophy-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem;
+    position: relative; z-index: 1;
+}
+.phil-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--r-lg); padding: 2.8rem 2.2rem;
+    transition: all 0.45s var(--ease); cursor: default;
+    display: flex; flex-direction: column; gap: 1.1rem;
+    position: relative; overflow: hidden;
+}
+.phil-card::after {
+    content: ''; position: absolute;
+    bottom: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(to right, transparent, rgba(155,168,130,0.3), transparent);
+}
+.phil-card:hover {
+    background: rgba(255,255,255,0.09);
+    border-color: rgba(155,168,130,0.30);
+    transform: translateY(-7px);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+}
+.phil-card--accent {
+    background: rgba(122,134,97,0.18);
+    border-color: rgba(155,168,130,0.25);
+}
+.phil-card--accent:hover { background: rgba(122,134,97,0.26); }
+
+.phil-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.72rem; color: rgba(255,255,255,0.20);
+    letter-spacing: 0.18em; font-weight: 300;
+}
+.phil-icon {
+    width: 54px; height: 54px; border-radius: var(--r-md);
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.10);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; flex-shrink: 0;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.phil-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 400;
+    color: var(--white); line-height: 1.05; margin: 0;
+    letter-spacing: -0.01em;
+}
+.phil-desc {
+    font-size: 0.87rem; color: rgba(255,255,255,0.46);
+    line-height: 1.80; font-weight: 300;
+}
+.phil-link {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.70rem; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--sage-light); margin-top: auto; font-weight: 400;
+    transition: all 0.25s; text-decoration: none;
+}
+.phil-link:hover { gap: 0.85rem; color: var(--white); }
+
+/* ══════════════════════════════════════
+   §4.5  MISSION & VISION (Accordion)
+══════════════════════════════════════ */
+#mission-vision {
+    padding: 140px 0; background: var(--cream);
+    position: relative; overflow: hidden;
+}
+#mission-vision::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(ellipse at 20% 50%, rgba(122,134,97,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 50%, rgba(183,155,127,0.06) 0%, transparent 50%);
+}
+
+.mv-layout {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6rem; align-items: start; position: relative; z-index: 1;
+}
+
+/* Left column — headline */
+.mv-left {}
+.mv-left .section-title { margin-bottom: 1.2rem; }
+.mv-left .section-sub   { margin-bottom: 2.2rem; }
+
+.mv-values-btn {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    background: transparent;
+    border: 1px solid rgba(122,134,97,0.35);
+    border-radius: var(--r-pill); padding: 0.55rem 1.5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.20em; text-transform: uppercase;
+    color: var(--sage-dark); cursor: pointer;
+    transition: all 0.3s var(--ease);
+}
+.mv-values-btn:hover {
+    background: var(--sage-faint);
+    border-color: var(--sage);
+    transform: translateY(-2px);
+}
+
+/* Right column — accordion */
+.mv-accordion { display: flex; flex-direction: column; }
+
+.mv-item {
+    border-top: 1px solid rgba(122,134,97,0.18);
+    overflow: hidden;
+}
+.mv-item:last-child { border-bottom: 1px solid rgba(122,134,97,0.18); }
+
+.mv-trigger {
+    width: 100%; background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.6rem 0;
+    transition: all 0.3s var(--ease);
+    text-align: left;
+}
+.mv-trigger:hover .mv-trigger-label { color: var(--sage-dark); }
+
+.mv-trigger-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.55rem; font-weight: 400;
+    color: var(--text); letter-spacing: -0.01em;
+    transition: color 0.3s var(--ease);
+}
+.mv-item.is-open .mv-trigger-label { color: var(--sage-dark); }
+
+.mv-trigger-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1px solid rgba(122,134,97,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; color: var(--sage);
+    flex-shrink: 0; transition: all 0.4s var(--ease);
+    background: transparent;
+}
+.mv-item.is-open .mv-trigger-icon {
+    background: var(--sage-dark); color: var(--white);
+    border-color: var(--sage-dark); transform: rotate(45deg);
+}
+
+/* Collapsible body */
+.mv-body {
+    display: grid; grid-template-rows: 0fr;
+    transition: grid-template-rows 0.45s var(--ease);
+}
+.mv-item.is-open .mv-body { grid-template-rows: 1fr; }
+
+.mv-body-inner {
+    overflow: hidden;
+}
+.mv-body-content {
+    padding: 0 0 1.8rem;
+}
+
+.mv-body-text {
+    font-size: 0.92rem; color: var(--text-muted);
+    line-height: 1.90; font-weight: 300; margin-bottom: 1.2rem;
+}
+
+.mv-pillars { display: flex; flex-direction: column; gap: 0.6rem; }
+.mv-pillar {
+    display: flex; align-items: center; gap: 0.75rem;
+    font-size: 0.82rem; color: var(--text-mid); font-weight: 300;
+}
+.mv-pillar-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--sage); flex-shrink: 0;
+}
+
+/* Right side image */
+.mv-img-wrap {
+    position: relative; border-radius: var(--r-lg); overflow: hidden;
+    aspect-ratio: 4/5; margin-top: 2.5rem;
+    box-shadow: 0 20px 60px rgba(60,52,40,0.14);
+    display: none; /* shown via JS when an item opens */
+    transition: opacity 0.4s var(--ease);
+}
+.mv-img-wrap.is-visible { display: block; }
+.mv-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+@media (max-width: 992px) {
+    .mv-layout { grid-template-columns: 1fr; gap: 3.5rem; }
+}
+
+/* ══════════════════════════════════════
+   §5  TEAM
+══════════════════════════════════════ */
+#team {
+    padding: 140px 0; background: var(--white);
+    position: relative; overflow: hidden;
+}
+#team::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(ellipse at 85% 0%, rgba(122,134,97,0.06) 0%, transparent 45%),
+        radial-gradient(ellipse at 15% 100%, rgba(183,155,127,0.06) 0%, transparent 45%);
+}
+.team-header { text-align: center; margin-bottom: 5rem; }
+.team-header .eyebrow { justify-content: center; }
+
+.team-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 2rem;
+    position: relative; z-index: 1;
+}
+.team-card {
+    text-align: center; padding: 3rem 2rem 2.5rem;
+    border: 1px solid rgba(183,155,127,0.10); border-radius: var(--r-xl);
+    background: var(--white); transition: all 0.45s var(--ease);
+    position: relative; overflow: hidden;
+}
+/* Top accent line */
+.team-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(to right, var(--sage-light), var(--sage-dark), var(--taupe));
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.45s var(--ease);
+}
+/* Soft background wash on hover */
+.team-card::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to bottom, var(--sage-ultra), transparent 60%);
+    opacity: 0; transition: opacity 0.45s var(--ease);
+}
+.team-card:hover { transform: translateY(-8px); box-shadow: 0 28px 72px rgba(60,52,40,0.12); }
+.team-card:hover::before { transform: scaleX(1); }
+.team-card:hover::after { opacity: 1; }
+.team-card > * { position: relative; z-index: 1; }
+
+.team-avatar-wrap {
+    width: 100px; height: 100px; border-radius: 50%; overflow: hidden;
+    margin: 0 auto 1.6rem;
+    border: 3px solid var(--cream-mid);
+    box-shadow: 0 8px 32px rgba(60,52,40,0.14), 0 0 0 6px rgba(122,134,97,0.08);
+    background: var(--cream-mid); transition: box-shadow 0.35s var(--ease);
+}
+.team-card:hover .team-avatar-wrap {
+    box-shadow: 0 12px 40px rgba(60,52,40,0.18), 0 0 0 8px rgba(122,134,97,0.14);
+}
+.team-avatar-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.team-name {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.45rem; font-weight: 400;
+    color: var(--text); margin-bottom: 0.25rem; letter-spacing: -0.01em;
+}
+.team-role {
+    font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--sage-dark); margin-bottom: 1.1rem; font-weight: 400;
+}
+.team-bio { font-size: 0.84rem; color: var(--text-muted); line-height: 1.75; font-weight: 300; }
+.team-social { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.4rem; }
+.team-social a {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--sage-faint); border: 1px solid rgba(122,134,97,0.18);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--sage-dark); font-size: 0.78rem; text-decoration: none;
+    transition: all 0.25s var(--ease);
+}
+.team-social a:hover {
+    background: var(--sage-dark); color: var(--white);
+    transform: translateY(-2px); box-shadow: 0 4px 12px rgba(95,107,77,0.30);
+}
+
+/* ══════════════════════════════════════
+   §6  TIMELINE
+══════════════════════════════════════ */
+#journey {
+    padding: 140px 0;
+    background: linear-gradient(to bottom, var(--cream-mid), var(--cream));
+    position: relative; overflow: hidden;
+}
+#journey::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 50%, rgba(122,134,97,0.05) 0%, transparent 65%);
+}
+.journey-header { text-align: center; margin-bottom: 5.5rem; }
+.journey-header .eyebrow { justify-content: center; }
+
+.timeline { position: relative; max-width: 760px; margin: 0 auto; }
+.timeline::before {
+    content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px;
+    background: linear-gradient(to bottom,
+        transparent,
+        rgba(122,134,97,0.30) 8%,
+        rgba(122,134,97,0.30) 92%,
+        transparent);
+    transform: translateX(-50%);
+}
+
+.tl-item {
+    display: grid; grid-template-columns: 1fr 56px 1fr; align-items: start;
+    margin-bottom: 4rem;
+}
+.tl-item:nth-child(odd)  .tl-content { grid-column:1; text-align:right; padding-right: 2.8rem; }
+.tl-item:nth-child(odd)  .tl-dot     { grid-column:2; }
+.tl-item:nth-child(odd)  .tl-empty   { grid-column:3; }
+.tl-item:nth-child(even) .tl-empty   { grid-column:1; }
+.tl-item:nth-child(even) .tl-dot     { grid-column:2; }
+.tl-item:nth-child(even) .tl-content { grid-column:3; text-align:left; padding-left: 2.8rem; }
+
+.tl-dot { display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; }
+.tl-dot-inner {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--cream); border: 2.5px solid var(--sage);
+    box-shadow: 0 0 0 5px rgba(122,134,97,0.10);
+    transition: all 0.35s var(--ease);
+    position: relative;
+}
+.tl-dot-inner::after {
+    content: ''; position: absolute; inset: -6px;
+    border-radius: 50%; background: rgba(122,134,97,0.08);
+    transform: scale(0); transition: transform 0.35s var(--ease);
+}
+.tl-item:hover .tl-dot-inner {
+    background: var(--sage-dark); border-color: var(--sage-dark);
+    box-shadow: 0 0 0 7px rgba(122,134,97,0.16);
+}
+.tl-item:hover .tl-dot-inner::after { transform: scale(1); }
+
+.tl-content {
+    padding-bottom: 0.5rem;
+}
+.tl-year {
+    font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 300;
+    color: var(--sage); line-height: 1; margin-bottom: 0.4rem;
+    letter-spacing: -0.02em;
+}
+.tl-title { font-size: 0.92rem; font-weight: 500; color: var(--text); margin-bottom: 0.4rem; font-family: 'DM Sans', sans-serif; }
+.tl-desc { font-size: 0.84rem; color: var(--text-muted); line-height: 1.70; font-weight: 300; }
+
+/* ══════════════════════════════════════
+   §7  CTA BANNER
+══════════════════════════════════════ */
+#about-cta {
+    padding: 140px 0; background: var(--cream);
+    position: relative; overflow: hidden;
+}
+#about-cta::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 110%, rgba(122,134,97,0.12) 0%, transparent 60%);
+}
+.cta-wrap {
+    background: linear-gradient(150deg, var(--moss) 0%, var(--sage-dark) 55%, #6e7d56 100%);
+    border-radius: var(--r-xl); padding: 7rem 4rem;
+    text-align: center; position: relative; overflow: hidden;
+    box-shadow: 0 40px 100px rgba(74,82,64,0.28);
+}
+/* Inner noise */
+.cta-wrap::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.80' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px;
+}
+.cta-wrap::after {
+    content: ''; position: absolute;
+    width: 700px; height: 700px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 60%);
+    top: -350px; right: -200px; pointer-events: none;
+}
+.cta-wrap > * { position: relative; z-index: 1; }
+
+.cta-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.65rem; letter-spacing: 0.26em; text-transform: uppercase;
+    color: rgba(155,168,130,0.85); margin-bottom: 1.4rem; font-weight: 400;
+}
+.cta-eyebrow-dot {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--sage-light);
+    box-shadow: 0 0 6px rgba(155,168,130,0.7);
+}
+
+.cta-wrap h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 300; color: var(--white); margin-bottom: 1.1rem;
+    line-height: 1.02; letter-spacing: -0.02em;
+}
+.cta-wrap h2 em {
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-weight: 400; color: rgba(212,195,174,0.88);
+}
+.cta-sub {
+    max-width: 440px; margin: 0 auto 3rem;
+    color: rgba(255,255,255,0.46); font-size: 0.98rem; line-height: 1.9;
+    font-weight: 300;
+}
+.cta-btns { display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+.btn-cta-primary {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    background: var(--white); color: var(--moss) !important;
+    border: none; border-radius: var(--r-pill); padding: 1.05rem 2.8rem;
+    font-family: 'DM Sans', sans-serif; font-size: 0.74rem; font-weight: 400;
+    letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer;
+    transition: all 0.4s var(--ease);
+    box-shadow: 0 10px 36px rgba(0,0,0,0.22); text-decoration: none;
+}
+.btn-cta-primary:hover {
+    transform: translateY(-3px); box-shadow: 0 20px 50px rgba(0,0,0,0.28);
+    background: var(--cream); color: var(--moss) !important;
+}
+.btn-cta-ghost {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    background: rgba(255,255,255,0.07); color: var(--white) !important;
+    border: 1.5px solid rgba(255,255,255,0.28); border-radius: var(--r-pill);
+    padding: 1.03rem 2.6rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.74rem; font-weight: 400; letter-spacing: 0.18em;
+    text-transform: uppercase; cursor: pointer; text-decoration: none;
+    backdrop-filter: blur(12px); transition: all 0.4s var(--ease);
+}
+.btn-cta-ghost:hover {
+    background: rgba(255,255,255,0.16); border-color: rgba(255,255,255,0.55);
+    transform: translateY(-3px);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 992px) {
+    .story-grid { grid-template-columns: 1fr; gap: 4rem; }
+    .story-img-frame::before { display: none; }
+    .story-img-accent { right: 0; bottom: -2rem; }
+    .story-badge { left: 0; top: 2rem; }
+    .philosophy-grid { grid-template-columns: 1fr; }
+    .team-grid { grid-template-columns: repeat(2,1fr); }
+    .stats-inner { grid-template-columns: repeat(2,1fr); }
+    .cta-wrap { padding: 5rem 2.5rem; }
+}
+@media (max-width: 768px) {
+    .team-grid { grid-template-columns: 1fr; }
+    .story-values { grid-template-columns: 1fr; }
+    .timeline::before { left: 20px; }
+    .tl-item { grid-template-columns: 40px 1fr; }
+    .tl-item:nth-child(odd) .tl-content,
+    .tl-item:nth-child(even) .tl-content { grid-column:2; text-align:left; padding-left:1.5rem; padding-right:0; }
+    .tl-item:nth-child(odd) .tl-dot,
+    .tl-item:nth-child(even) .tl-dot { grid-column:1; }
+    .tl-item:nth-child(odd) .tl-empty,
+    .tl-item:nth-child(even) .tl-empty { display:none; }
+}
+@media (max-width: 576px) {
+    .stats-inner { grid-template-columns: 1fr; }
+    .cta-wrap { padding: 4rem 1.5rem; }
+    .about-hero-title { font-size: clamp(3rem, 14vw, 5rem); }
+}
+{% endblock %}
+
+
+{% block body %}
+
+{# ══════════ §1 HERO ══════════ #}
+<section id="about-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+    <div class="hero-grid-lines"></div>
+
+    <div class="hero-content container">
+        <div class="hero-tag">
+            <span class="hero-tag-dot"></span>
+            Our Story
+        </div>
+        <h1 class="about-hero-title">
+            Our story,<br>
+            <span class="italic-line">your natural care</span>
+        </h1>
+        <p class="about-hero-sub">
+            Discover our commitment to organic skincare, guided by transparency,
+            quality, and deep respect for nature.
+        </p>
+        <div class="hero-pills">
+            <span class="hero-pill"><i class="bi bi-flower1"></i> 100% Organic</span>
+            <span class="hero-pill"><i class="bi bi-heart"></i> Cruelty-Free</span>
+            <span class="hero-pill"><i class="bi bi-leaf"></i> Sustainable</span>
+            <span class="hero-pill"><i class="bi bi-shield-check"></i> Dermatologist Tested</span>
+        </div>
+    </div>
+
+    <div class="hero-rule"></div>
+    <div class="hero-scroll-indicator">
+        <div class="scroll-bar"></div>
+        <span class="scroll-txt">Scroll</span>
+    </div>
+</section>
+
+
+{# ══════════ §2 STATS STRIP ══════════ #}
+<section id="stats-strip">
+    <div class="container-fluid px-0">
+        <div class="stats-inner">
+            <div class="stat-item reveal d1">
+                <div class="stat-num">50k+</div>
+                <div class="stat-lbl">Happy Customers</div>
+            </div>
+            <div class="stat-item reveal d2">
+                <div class="stat-num">4.9★</div>
+                <div class="stat-lbl">Average Rating</div>
+            </div>
+            <div class="stat-item reveal d3">
+                <div class="stat-num">100%</div>
+                <div class="stat-lbl">Natural Ingredients</div>
+            </div>
+            <div class="stat-item reveal d4">
+                <div class="stat-num">2026</div>
+                <div class="stat-lbl">Est. in Philippines</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{# ══════════ §3 OUR STORY ══════════ #}
+<section id="story">
+    <div class="container">
+        <div class="story-grid">
+
+            <div class="story-img-col reveal-left">
+                <div class="story-img-frame">
+                    <img class="story-img-main"
+                         src="{{ asset('images/model.jpg') }}"
+                         alt="Naturaé founder crafting skincare">
+                </div>
+                <img class="story-img-accent"
+                     src="{{ asset('images/smallmodel.jpg') }}"
+                     alt="Our products in use">
+                <div class="story-badge">
+                    <div class="badge-icon-wrap">🌿</div>
+                    <div class="badge-text-col">
+                        <span class="badge-num">Est. 2026</span>
+                        <span class="badge-lbl">Born in the Philippines</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="story-copy reveal-right">
+                <div class="eyebrow"><span class="eyebrow-dot"></span> Who We Are</div>
+                <h2 class="section-title">
+                    Pure care,<br><em>refined by nature</em>
+                </h2>
+                <div class="story-divider"></div>
+                <p class="story-text">
+                    Naturaé was born from a simple belief — that your skin deserves
+                    only what nature offers, free from compromise. We started as a
+                    small team of skincare enthusiasts in the Philippines, passionate
+                    about formulating products that truly work.
+                </p>
+                <p class="story-text">
+                    Every formula we craft balances the wisdom of botanicals with
+                    modern dermatology. From our lab to your skin, we ensure each
+                    ingredient is ethically sourced, rigorously tested, and
+                    lovingly composed.
+                </p>
+                <div class="story-values">
+                    <div class="story-value-item">
+                        <div class="svi-icon">🌱</div>
+                        <div class="svi-text">
+                            <span class="svi-title">Natural Ingredients</span>
+                            <span class="svi-desc">Sourced from trusted organic farms</span>
+                        </div>
+                    </div>
+                    <div class="story-value-item">
+                        <div class="svi-icon">🐰</div>
+                        <div class="svi-text">
+                            <span class="svi-title">Cruelty-Free</span>
+                            <span class="svi-desc">Never tested on animals, ever</span>
+                        </div>
+                    </div>
+                    <div class="story-value-item">
+                        <div class="svi-icon">♻️</div>
+                        <div class="svi-text">
+                            <span class="svi-title">Sustainable Packaging</span>
+                            <span class="svi-desc">Eco-conscious from bottle to box</span>
+                        </div>
+                    </div>
+                    <div class="story-value-item">
+                        <div class="svi-icon">🔬</div>
+                        <div class="svi-text">
+                            <span class="svi-title">Dermatologist Tested</span>
+                            <span class="svi-desc">Safe for all skin types</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+{# ══════════ §4 PHILOSOPHY ══════════ #}
+<section id="philosophy">
+    <div class="container">
+        <div class="philosophy-header reveal">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> Our Philosophy</div>
+            <h2 class="section-title">Values that<br><em>guide every drop</em></h2>
+            <p class="section-sub mx-auto mt-2">
+                Learn how our values shape every product, from ingredient
+                selection to our daily sustainable practices.
+            </p>
+        </div>
+        <div class="philosophy-grid">
+            <div class="phil-card phil-card--accent reveal d1">
+                <div class="phil-num">01</div>
+                <div class="phil-icon">🌿</div>
+                <h3 class="phil-title">Sustainable Sourcing</h3>
+                <p class="phil-desc">We partner with eco-conscious suppliers to ensure every ingredient meets our rigorous standards — from farm to formula.</p>
+                <a class="phil-link" href="#story">Learn More <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="phil-card reveal d2">
+                <div class="phil-num">02</div>
+                <div class="phil-icon">✨</div>
+                <h3 class="phil-title">Science & Nature</h3>
+                <p class="phil-desc">We believe the best skincare blends botanical wisdom with modern dermatology. Every formula is a careful balance of both worlds.</p>
+                <a class="phil-link" href="#story">Learn More <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="phil-card reveal d3">
+                <div class="phil-num">03</div>
+                <div class="phil-icon">💚</div>
+                <h3 class="phil-title">Radical Transparency</h3>
+                <p class="phil-desc">You deserve to know what goes on your skin. We publish every ingredient with its source, purpose, and concentration.</p>
+                <a class="phil-link" href="#story">Learn More <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ══════════ §4.5 MISSION & VISION ══════════ #}
+<section id="mission-vision">
+    <div class="container">
+        <div class="mv-layout">
+
+            {# Left — Headline #}
+            <div class="mv-left reveal-left">
+                <div class="eyebrow"><span class="eyebrow-dot"></span> Our Purpose</div>
+                <h2 class="section-title">
+                    To restore,<br><em>protect & nurture</em><br>your skin.
+                </h2>
+                <p class="section-sub">
+                    Every product we create is guided by a clear purpose —
+                    clean ingredients, honest practices, and lasting results
+                    that reveal themselves over time.
+                </p>
+                <button class="mv-values-btn">Our Values</button>
+            </div>
+
+            {# Right — Accordion #}
+            <div class="mv-accordion reveal-right">
+
+                <div class="mv-item is-open">
+                    <button class="mv-trigger" aria-expanded="true">
+                        <span class="mv-trigger-label">mission</span>
+                        <span class="mv-trigger-icon"><i class="bi bi-plus"></i></span>
+                    </button>
+                    <div class="mv-body">
+                        <div class="mv-body-inner">
+                            <div class="mv-body-content">
+                                <p class="mv-body-text">
+                                    Our mission is to make clean, effective skincare accessible
+                                    to everyone — using only ingredients that are honest,
+                                    ethically sourced, and kind to both skin and planet.
+                                    We exist to simplify your routine without ever compromising
+                                    on what matters most.
+                                </p>
+                                <div class="mv-pillars">
+                                    <div class="mv-pillar"><span class="mv-pillar-dot"></span> 100% natural, traceable ingredients</div>
+                                    <div class="mv-pillar"><span class="mv-pillar-dot"></span> Clean beauty affordable for every skin type</div>
+                                    <div class="mv-pillar"><span class="mv-pillar-dot"></span> Lasting trust through radical transparency</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mv-item">
+                    <button class="mv-trigger" aria-expanded="false">
+                        <span class="mv-trigger-label">vision</span>
+                        <span class="mv-trigger-icon"><i class="bi bi-plus"></i></span>
+                    </button>
+                    <div class="mv-body">
+                        <div class="mv-body-inner">
+                            <div class="mv-body-content">
+                                <p class="mv-body-text">
+                                    We envision a future where every person chooses skincare
+                                    that is as good for the Earth as it is for their skin —
+                                    where nature-first beauty is the global standard, not
+                                    the exception. Naturaé leads that change, starting in
+                                    the Philippines and reaching the world.
+                                </p>
+                                <div class="mv-pillars">
+                                    <div class="mv-pillar"><span class="mv-pillar-dot"></span> Lead clean beauty in Southeast Asia</div>
+                                    <div class="mv-pillar"><span class="mv-pillar-dot"></span> Set new standards for ingredient transparency</div>
+                                    <div class="mv-pillar"><span class="mv-pillar-dot"></span> Inspire a generation to choose nature</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mv-item">
+                    <button class="mv-trigger" aria-expanded="false">
+                        <span class="mv-trigger-label">sustainability</span>
+                        <span class="mv-trigger-icon"><i class="bi bi-plus"></i></span>
+                    </button>
+                    <div class="mv-body">
+                        <div class="mv-body-inner">
+                            <div class="mv-body-content">
+                                <p class="mv-body-text">
+                                    From biodegradable packaging to carbon-conscious shipping,
+                                    sustainability is not an afterthought — it is built into
+                                    every decision we make. Our planet deserves the same care
+                                    we give your skin.
+                                </p>
+                                <div class="mv-pillars">
+                                    <div class="mv-pillar"><span class="mv-pillar-dot"></span> Eco-friendly packaging from bottle to box</div>
+                                    <div class="mv-pillar"><span class="mv-pillar-dot"></span> Partner with certified sustainable farms</div>
+                                    <div class="mv-pillar"><span class="mv-pillar-dot"></span> Zero-waste goal by 2028</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mv-item">
+                    <button class="mv-trigger" aria-expanded="false">
+                        <span class="mv-trigger-label">philanthropy</span>
+                        <span class="mv-trigger-icon"><i class="bi bi-plus"></i></span>
+                    </button>
+                    <div class="mv-body">
+                        <div class="mv-body-inner">
+                            <div class="mv-body-content">
+                                <p class="mv-body-text">
+                                    For every product sold, we donate a portion to
+                                    community skincare programs that provide dermatological
+                                    care to underserved communities across the Philippines.
+                                    Beauty should be for everyone.
+                                </p>
+                                <div class="mv-pillars">
+                                    <div class="mv-pillar"><span class="mv-pillar-dot"></span> 1% of revenue to community health programs</div>
+                                    <div class="mv-pillar"><span class="mv-pillar-dot"></span> Free skincare kits for vulnerable communities</div>
+                                    <div class="mv-pillar"><span class="mv-pillar-dot"></span> Partner with local NGOs across Visayas & Mindanao</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>{# end accordion #}
+        </div>
+    </div>
+</section>
+
+{# ══════════ §5 TEAM ══════════ #}
+<section id="team">
+    <div class="container">
+        <div class="team-header reveal">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> Our Dedicated Team</div>
+            <h2 class="section-title">Expertise behind<br><em>every formula</em></h2>
+            <p class="section-sub mx-auto mt-2">
+                Meet the professionals who ensure every product is crafted
+                with care, knowledge, and commitment to quality.
+            </p>
+        </div>
+        <div class="team-grid">
+            <div class="team-card reveal d1">
+                <div class="team-avatar-wrap">
+                    <img src="{{ asset('images/pic.jpg') }}" alt="Mel Ramirez">
+                </div>
+                <div class="team-name">Mel Ramirez</div>
+                <div class="team-role">Founder & CEO</div>
+                <p class="team-bio">Skincare visionary with 10 years of experience in organic beauty. Passionate about transparency and efficacy.</p>
+                <div class="team-social">
+                    <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+            <div class="team-card reveal d2">
+                <div class="team-avatar-wrap">
+                    <img src="{{ asset('images/pic.jpg') }}" alt="Ana Santos">
+                </div>
+                <div class="team-name">Ana Santos</div>
+                <div class="team-role">Head of Formulation</div>
+                <p class="team-bio">Cosmetic chemist who bridges traditional botanicals with cutting-edge dermatological science.</p>
+                <div class="team-social">
+                    <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+            <div class="team-card reveal d3">
+                <div class="team-avatar-wrap">
+                    <img src="{{ asset('images/pic.jpg') }}" alt="Gia Reyes">
+                </div>
+                <div class="team-name">Gia Reyes</div>
+                <div class="team-role">Customer Experience</div>
+                <p class="team-bio">Dedicated to ensuring every Naturaé customer feels heard, valued, and truly cared for at every step.</p>
+                <div class="team-social">
+                    <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{# ══════════ §6 TIMELINE ══════════ #}
+<section id="journey">
+    <div class="container">
+        <div class="journey-header reveal">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> Our Journey</div>
+            <h2 class="section-title">Milestones that<br><em>shaped us</em></h2>
+        </div>
+        <div class="timeline">
+            <div class="tl-item reveal d1">
+                <div class="tl-content">
+                    <div class="tl-year">2022</div>
+                    <div class="tl-title">The Idea is Born</div>
+                    <p class="tl-desc">Mel begins formulating small-batch organic serums from her kitchen in Cebu City, inspired by her grandmother's herbal rituals.</p>
+                </div>
+                <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+                <div class="tl-empty"></div>
+            </div>
+            <div class="tl-item reveal d2">
+                <div class="tl-empty"></div>
+                <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+                <div class="tl-content">
+                    <div class="tl-year">2023</div>
+                    <div class="tl-title">First 100 Customers</div>
+                    <p class="tl-desc">Word spreads through social media. Naturaé reaches 100 loyal customers and sells out its first official product line in 3 days.</p>
+                </div>
+            </div>
+            <div class="tl-item reveal d3">
+                <div class="tl-content">
+                    <div class="tl-year">2024</div>
+                    <div class="tl-title">Dermatologist Partnership</div>
+                    <p class="tl-desc">We partner with certified dermatologists to clinically test every formula, earning our Dermatologist Tested seal.</p>
+                </div>
+                <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+                <div class="tl-empty"></div>
+            </div>
+            <div class="tl-item reveal d4">
+                <div class="tl-empty"></div>
+                <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+                <div class="tl-content">
+                    <div class="tl-year">2025</div>
+                    <div class="tl-title">10,000 Orders Shipped</div>
+                    <p class="tl-desc">Naturaé reaches customers in every major city across the Philippines — and begins shipping internationally.</p>
+                </div>
+            </div>
+            <div class="tl-item reveal d5">
+                <div class="tl-content">
+                    <div class="tl-year">2026</div>
+                    <div class="tl-title">50,000 Happy Customers</div>
+                    <p class="tl-desc">Today we serve 50,000+ customers, launching new products every season — always organic, always honest.</p>
+                </div>
+                <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+                <div class="tl-empty"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{# ══════════ §7 CTA ══════════ #}
+<section id="about-cta">
+    <div class="container">
+        <div class="cta-wrap reveal">
+            <div class="cta-eyebrow">
+                <span class="cta-eyebrow-dot"></span> Ready to Glow?
+            </div>
+            <h2>Start your <em>natural</em><br>skincare journey</h2>
+            <p class="cta-sub">
+                Explore our full collection of organic skincare crafted with
+                care, transparency, and love for your skin.
+            </p>
+            <div class="cta-btns">
+                <a href="{{ path('app_shop') }}" class="btn-cta-primary">
+                    Shop Now &nbsp;<i class="bi bi-arrow-right"></i>
+                </a>
+                <a href="{{ path('app_contact') }}" class="btn-cta-ghost">
+                    <i class="bi bi-envelope"></i> &nbsp;Get in Touch
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+(function(){
+    const els = document.querySelectorAll('.reveal,.reveal-left,.reveal-right');
+    const io  = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); }
+        });
+    }, { threshold: 0.10, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(el => io.observe(el));
+})();
+
+// Mission & Vision Accordion
+(function(){
+    const items = document.querySelectorAll('.mv-item');
+    items.forEach(item => {
+        const trigger = item.querySelector('.mv-trigger');
+        trigger.addEventListener('click', () => {
+            const isOpen = item.classList.contains('is-open');
+            // Close all
+            items.forEach(i => {
+                i.classList.remove('is-open');
+                i.querySelector('.mv-trigger').setAttribute('aria-expanded', 'false');
+            });
+            // Open clicked (if it was closed)
+            if (!isOpen) {
+                item.classList.add('is-open');
+                trigger.setAttribute('aria-expanded', 'true');
+            }
+        });
+    });
+})();
+
+</script>
+{% endblock %}

@@ -5,9 +5,11 @@ namespace App\Entity;
 
 use App\Repository\RecordRepository;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity(repositoryClass: RecordRepository::class)]
 #[ORM\Table(name: '`record`')]
+#[ApiResource]
 #[ORM\HasLifecycleCallbacks]  // ← IMPORTANTE: Add this line!
 class Record
 {

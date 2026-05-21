@@ -6,12 +6,14 @@ namespace App\Entity;
 use App\Repository\ActivityLogRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity(repositoryClass: ActivityLogRepository::class)]
 #[ORM\Table(name: 'activity_logs')]
 #[ORM\Index(columns: ['username'], name: 'idx_username')]
 #[ORM\Index(columns: ['action'], name: 'idx_action')]
 #[ORM\Index(columns: ['created_at'], name: 'idx_created_at')]
+#[ApiResource]
 class ActivityLog
 {
     #[ORM\Id]

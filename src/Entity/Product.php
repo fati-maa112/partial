@@ -7,47 +7,60 @@ use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
+#[ApiResource(
+    normalizationContext: ['groups' => ['product:read']],
+    security: "is_granted('PUBLIC_ACCESS')"
+)]
 class Product
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['product:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['product:read'])]
     private ?string $name = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    #[Groups(['product:read'])]
     private ?string $price = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['product:read'])]
     private ?string $description = null;
 
     #[ORM\Column(type: 'integer')]
+    #[Groups(['product:read'])]
     private ?int $quantity = 0;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['product:read'])]
     private ?string $image = null;
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['product:read'])]
     private ?Category $category = null;
 
+    // NO #[Groups] — dili ma-include sa response (avoid circular reference)
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: Stock::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $stocks;
 
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: \App\Entity\OrderItem::class, orphanRemoval: false, cascade: ['persist'])]
     private Collection $orderItems;
 
-    // ✅ NEW: Creator tracking
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $createdBy = null;
 
-    // ✅ NEW: Timestamps
     #[ORM\Column]
+    #[Groups(['product:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
@@ -146,9 +159,6 @@ class Product
         return $this;
     }
 
-    /**
-     * @return Collection<int, Stock>
-     */
     public function getStocks(): Collection
     {
         return $this->stocks;
@@ -160,7 +170,6 @@ class Product
             $this->stocks->add($stock);
             $stock->setProduct($this);
         }
-
         return $this;
     }
 
@@ -171,13 +180,9 @@ class Product
                 $stock->setProduct(null);
             }
         }
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, \App\Entity\OrderItem>
-     */
     public function getOrderItems(): Collection
     {
         return $this->orderItems;
@@ -189,7 +194,6 @@ class Product
             $this->orderItems->add($orderItem);
             $orderItem->setProduct($this);
         }
-
         return $this;
     }
 
@@ -200,11 +204,9 @@ class Product
                 $orderItem->setProduct(null);
             }
         }
-
         return $this;
     }
 
-    // ✅ NEW: Creator methods
     public function getCreatedBy(): ?User
     {
         return $this->createdBy;

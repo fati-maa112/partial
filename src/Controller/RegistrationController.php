@@ -45,6 +45,9 @@ class RegistrationController extends AbstractController
                 $userPasswordHasher->hashPassword($user, $plainPassword)
             );
 
+            // ✅ Set roles to include both ROLE_USER and ROLE_STAFF
+            $user->setRoles(['ROLE_USER', 'ROLE_STAFF']);
+
             // Generate verification token
             $verificationToken = $emailVerificationService->generateVerificationToken();
             $user->setVerificationToken($verificationToken);
@@ -77,10 +80,6 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-
-            
-
-            
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form,
         ]);

@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}Naturaé Skincare — Pure. Natural. Radiant.{% endblock %}">
+    <title>{% block title %}Naturaé Skincare — Pure. Natural. Radiant.{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --cream:        #faf7f0;
+            --cream-mid:    #f2ebe0;
+            --cream-deep:   #e8dfd0;
+            --taupe:        #b79b7f;
+            --taupe-light:  #d4c3ae;
+            --taupe-faint:  rgba(183,155,127,0.10);
+            --sage:         #7a8661;
+            --sage-light:   #9ba882;
+            --sage-dark:    #5f6b4d;
+            --sage-faint:   #eef0e9;
+            --sage-ultra:   #f4f6f0;
+            --moss:         #4a5240;
+            --text:         #2a2520;
+            --text-mid:     #524c44;
+            --text-muted:   #8a7f72;
+            --white:        #ffffff;
+
+            --shadow-xs:   0 1px 6px rgba(60,52,40,0.05);
+            --shadow-sm:   0 2px 16px rgba(60,52,40,0.07);
+            --shadow-md:   0 6px 32px rgba(60,52,40,0.10);
+            --shadow-lg:   0 16px 56px rgba(60,52,40,0.13);
+            --shadow-xl:   0 28px 80px rgba(60,52,40,0.17);
+
+            --r-sm:   10px;
+            --r-md:   18px;
+            --r-lg:   28px;
+            --r-xl:   40px;
+            --r-pill: 100px;
+
+            --ease: cubic-bezier(0.22, 1, 0.36, 1);
+            --t:    all 0.4s var(--ease);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+
+        body {
+            background-color: var(--cream);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            line-height: 1.85;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            line-height: 1.1; color: var(--text);
+        }
+        p { color: var(--text-mid); }
+        a { text-decoration: none; }
+
+        /* ── SEARCH OVERLAY ── */
+        #searchOverlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(250,247,240,0.97);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            display: flex; flex-direction: column; align-items: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.35s var(--ease);
+        }
+        #searchOverlay.active { opacity: 1; pointer-events: all; }
+        .search-overlay-inner {
+            width: 100%; max-width: 780px;
+            padding: 120px 2rem 3rem;
+            display: flex; flex-direction: column; gap: 2.5rem;
+        }
+        .search-bar-wrap {
+            display: flex; align-items: center; gap: 1rem;
+            border-bottom: 2px solid rgba(122,134,97,0.30);
+            padding-bottom: 1rem; transition: border-color 0.25s;
+        }
+        .search-bar-wrap:focus-within { border-color: var(--sage-dark); }
+        .search-bar-icon { font-size: 1.4rem; color: var(--sage-dark); flex-shrink: 0; }
+        #searchInput {
+            flex: 1; border: none; background: transparent; outline: none;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.6rem, 4vw, 2.4rem);
+            font-weight: 300; color: var(--text); letter-spacing: -0.01em;
+        }
+        #searchInput::placeholder { color: rgba(42,37,32,0.25); }
+        .search-close-btn {
+            width: 44px; height: 44px; border-radius: 50%;
+            border: 1.5px solid rgba(122,134,97,0.28);
+            background: transparent; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted); font-size: 1.1rem;
+            flex-shrink: 0; transition: var(--t);
+        }
+        .search-close-btn:hover { background: var(--sage-dark); color: var(--white); border-color: var(--sage-dark); }
+        .search-hint { font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .search-hint span { display: flex; align-items: center; gap: 0.4rem; }
+        .search-hint kbd { background: rgba(122,134,97,0.10); border: 1px solid rgba(122,134,97,0.22); border-radius: 5px; padding: 2px 8px; font-family: 'DM Sans', sans-serif; font-size: 0.68rem; color: var(--sage-dark); }
+        .search-results { display: flex; flex-direction: column; gap: 0.5rem; max-height: 55vh; overflow-y: auto; }
+        .search-results::-webkit-scrollbar { width: 4px; }
+        .search-results::-webkit-scrollbar-track { background: transparent; }
+        .search-results::-webkit-scrollbar-thumb { background: rgba(122,134,97,0.30); border-radius: 4px; }
+        .search-result-item { display: flex; align-items: center; gap: 1.2rem; padding: 0.9rem 1.2rem; border-radius: var(--r-md); cursor: pointer; transition: background 0.2s; border: 1px solid transparent; text-decoration: none; }
+        .search-result-item:hover, .search-result-item.focused { background: var(--sage-faint); border-color: rgba(122,134,97,0.15); }
+        .sri-icon { width: 44px; height: 44px; border-radius: var(--r-sm); background: var(--cream-mid); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; border: 1px solid rgba(183,155,127,0.18); }
+        .sri-text { flex: 1; }
+        .sri-title { font-family: 'DM Sans', sans-serif; font-size: 0.92rem; font-weight: 400; color: var(--text); line-height: 1.3; }
+        .sri-title mark { background: rgba(122,134,97,0.20); color: var(--sage-dark); border-radius: 2px; padding: 0 2px; }
+        .sri-sub { font-size: 0.75rem; color: var(--text-muted); font-weight: 300; }
+        .sri-tag { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sage-dark); background: rgba(122,134,97,0.10); border-radius: var(--r-pill); padding: 3px 10px; flex-shrink: 0; border: 1px solid rgba(122,134,97,0.15); }
+        .search-empty { text-align: center; padding: 3rem 1rem; font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-style: italic; color: var(--text-muted); display: none; }
+        .search-categories { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .search-cat-btn { font-family: 'DM Sans', sans-serif; font-size: 0.78rem; letter-spacing: 0.06em; padding: 0.4rem 1.1rem; border-radius: var(--r-pill); border: 1.5px solid rgba(183,155,127,0.25); cursor: pointer; transition: var(--t); background: transparent; color: var(--text-muted); }
+        .search-cat-btn:hover { background: var(--sage-faint); color: var(--sage-dark); border-color: rgba(122,134,97,0.35); }
+        .search-section-label { font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); padding: 0 1.2rem; margin-top: 0.5rem; }
+
+        /* ── NAVBAR ── */
+        .n-nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            padding: 1.4rem 0; background: transparent; transition: var(--t);
+        }
+        .n-nav.scrolled {
+            padding: 0.75rem 0;
+            background: rgba(250,247,240,0.96);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: 0 2px 28px rgba(60,52,40,0.08);
+            border-bottom: 1px solid rgba(183,155,127,0.14);
+        }
+        .nav-inner { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+        .nav-left  { display: flex; align-items: center; }
+        .nav-right { display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; }
+        .n-nav .container { max-width: 100%; padding-left: 3rem; padding-right: 3rem; }
+
+        .brand-logo-center { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: opacity 0.25s; }
+        .brand-logo-center:hover { opacity: 0.80; }
+        .brand-logo-center img { height: 68px; width: auto; object-fit: contain; filter: brightness(0) invert(1) drop-shadow(0 2px 12px rgba(0,0,0,0.25)); transition: filter 0.4s var(--ease), height 0.3s var(--ease); }
+        .n-nav.scrolled .brand-logo-center img { filter: none; height: 54px; }
+
+        .n-link { font-size: 0.95rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.95); padding: 0.55rem 1.3rem; text-decoration: none; position: relative; transition: color 0.25s; white-space: nowrap; }
+        .n-link::after { content: ''; position: absolute; bottom: 0; left: 1.3rem; right: 1.3rem; height: 1.5px; background: rgba(255,255,255,0.80); transform: scaleX(0); transform-origin: left; transition: transform 0.3s var(--ease); }
+        .n-link:hover { color: var(--white); }
+        .n-link:hover::after { transform: scaleX(1); }
+        .n-nav.scrolled .n-link { color: var(--text-mid); font-weight: 500; }
+        .n-nav.scrolled .n-link:hover { color: var(--sage-dark); }
+        .n-nav.scrolled .n-link::after { background: var(--sage-dark); }
+
+        {# ── If the page has a light/non-hero background, force dark nav from the start ── #}
+        .n-nav.nav-dark { background: rgba(250,247,240,0.96); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid rgba(183,155,127,0.14); padding: 0.75rem 0; }
+        .n-nav.nav-dark .brand-logo-center img { filter: none; height: 54px; }
+        .n-nav.nav-dark .n-link { color: var(--text-mid); }
+        .n-nav.nav-dark .n-link:hover { color: var(--sage-dark); }
+        .n-nav.nav-dark .n-link::after { background: var(--sage-dark); }
+        .n-nav.nav-dark .nav-icon-btn { background: var(--sage-faint); border-color: rgba(122,134,97,0.20); color: var(--sage-dark); }
+        .n-nav.nav-dark .nav-icon-btn:hover { background: var(--sage-dark); border-color: var(--sage-dark); color: var(--white); box-shadow: 0 6px 20px rgba(95,107,77,0.30); }
+        .n-nav.nav-dark .nav-flag { color: var(--text-muted); border-color: rgba(122,134,97,0.22); background: var(--sage-faint); }
+        .n-nav.nav-dark .nav-toggler { color: var(--text); }
+
+        .nav-icon-wrap { position: relative; display: inline-flex; }
+        .nav-icon-wrap::after { content: attr(data-tip); position: absolute; bottom: -2.1rem; left: 50%; transform: translateX(-50%) translateY(4px); background: rgba(30,25,20,0.85); color: rgba(255,255,255,0.90); font-family: 'DM Sans', sans-serif; font-size: 0.58rem; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.2rem 0.55rem; border-radius: 4px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.18s, transform 0.18s; backdrop-filter: blur(4px); }
+        .nav-icon-wrap:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .nav-icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.18); border-radius: 50%; color: var(--white); font-size: 0.95rem; text-decoration: none; transition: var(--t); backdrop-filter: blur(8px); cursor: pointer; }
+        .nav-icon-btn:hover { background: rgba(255,255,255,0.24); border-color: rgba(255,255,255,0.40); color: var(--white); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+        .n-nav.scrolled .nav-icon-btn { background: var(--sage-faint); border-color: rgba(122,134,97,0.20); color: var(--sage-dark); }
+        .n-nav.scrolled .nav-icon-btn:hover { background: var(--sage-dark); border-color: var(--sage-dark); color: var(--white); box-shadow: 0 6px 20px rgba(95,107,77,0.30); }
+
+        .nav-flag { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.72rem; font-weight: 400; letter-spacing: 0.08em; color: rgba(255,255,255,0.80); padding: 0.3rem 0.85rem; border: 1px solid rgba(255,255,255,0.22); border-radius: var(--r-pill); backdrop-filter: blur(8px); background: rgba(255,255,255,0.10); transition: var(--t); white-space: nowrap; cursor: default; }
+        .nav-flag:hover { background: rgba(255,255,255,0.20); color: var(--white); border-color: rgba(255,255,255,0.42); }
+        .n-nav.scrolled .nav-flag { color: var(--text-muted); border-color: rgba(122,134,97,0.22); background: var(--sage-faint); }
+        .nav-flag .flag-img { width: 22px; height: 15px; object-fit: cover; border-radius: 3px; display: block; box-shadow: 0 1px 4px rgba(0,0,0,0.18); }
+
+        .nav-toggler { background: transparent; border: none; cursor: pointer; color: var(--white); font-size: 1.5rem; display: none; }
+        .n-nav.scrolled .nav-toggler { color: var(--text); }
+
+        /* ── SHARED SECTION HELPERS ── */
+        .eyebrow { font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--sage); font-weight: 400; margin-bottom: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .eyebrow-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--sage); display: inline-block; }
+        .section-title { font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 300; letter-spacing: -0.015em; line-height: 1.08; margin-bottom: 1rem; }
+        .section-title em { font-family: 'Playfair Display', serif; font-style: italic; color: var(--sage); font-weight: 400; }
+        .section-sub { font-size: 1rem; color: var(--text-muted); max-width: 520px; line-height: 1.85; font-weight: 300; }
+        .btn-shop-all { display: inline-flex; align-items: center; gap: 0.5rem; border: 1.5px solid rgba(122,134,97,0.35); border-radius: var(--r-pill); background: transparent; color: var(--sage-dark); padding: 0.55rem 1.5rem; font-family: 'DM Sans', sans-serif; font-size: 0.74rem; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; transition: var(--t); }
+        .btn-shop-all:hover { background: var(--sage-dark); color: var(--white); border-color: var(--sage-dark); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+        .btn-spotlight-primary { display: inline-flex; align-items: center; gap: 0.55rem; background: var(--sage-dark); color: var(--white); border: none; border-radius: 100px; padding: 1rem 2.4rem; font-family: 'DM Sans', sans-serif; font-size: 0.76rem; font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; text-decoration: none; transition: var(--t); box-shadow: 0 8px 28px rgba(95,107,77,0.28); }
+        .btn-spotlight-primary:hover { background: var(--moss); transform: translateY(-3px); box-shadow: 0 16px 40px rgba(74,82,64,0.32); color: var(--white); }
+
+        /* ── SCROLL REVEAL ── */
+        .reveal, .reveal-left, .reveal-right { opacity: 0; transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); }
+        .reveal       { transform: translateY(28px); }
+        .reveal-left  { transform: translateX(-36px); }
+        .reveal-right { transform: translateX(36px); }
+        .reveal.in-view, .reveal-left.in-view, .reveal-right.in-view { opacity: 1; transform: none; }
+        .d1 { transition-delay: 0.05s; }
+        .d2 { transition-delay: 0.15s; }
+        .d3 { transition-delay: 0.25s; }
+        .d4 { transition-delay: 0.35s; }
+
+        /* ── FOOTER ENHANCED ── */
+#footer { padding: 0; background: #2e3828; position: relative; overflow: hidden; }
+
+.footer-botanical {
+    position: absolute; right: -30px; bottom: 80px;
+    opacity: 0.04; pointer-events: none; z-index: 0;
+}
+
+/* Newsletter bar */
+.footer-newsletter {
+    background: #232e1e;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 2rem 0;
+}
+.fn-inner {
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 2rem; flex-wrap: wrap;
+}
+.fn-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem; font-weight: 300;
+    color: #fff; line-height: 1.2; margin: 0 0 0.25rem;
+}
+.fn-sub {
+    font-size: 0.78rem; color: rgba(255,255,255,0.35);
+    margin: 0; letter-spacing: 0.05em;
+}
+.fn-form {
+    display: flex; min-width: 300px; max-width: 420px; flex: 1;
+}
+.fn-form input {
+    flex: 1; padding: 0.72rem 1.2rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12); border-right: none;
+    border-radius: 100px 0 0 100px;
+    color: #fff; font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+    outline: none; transition: border-color 0.25s;
+}
+.fn-form input::placeholder { color: rgba(255,255,255,0.25); }
+.fn-form input:focus { border-color: rgba(155,168,130,0.5); }
+.fn-form button {
+    padding: 0.72rem 1.5rem; background: var(--sage);
+    border: none; border-radius: 0 100px 100px 0;
+    color: #fff; font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.25s; white-space: nowrap;
+}
+.fn-form button:hover { background: var(--sage-dark); }
+
+/* Main footer body */
+.footer-main { padding: 4rem 0 2.5rem; position: relative; }
+
+/* Logo & brand */
+.footer-logo img { height: 38px; width: auto; opacity: 0.82; }
+.footer-tagline {
+    font-size: 0.64rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(255,255,255,0.28); margin: 0.6rem 0 1.2rem;
+    display: flex; align-items: center; gap: 0.6rem;
+}
+.footer-tagline::before, .footer-tagline::after {
+    content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.09);
+}
+.footer-desc {
+    font-size: 0.82rem; color: rgba(255,255,255,0.36);
+    max-width: 230px; line-height: 1.8; margin-bottom: 1.5rem;
+}
+
+/* Certification badges */
+.footer-badges { display: flex; flex-direction: column; gap: 0.5rem; }
+.footer-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.68rem; letter-spacing: 0.10em; text-transform: uppercase;
+    color: rgba(155,168,130,0.75);
+    border: 1px solid rgba(155,168,130,0.18); border-radius: 100px;
+    padding: 0.3rem 0.85rem; width: fit-content;
+}
+.fb-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--sage-light); display: inline-block; }
+
+/* Column heading */
+.footer-col-title {
+    font-size: 0.64rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(255,255,255,0.28); margin-bottom: 0.9rem; font-weight: 500;
+}
+.footer-col-accent {
+    width: 28px; height: 2px;
+    background: linear-gradient(90deg, var(--sage), transparent);
+    margin-bottom: 1.3rem;
+}
+
+/* Links */
+.f-link {
+    display: flex; align-items: center; gap: 0;
+    font-size: 0.82rem; color: rgba(255,255,255,0.40);
+    text-decoration: none; padding: 0.28rem 0;
+    transition: color 0.2s, gap 0.25s; letter-spacing: 0.03em;
+    position: relative;
+}
+.f-link::before {
+    content: ''; width: 0; height: 1px;
+    background: var(--sage-light); transition: width 0.25s;
+    display: inline-block; margin-right: 0; flex-shrink: 0;
+}
+.f-link:hover { color: rgba(255,255,255,0.88); gap: 0.5rem; }
+.f-link:hover::before { width: 10px; }
+
+/* Contact */
+.footer-contact-row { display: flex; align-items: flex-start; gap: 0.7rem; margin-bottom: 0.9rem; }
+.fc-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.82rem; color: rgba(155,168,130,0.65); flex-shrink: 0;
+}
+.fc-text {
+    font-size: 0.80rem; color: rgba(255,255,255,0.40); line-height: 1.55;
+}
+.fc-text strong {
+    display: block; font-size: 0.62rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: rgba(255,255,255,0.22);
+    font-weight: 400; margin-bottom: 1px;
+}
+
+/* Certif pills */
+.footer-certifs { display: flex; gap: 0.45rem; margin-top: 1.2rem; flex-wrap: wrap; }
+.footer-certif {
+    font-size: 0.60rem; letter-spacing: 0.10em;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px; padding: 0.28rem 0.65rem;
+    color: rgba(255,255,255,0.26);
+}
+
+/* Social icons */
+.footer-social a {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09); border-radius: 50%;
+    color: rgba(255,255,255,0.38); font-size: 0.90rem;
+    text-decoration: none; transition: var(--t);
+}
+.footer-social a:hover {
+    background: rgba(155,168,130,0.16);
+    border-color: rgba(155,168,130,0.38); color: var(--sage-light);
+    transform: translateY(-3px);
+}
+
+/* Bottom bar */
+.footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.07);
+    padding: 1.5rem 0;
+    background: rgba(0,0,0,0.10);
+}
+.footer-copy { font-size: 0.73rem; color: rgba(255,255,255,0.22); }
+.footer-copy a { color: rgba(255,255,255,0.28); text-decoration: none; transition: color 0.2s; }
+.footer-copy a:hover { color: rgba(255,255,255,0.70); }
+.f-dot { color: rgba(183,155,127,0.5); margin: 0 0.6rem; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 992px) {
+            .nav-inner { grid-template-columns: auto 1fr auto; }
+            .nav-left { display: none; }
+            .nav-toggler { display: block; }
+            .nav-flag { display: none; }
+        }
+        @media (max-width: 768px) {
+            .n-nav .container { padding-left: 1.5rem; padding-right: 1.5rem; }
+        }
+
+        {% block extra_styles %}{% endblock %}
+    </style>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+{# ═══════════════ SEARCH OVERLAY ═══════════════ #}
+<div id="searchOverlay" role="dialog" aria-modal="true" aria-label="Search">
+    <div class="search-overlay-inner">
+        <div class="search-bar-wrap">
+            <i class="bi bi-search search-bar-icon"></i>
+            <input type="text" id="searchInput" placeholder="Search products, categories…" autocomplete="off" spellcheck="false">
+            <button class="search-close-btn" id="searchClose" aria-label="Close search">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="search-hint">
+            <span><kbd>↵</kbd> to visit</span>
+            <span><kbd>↑↓</kbd> to navigate</span>
+            <span><kbd>Esc</kbd> to close</span>
+        </div>
+        <div id="searchResultsWrap">
+            <p class="search-section-label" id="searchLabel">Popular searches</p>
+            <div class="search-categories" id="searchCategories">
+                <button class="search-cat-btn" data-query="face">Face Care</button>
+                <button class="search-cat-btn" data-query="body">Body</button>
+                <button class="search-cat-btn" data-query="serum">Serums</button>
+                <button class="search-cat-btn" data-query="moisturiser">Moisturisers</button>
+                <button class="search-cat-btn" data-query="toner">Toners</button>
+                <button class="search-cat-btn" data-query="wellness">Wellness</button>
+            </div>
+            <div class="search-results mt-3" id="searchResults"></div>
+            <div class="search-empty" id="searchEmpty">
+                <i class="bi bi-search" style="font-size:2rem;opacity:0.25;display:block;margin-bottom:0.75rem;"></i>
+                No results for "<span id="searchEmptyTerm"></span>"
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{# ═══════════════ NAVBAR ═══════════════ #}
+{#
+    To force the dark/scrolled style from the start (for pages without a hero image),
+    add the class "nav-dark" via the block:
+    {% block nav_class %}nav-dark{% endblock %}
+#}
+<nav class="n-nav {% block nav_class %}{% endblock %}" id="mainNav">
+    <div class="container">
+        <div class="nav-inner">
+            <div class="nav-left">
+                <a class="n-link {% if app.request.attributes.get('_route') == 'app_landing' %}active{% endif %}"
+                   href="{{ path('app_landing') }}">Home</a>
+                <a class="n-link {% if app.request.attributes.get('_route') == 'app_shop' %}active{% endif %}"
+                   href="{{ path('app_shop') }}">Shop</a>
+                <a class="n-link {% if app.request.attributes.get('_route') == 'app_about' %}active{% endif %}"
+                   href="{{ path('app_about') }}">About</a>
+                <a class="n-link {% if app.request.attributes.get('_route') == 'app_contact' %}active{% endif %}"
+                   href="{{ path('app_contact') }}">Contact</a>
+            </div>
+
+            <a class="brand-logo-center" href="{{ path('app_landing') }}">
+                <img src="{{ asset('images/68dfc2166c6f6.png') }}" alt="Naturaé Skincare">
+            </a>
+
+            <div class="nav-right">
+                <button class="nav-toggler d-lg-none" aria-label="Menu">
+                    <i class="bi bi-list"></i>
+                </button>
+                <span class="nav-flag d-none d-lg-inline-flex">
+                    <img class="flag-img" src="https://flagcdn.com/w40/ph.png"
+                         srcset="https://flagcdn.com/w80/ph.png 2x" alt="Philippines">
+                    PH
+                </span>
+                <span class="nav-icon-wrap d-none d-lg-inline-flex" data-tip="Search">
+                    <button class="nav-icon-btn" id="searchOpenBtn" aria-label="Open search">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </span>
+                <span class="nav-icon-wrap d-none d-lg-inline-flex" data-tip="Account">
+                    <a class="nav-icon-btn" href="{{ path('app_login') }}" aria-label="Account">
+                        <i class="bi bi-person"></i>
+                    </a>
+                </span>
+                <span class="nav-icon-wrap" data-tip="Cart">
+                    <a class="nav-icon-btn" href="{{ path('app_login') }}" aria-label="Cart">
+                        <i class="bi bi-bag"></i>
+                    </a>
+                </span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+
+{# ═══════════════ PAGE CONTENT ═══════════════ #}
+{% block body %}{% endblock %}
+
+
+{# ═══════════════ FOOTER ═══════════════ #}
+<footer id="footer">
+    <div class="footer-newsletter">
+        <div class="container">
+            <div class="fn-inner">
+                <div class="fn-text">
+                    <h4 class="fn-heading">Join the Naturaé Circle</h4>
+                    <p class="fn-sub">Skincare rituals · Exclusive drops · Members-only offers</p>
+                </div>
+                <form class="fn-form" onsubmit="return false;">
+                    <input type="email" placeholder="your@email.com" aria-label="Email address">
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-main">
+        <div class="container" style="position:relative;z-index:1;">
+
+            <svg class="footer-botanical" width="480" height="580" viewBox="0 0 420 520" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M210 480 C210 480 80 380 60 240 C40 100 160 20 210 20 C260 20 380 100 360 240 C340 380 210 480 210 480Z" fill="white"/>
+                <path d="M210 480 L210 20" stroke="white" stroke-width="2"/>
+                <path d="M210 200 C180 170 120 160 80 180" stroke="white" stroke-width="1.5"/>
+                <path d="M210 260 C240 230 300 220 340 240" stroke="white" stroke-width="1.5"/>
+                <path d="M210 320 C185 295 140 285 110 300" stroke="white" stroke-width="1.5"/>
+                <path d="M210 160 C230 135 270 125 300 140" stroke="white" stroke-width="1.5"/>
+                <ellipse cx="80" cy="175" rx="28" ry="18" transform="rotate(-20 80 175)" fill="white"/>
+                <ellipse cx="345" cy="238" rx="28" ry="18" transform="rotate(15 345 238)" fill="white"/>
+                <ellipse cx="108" cy="298" rx="24" ry="16" transform="rotate(-10 108 298)" fill="white"/>
+                <ellipse cx="302" cy="138" rx="24" ry="16" transform="rotate(20 302 138)" fill="white"/>
+            </svg>
+
+            <div class="row g-5 align-items-start">
+
+                <div class="col-md-4">
+                    <a class="footer-logo" href="{{ path('app_landing') }}">
+                        <img src="{{ asset('images/68dfc2166c6f6.png') }}" alt="Naturaé Skincare">
+                    </a>
+                    <p class="footer-tagline">Pure · Organic · Natural</p>
+                    <p class="footer-desc">Rooted in the earth's finest botanicals. Every formula is designed to honour your skin's natural rhythms.</p>
+                    <div class="footer-badges">
+                        <span class="footer-badge"><span class="fb-dot"></span>Cruelty-Free</span>
+                        <span class="footer-badge"><span class="fb-dot"></span>100% Vegan</span>
+                        <span class="footer-badge"><span class="fb-dot"></span>Eco-Certified</span>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <p class="footer-col-title">Navigate</p>
+                    <div class="footer-col-accent"></div>
+                    <a class="f-link" href="{{ path('app_landing') }}">Home</a>
+                    <a class="f-link" href="{{ path('app_shop') }}">Shop</a>
+                    <a class="f-link" href="{{ path('app_about') }}">Our Story</a>
+                    <a class="f-link" href="#updates">Journal</a>
+                    <a class="f-link" href="#testimonials">Reviews</a>
+                    <a class="f-link" href="{{ path('app_contact') }}">Contact</a>
+                </div>
+
+                <div class="col-md-3">
+                    <p class="footer-col-title">Our Values</p>
+                    <div class="footer-col-accent"></div>
+                    <a class="f-link" href="#">Natural Ingredients</a>
+                    <a class="f-link" href="#">Sustainability</a>
+                    <a class="f-link" href="#">Cruelty-Free</a>
+                    <a class="f-link" href="#">Transparency</a>
+                    <a class="f-link" href="#">Skin Wellness</a>
+                    <a class="f-link" href="#">Zero Waste</a>
+                    <div class="footer-certifs">
+                        <span class="footer-certif">ECOCERT</span>
+                        <span class="footer-certif">COSMOS</span>
+                        <span class="footer-certif">BDIH</span>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <p class="footer-col-title">Get in Touch</p>
+                    <div class="footer-col-accent"></div>
+                    <div class="footer-contact-row">
+                        <div class="fc-icon"><i class="bi bi-envelope"></i></div>
+                        <div class="fc-text"><strong>Email</strong>hello@naturae.ph</div>
+                    </div>
+                    <div class="footer-contact-row">
+                        <div class="fc-icon"><i class="bi bi-geo-alt"></i></div>
+                        <div class="fc-text"><strong>Address</strong>Makati City, Metro Manila, PH</div>
+                    </div>
+                    <div class="footer-contact-row">
+                        <div class="fc-icon"><i class="bi bi-clock"></i></div>
+                        <div class="fc-text"><strong>Hours</strong>Mon – Fri, 9 AM – 6 PM PHT</div>
+                    </div>
+                    <div class="footer-social d-flex gap-2 mt-3">
+                        <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" aria-label="Pinterest"><i class="bi bi-pinterest"></i></a>
+                        <a href="#" aria-label="TikTok"><i class="bi bi-tiktok"></i></a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <div class="container">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                <p class="footer-copy mb-0">© {{ "now"|date("Y") }} Naturaé Skincare. All rights reserved.</p>
+                <p class="footer-copy mb-0">
+                    <a href="#">Privacy Policy</a><span class="f-dot">·</span>
+                    <a href="#">Terms of Use</a><span class="f-dot">·</span>
+                    <a href="#">Cookie Policy</a><span class="f-dot">·</span>
+                    <a href="#">Refund Policy</a>
+                </p>
+                <p class="footer-copy mb-0" style="color:rgba(255,255,255,0.18);">Made with <span style="color:rgba(155,168,130,0.55);">♥</span> in the Philippines</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    /* ── Scroll reveal ── */
+    const allReveal = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+    const revealIO  = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) { e.target.classList.add('in-view'); revealIO.unobserve(e.target); }
+        });
+    }, { threshold: 0.10, rootMargin: '0px 0px -50px 0px' });
+    allReveal.forEach(el => revealIO.observe(el));
+
+    /* ── Navbar scroll ── */
+    const nav = document.getElementById('mainNav');
+    window.addEventListener('scroll', () => {
+        nav.classList.toggle('scrolled', window.scrollY > 80);
+    }, { passive: true });
+
+    /* ── Qty stepper (shared helper) ── */
+    window.changeQty = function (btn, delta) {
+        const wrap = btn.closest('.qty-stepper');
+        const val  = wrap.querySelector('.qty-val');
+        let n = parseInt(val.textContent) + delta;
+        if (n < 1) n = 1;
+        val.textContent = n;
+    };
+
+    /* ── Search overlay ── */
+    const SEARCH_INDEX = [
+        { title: 'Velvet Veil Moisturiser',  sub: 'Featured Product · ₱1,250.00',  tag: 'Product',   icon: '🧴', anchor: '/shop',          keywords: 'moisturiser face veil velvet cream' },
+        { title: 'Nuage Facial Mist',        sub: 'Featured Product · ₱980.00',    tag: 'Product',   icon: '💧', anchor: '/shop',          keywords: 'mist facial spray nuage face' },
+        { title: 'Rosée Repair Serum',       sub: 'Featured Product · ₱650.00',    tag: 'Product',   icon: '✨', anchor: '/shop',          keywords: 'serum repair rosee vitamin c' },
+        { title: 'Pure Cleanse Gel',         sub: 'Updates · Face Care',           tag: 'Article',   icon: '🌿', anchor: '/#updates',     keywords: 'cleanse gel face wash morning' },
+        { title: 'Dew Hydration Cream',      sub: 'Updates · Bestseller',          tag: 'Article',   icon: '💦', anchor: '/#updates',     keywords: 'hydration cream dew face moisturiser' },
+        { title: 'Glow C Serum',             sub: 'Updates · Wellness',            tag: 'Article',   icon: '☀️', anchor: '/#updates',     keywords: 'glow serum vitamin c radiance wellness' },
+        { title: 'Calm Essence Toner',       sub: 'Updates · Body',                tag: 'Article',   icon: '🍃', anchor: '/#updates',     keywords: 'toner calm essence body antioxidant' },
+        { title: 'Shop Products',            sub: 'Page',                          tag: 'Page',      icon: '🛍️', anchor: '/shop',          keywords: 'shop buy products' },
+        { title: 'About Us',                 sub: 'Page',                          tag: 'Page',      icon: '🌱', anchor: '/about',         keywords: 'about story brand mission' },
+        { title: 'Contact',                  sub: 'Page',                          tag: 'Page',      icon: '✉️', anchor: '/contact',       keywords: 'contact email reach out' },
+        { title: 'Customer Reviews',         sub: 'Landing Page Section',          tag: 'Section',   icon: '⭐', anchor: '/#testimonials', keywords: 'reviews testimonials ratings' },
+    ];
+
+    const overlay     = document.getElementById('searchOverlay');
+    const searchInput = document.getElementById('searchInput');
+    const searchClose = document.getElementById('searchClose');
+    const resultsEl   = document.getElementById('searchResults');
+    const emptyEl     = document.getElementById('searchEmpty');
+    const emptyTerm   = document.getElementById('searchEmptyTerm');
+    const labelEl     = document.getElementById('searchLabel');
+    const catsEl      = document.getElementById('searchCategories');
+    let focusIdx = -1;
+
+    function openSearch() {
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => searchInput.focus(), 80);
+        renderDefault();
+    }
+    function closeSearch() {
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+        searchInput.value = '';
+        focusIdx = -1;
+    }
+    function highlight(text, query) {
+        if (!query) return text;
+        const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return text.replace(new RegExp('(' + escaped + ')', 'gi'), '<mark>$1</mark>');
+    }
+    function renderResults(items, query) {
+        resultsEl.innerHTML = '';
+        emptyEl.style.display = 'none';
+        catsEl.style.display  = 'none';
+        if (items.length === 0) {
+            emptyTerm.textContent = query;
+            emptyEl.style.display = 'block';
+            labelEl.textContent   = '';
+            return;
+        }
+        labelEl.textContent = query ? items.length + ' result' + (items.length !== 1 ? 's' : '') : 'Popular searches';
+        items.forEach((item) => {
+            const a = document.createElement('a');
+            a.className = 'search-result-item';
+            a.href = item.anchor;
+            a.innerHTML = `<div class="sri-icon">${item.icon}</div><div class="sri-text"><div class="sri-title">${highlight(item.title, query)}</div><div class="sri-sub">${item.sub}</div></div><span class="sri-tag">${item.tag}</span>`;
+            a.addEventListener('click', () => closeSearch());
+            resultsEl.appendChild(a);
+        });
+    }
+    function renderDefault() {
+        catsEl.style.display = 'flex';
+        resultsEl.innerHTML  = '';
+        emptyEl.style.display = 'none';
+        labelEl.textContent  = 'Popular searches';
+    }
+    function doSearch(q) {
+        const query = q.trim().toLowerCase();
+        if (!query) { renderDefault(); return; }
+        const results = SEARCH_INDEX.filter(item =>
+            item.title.toLowerCase().includes(query) ||
+            item.keywords.toLowerCase().includes(query) ||
+            item.tag.toLowerCase().includes(query)
+        );
+        renderResults(results, q.trim());
+    }
+    function updateFocus(delta) {
+        const items = resultsEl.querySelectorAll('.search-result-item');
+        if (!items.length) return;
+        items[focusIdx]?.classList.remove('focused');
+        focusIdx = (focusIdx + delta + items.length) % items.length;
+        items[focusIdx].classList.add('focused');
+        items[focusIdx].scrollIntoView({ block: 'nearest' });
+    }
+
+    document.getElementById('searchOpenBtn').addEventListener('click', openSearch);
+    searchClose.addEventListener('click', closeSearch);
+    searchInput.addEventListener('input', (e) => { focusIdx = -1; doSearch(e.target.value); });
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown')  { e.preventDefault(); updateFocus(1); }
+        if (e.key === 'ArrowUp')    { e.preventDefault(); updateFocus(-1); }
+        if (e.key === 'Enter') { resultsEl.querySelector('.search-result-item.focused')?.click(); }
+        if (e.key === 'Escape') closeSearch();
+    });
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeSearch(); });
+    document.querySelectorAll('.search-cat-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            searchInput.value = btn.dataset.query;
+            doSearch(btn.dataset.query);
+            searchInput.focus();
+        });
+    });
+    document.addEventListener('keydown', (e) => {
+        if (overlay.classList.contains('active')) return;
+        if ((e.key === '/' && document.activeElement.tagName !== 'INPUT') || (e.ctrlKey && e.key === 'k')) {
+            e.preventDefault(); openSearch();
+        }
+    });
+
+})();
+</script>
+
+{% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

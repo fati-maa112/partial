@@ -28,10 +28,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
+    #[ORM\Column(length: 255, nullable: true, unique: true)]
+    private ?string $firebaseUid = null;
+
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $profilePictureUrl = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $displayName = null;
+
     #[ORM\Column]
     private array $roles = [];
 
-    #[ORM\Column]
+    // ✅ Nullable for Google users
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $password = null;
 
     #[ORM\Column(length: 100, nullable: true)]
@@ -41,7 +51,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $lastName = null;
 
     #[ORM\Column(length: 20)]
-    private string $status = 'active'; // active, disabled, archived
+    private string $status = 'active';
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -49,19 +59,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    // ✅ FIX: default TRUE for Google users
     #[ORM\Column]
     private ?bool $isVerified = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-private ?string $verificationToken = null;
+    private ?string $verificationToken = null;
+
+    // ✅ FCM token for push notifications
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $fcmToken = null;
 
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->roles = ['ROLE_USER'];
+        $this->isVerified = true; // ✅ IMPORTANT FIX
     }
 
-    // Getters and Setters
+    // =========================
+    // BASIC GETTERS / SETTERS
+    // =========================
 
     public function getId(): ?int
     {
@@ -90,6 +108,7 @@ private ?string $verificationToken = null;
         return $this;
     }
 
+    // Symfony uses this for login
     public function getUserIdentifier(): string
     {
         return (string) $this->username;
@@ -108,12 +127,13 @@ private ?string $verificationToken = null;
         return $this;
     }
 
-    public function getPassword(): string
+    // ✅ FIX: nullable-safe
+    public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    public function setPassword(string $password): static
+    public function setPassword(?string $password): static
     {
         $this->password = $password;
         return $this;
@@ -121,8 +141,12 @@ private ?string $verificationToken = null;
 
     public function eraseCredentials(): void
     {
-        // If you store any temporary, sensitive data on the user, clear it here
+        // Nothing needed
     }
+
+    // =========================
+    // PROFILE
+    // =========================
 
     public function getFirstName(): ?string
     {
@@ -148,16 +172,51 @@ private ?string $verificationToken = null;
 
     public function getFullName(): string
     {
-        // Trim the combined name
         $fullName = trim(($this->firstName ?? '') . ' ' . ($this->lastName ?? ''));
-        
-        // If empty, return username or email instead
+
         if ($fullName !== '') {
             return $fullName;
         }
-        
+
         return $this->username ?? $this->email ?? 'Unknown User';
     }
+
+    public function getFirebaseUid(): ?string
+    {
+        return $this->firebaseUid;
+    }
+
+    public function setFirebaseUid(?string $firebaseUid): static
+    {
+        $this->firebaseUid = $firebaseUid;
+        return $this;
+    }
+
+    public function getProfilePictureUrl(): ?string
+    {
+        return $this->profilePictureUrl;
+    }
+
+    public function setProfilePictureUrl(?string $profilePictureUrl): static
+    {
+        $this->profilePictureUrl = $profilePictureUrl;
+        return $this;
+    }
+
+    public function getDisplayName(): ?string
+    {
+        return $this->displayName;
+    }
+
+    public function setDisplayName(?string $displayName): static
+    {
+        $this->displayName = $displayName;
+        return $this;
+    }
+
+    // =========================
+    // STATUS
+    // =========================
 
     public function getStatus(): string
     {
@@ -174,6 +233,10 @@ private ?string $verificationToken = null;
     {
         return $this->status === 'active';
     }
+
+    // =========================
+    // TIMESTAMPS
+    // =========================
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
@@ -197,18 +260,28 @@ private ?string $verificationToken = null;
         return $this;
     }
 
+    // =========================
+    // ROLES
+    // =========================
+
     public function getPrimaryRole(): string
     {
         $roles = $this->getRoles();
-        
+
         if (in_array('ROLE_ADMIN', $roles)) {
             return 'Admin';
         }
+
         if (in_array('ROLE_STAFF', $roles)) {
             return 'Staff';
         }
+
         return 'User';
     }
+
+    // =========================
+    // VERIFICATION
+    // =========================
 
     public function isVerified(): ?bool
     {
@@ -218,7 +291,6 @@ private ?string $verificationToken = null;
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
-
         return $this;
     }
 
@@ -227,10 +299,24 @@ private ?string $verificationToken = null;
         return $this->verificationToken;
     }
 
-    public function setVerificationToken(?string $verificationToken): static    
+    public function setVerificationToken(?string $verificationToken): static
     {
         $this->verificationToken = $verificationToken;
+        return $this;
+    }
 
+    // =========================
+    // FCM PUSH NOTIFICATIONS
+    // =========================
+
+    public function getFcmToken(): ?string
+    {
+        return $this->fcmToken;
+    }
+
+    public function setFcmToken(?string $fcmToken): static
+    {
+        $this->fcmToken = $fcmToken;
         return $this;
     }
 }

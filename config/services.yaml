@@ -1,13 +1,7 @@
-# ============================================
-# UPDATED config/services.yaml
-# REPLACE YOUR ENTIRE FILE WITH THIS
-# ============================================
-
 parameters:
-    uploads_directory: '%kernel.project_dir%/public/images'
 
 services:
-    # default configuration for services in *this* file
+    # default configuration for services in this file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
@@ -16,14 +10,21 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
-        exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
-            - '../src/Kernel.php'
 
-    # Explicitly register the RecordVoter
-    App\Security\Voter\RecordVoter:
-        tags: ['security.voter']
+    # Activity Log Doctrine Listener
+    App\EventListener\ActivityLogDoctrineListener:
+        tags:
+            - { name: doctrine.event_subscriber }
+
+    # User Checker for status validation
+    App\Security\UserChecker:
+        tags:
+            - { name: security.user_checker }
+
+    # Firebase Authentication Service for mobile app Google Sign-In
+    App\Service\FirebaseAuthService:
+        arguments:
+            $credentialsPath: '%kernel.project_dir%/config/firebase/serviceAccountKey.json'
 
     # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    # please note that last definitions always replace previous ones

@@ -413,6 +413,16 @@
             .main-header { font-size: 1.5em; margin-bottom: 20px; }
             .card-title { font-size: 1.7em; }
         }
+
+        .google-btn {
+    background: #4285F4 !important;
+}
+
+.google-btn:hover {
+    box-shadow:
+        0 0 20px #4285F4,
+        0 0 40px rgba(66,133,244,0.4);
+}
     </style>
 {% endblock %}
 
@@ -509,6 +519,18 @@
 
                 {# --- Submit --- #}
                 <button type="submit" class="register-button">Register</button>
+
+                <!-- Divider -->
+<div class="divider"><span>OR</span></div>
+
+<!-- Google Register Button -->
+<a href="{{ path('connect_google') }}" 
+   class="register-button google-btn"
+   style="margin-top: 15px; display: block; text-align: center;">
+    
+    <i class="fab fa-google" style="margin-right: 10px;"></i>
+    Continue with Google
+</a>
 
             {{ form_end(registrationForm) }}
 

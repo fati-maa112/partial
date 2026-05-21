@@ -1,0 +1,225 @@
+{# templates/dashboard/live.html.twig #}
+{# Add this panel to your existing dashboard page #}
+
+<div class="live-panel" id="live-panel">
+    <div class="live-header">
+        <span class="live-dot" id="live-dot"></span>
+        <strong>Live Activity</strong>
+        <span class="live-status" id="live-status">Connecting...</span>
+        <button class="clear-btn" onclick="clearEvents()">Clear</button>
+    </div>
+
+    <div class="live-stats">
+        <div class="stat-box">
+            <span class="stat-num" id="stat-orders">0</span>
+            <span class="stat-label">Orders today</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-num" id="stat-carts">0</span>
+            <span class="stat-label">Active carts</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-num" id="stat-clients">0</span>
+            <span class="stat-label">Connected</span>
+        </div>
+    </div>
+
+    <div class="live-feed" id="live-feed">
+        <p class="feed-empty">Waiting for activity...</p>
+    </div>
+</div>
+
+<style>
+.live-panel {
+    background: #fff;
+    border: 1px solid #e2e8e2;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    font-family: sans-serif;
+}
+.live-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    font-size: 15px;
+}
+.live-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #aaa;
+    transition: background 0.3s;
+}
+.live-dot.connected { background: #27ae60; animation: pulse 1.5s infinite; }
+.live-dot.error { background: #e74c3c; }
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+.live-status { color: #888; font-size: 13px; }
+.clear-btn {
+    margin-left: auto;
+    font-size: 12px;
+    padding: 4px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #f8f8f8;
+}
+.live-stats {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.stat-box {
+    flex: 1;
+    background: #f5f9f5;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+.stat-num { display: block; font-size: 24px; font-weight: 700; color: #1a2e1a; }
+.stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+.live-feed {
+    max-height: 280px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.feed-empty { color: #aaa; font-size: 13px; text-align: center; padding: 20px; }
+.feed-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    animation: slideIn 0.3s ease;
+}
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.feed-item.order   { background: #e8f5e9; border-left: 3px solid #27ae60; }
+.feed-item.cart    { background: #e3f2fd; border-left: 3px solid #2196f3; }
+.feed-item.stock   { background: #fff8e1; border-left: 3px solid #ffc107; }
+.feed-item.status  { background: #f3e5f5; border-left: 3px solid #9c27b0; }
+.feed-icon { font-size: 18px; flex-shrink: 0; }
+.feed-body { flex: 1; }
+.feed-title { font-weight: 600; color: #1a2e1a; margin-bottom: 2px; }
+.feed-sub   { color: #666; }
+.feed-time  { font-size: 11px; color: #aaa; flex-shrink: 0; margin-top: 2px; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
+<script>
+// ── Connect to Node Socket.io server ────────────────────────────────────────
+const SOCKET_URL = 'http://127.0.0.1:3000';  // change if Node is on another machine
+
+const socket = io(SOCKET_URL, { transports: ['websocket'] });
+
+const dot      = document.getElementById('live-dot');
+const status   = document.getElementById('live-status');
+const feed     = document.getElementById('live-feed');
+const statOrders  = document.getElementById('stat-orders');
+const statCarts   = document.getElementById('stat-carts');
+const statClients = document.getElementById('stat-clients');
+
+let orderCount = 0;
+let cartCount  = 0;
+
+// ── Connection ───────────────────────────────────────────────────────────────
+
+socket.on('connect', () => {
+    dot.className = 'live-dot connected';
+    status.textContent = 'Live';
+    socket.emit('join', 'admin');    // join the admin room
+    fetchConnectedCount();
+});
+
+socket.on('disconnect', () => {
+    dot.className = 'live-dot error';
+    status.textContent = 'Disconnected';
+});
+
+// ── Events ───────────────────────────────────────────────────────────────────
+
+socket.on('order_placed', (data) => {
+    orderCount++;
+    statOrders.textContent = orderCount;
+    addFeedItem('order', '🛒', `New order #${data.orderId} placed!`,
+        `${data.customerName} — ₱${parseFloat(data.total).toFixed(2)} · ${data.status}`,
+        data.timestamp
+    );
+});
+
+socket.on('cart_updated', (data) => {
+    cartCount = data.itemCount > 0 ? cartCount + 1 : Math.max(0, cartCount - 1);
+    statCarts.textContent = data.itemCount;
+    addFeedItem('cart', '🧺', `Cart updated`,
+        `User #${data.userId} — ${data.itemCount} item(s) in cart`,
+        data.timestamp
+    );
+});
+
+socket.on('stock_updated', (data) => {
+    addFeedItem('stock', '📦', `Stock updated: ${data.productName}`,
+        `New stock level: ${data.newStock} units`,
+        data.timestamp
+    );
+});
+
+socket.on('order_status_changed', (data) => {
+    addFeedItem('status', '🔄', `Order #${data.orderId} status changed`,
+        `New status: ${data.status}`,
+        data.timestamp
+    );
+});
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function addFeedItem(type, icon, title, sub, timestamp) {
+    // Remove "waiting" placeholder
+    const empty = feed.querySelector('.feed-empty');
+    if (empty) empty.remove();
+
+    const time = timestamp
+        ? new Date(timestamp).toLocaleTimeString()
+        : new Date().toLocaleTimeString();
+
+    const item = document.createElement('div');
+    item.className = `feed-item ${type}`;
+    item.innerHTML = `
+        <span class="feed-icon">${icon}</span>
+        <div class="feed-body">
+            <div class="feed-title">${title}</div>
+            <div class="feed-sub">${sub}</div>
+        </div>
+        <span class="feed-time">${time}</span>
+    `;
+
+    feed.prepend(item);  // newest at top
+
+    // Keep max 50 items
+    while (feed.children.length > 50) {
+        feed.removeChild(feed.lastChild);
+    }
+}
+
+function clearEvents() {
+    feed.innerHTML = '<p class="feed-empty">Waiting for activity...</p>';
+}
+
+async function fetchConnectedCount() {
+    try {
+        const res  = await fetch(`${SOCKET_URL}/socket/status`);
+        const data = await res.json();
+        statClients.textContent = data.connectedClients ?? '—';
+    } catch (e) {}
+}
+
+// Refresh connected count every 10s
+setInterval(fetchConnectedCount, 10000);
+</script>

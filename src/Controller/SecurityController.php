@@ -6,6 +6,8 @@ use App\Service\ActivityLogger;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
@@ -33,6 +35,20 @@ class SecurityController extends AbstractController
             'error' => $error
         ]);
     }
+
+    #[Route('/connect/google', name: 'connect_google')]
+public function connectGoogle(ClientRegistry $clientRegistry): RedirectResponse
+{
+    return $clientRegistry
+        ->getClient('google')
+        ->redirect(['email', 'profile']);
+}
+
+#[Route('/connect/google/check', name: 'connect_google_check')]
+public function connectGoogleCheck(): void
+{
+    // Symfony handles this automatically
+}
 
     #[Route(path: '/logout', name: 'app_logout')]
     public function logout(): void
