@@ -6,6 +6,8 @@
 .git/
 docker-compose.yaml
 /config/secrets/prod/prod.decrypt.private.php
+
+config/firebase/serviceAccountKey.json
 /public/bundles/
 /var/
 /vendor/
