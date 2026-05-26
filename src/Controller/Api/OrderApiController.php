@@ -15,26 +15,24 @@ final class OrderApiController extends AbstractController
     #[Route('/orders', name: 'api_customer_orders', methods: ['GET'])]
     public function index(OrderRepository $orderRepo): JsonResponse
     {
-        $user   = $this->getUser();
-        $orders = $orderRepo->findByUser($user);
+        $user      = $this->getUser();
+        $orders    = $orderRepo->findByUser($user);
 
-        $data = array_map(fn($order) => [
-            'id'        => $order->getId(),
-            'status'    => $order->getStatus(),
-            'total'     => $order->getTotal(),
-            'createdAt' => $order->getCreatedAt()?->format('M d, Y h:i A'),
-            'items'     => array_map(fn($item) => [
-                'id'          => $item->getId(),
-                'productName' => $item->getProductName(),
-                'price'       => (float) $item->getPrice(),
-                'quantity'    => $item->getQuantity(),
-                'subtotal'    => (float) $item->getPrice() * $item->getQuantity(),
-            ], $order->getOrderItems()->toArray()),
-        ], $orders);
+        // DEBUG — remove after testing
+        $allOrders = $orderRepo->findAll();
+        $debugInfo = array_map(fn($o) => [
+            'id'            => $o->getId(),
+            'createdById'   => $o->getCreatedBy()?->getId(),
+            'currentUserId' => $user->getId(),
+            'match'         => $o->getCreatedBy()?->getId() === $user->getId(),
+        ], $allOrders);
 
         return $this->json([
-            'success' => true,
-            'data'    => $data,
+            'success'  => true,
+            'data'     => [],
+            'debug'    => $debugInfo,
+            'userId'   => $user->getId(),
+            'username' => $user->getUserIdentifier(),
         ]);
     }
 }
