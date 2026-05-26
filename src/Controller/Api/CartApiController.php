@@ -29,10 +29,6 @@ final class CartApiController extends AbstractController
         private readonly WebSocketService $ws
     ) {}
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // GET /api/cart  →  view cart items + totals
-    // ─────────────────────────────────────────────────────────────────────────
-
     #[Route('', name: 'api_cart_view', methods: ['GET'])]
     public function view(CartItemRepository $cartItemRepo): JsonResponse
     {
@@ -52,10 +48,6 @@ final class CartApiController extends AbstractController
             ],
         ]);
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // POST /api/cart/add/{id}  →  add product to cart
-    // ─────────────────────────────────────────────────────────────────────────
 
     #[Route('/add/{id}', name: 'api_cart_add', methods: ['POST'])]
     public function add(
@@ -97,7 +89,6 @@ final class CartApiController extends AbstractController
 
         $em->flush();
 
-        // ── Notify admin that cart was updated ───────────────────────────────
         $allItems = $cartItemRepo->findByUser($user);
         $this->ws->broadcastCartUpdated($user->getId(), count($allItems));
 
@@ -107,10 +98,6 @@ final class CartApiController extends AbstractController
             'data'    => $cartItem->toArray(),
         ]);
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // POST /api/cart/update/{id}  →  update quantity (CartItem ID)
-    // ─────────────────────────────────────────────────────────────────────────
 
     #[Route('/update/{id}', name: 'api_cart_update', methods: ['POST'])]
     public function update(
@@ -150,10 +137,6 @@ final class CartApiController extends AbstractController
         return $this->json(['success' => true, 'message' => 'Cart updated.', 'data' => $cartItem->toArray()]);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // POST /api/cart/remove/{id}  →  remove a cart item (CartItem ID)
-    // ─────────────────────────────────────────────────────────────────────────
-
     #[Route('/remove/{id}', name: 'api_cart_remove', methods: ['POST'])]
     public function remove(
         int $id,
@@ -173,25 +156,16 @@ final class CartApiController extends AbstractController
         return $this->json(['success' => true, 'message' => 'Item removed from cart.']);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // POST /api/cart/clear  →  remove ALL items
-    // ─────────────────────────────────────────────────────────────────────────
-
     #[Route('/clear', name: 'api_cart_clear', methods: ['POST'])]
     public function clear(CartItemRepository $cartItemRepo): JsonResponse
     {
         $user = $this->getUser();
         $cartItemRepo->clearByUser($user);
 
-        // ── Notify admin cart was cleared ────────────────────────────────────
         $this->ws->broadcastCartUpdated($user->getId(), 0);
 
         return $this->json(['success' => true, 'message' => 'Cart cleared.']);
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // POST /api/cart/payment-intent  →  STEP 1 of checkout
-    // ─────────────────────────────────────────────────────────────────────────
 
     #[Route('/payment-intent', name: 'api_cart_payment_intent', methods: ['POST'])]
     public function createPaymentIntent(
@@ -245,10 +219,6 @@ final class CartApiController extends AbstractController
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // POST /api/cart/checkout  →  STEP 2 of checkout
-    // ─────────────────────────────────────────────────────────────────────────
-
     #[Route('/checkout', name: 'api_cart_checkout', methods: ['POST'])]
     public function checkout(
         Request $request,
@@ -260,45 +230,52 @@ final class CartApiController extends AbstractController
         $user = $this->getUser();
         $body = json_decode($request->getContent(), true);
 
+        $paymentMethod   = $body['paymentMethod'] ?? 'stripe';
         $paymentIntentId = $body['paymentIntentId'] ?? null;
-        if (!$paymentIntentId) {
-            return $this->json([
-                'success' => false,
-                'message' => 'Payment intent ID is required.',
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
 
-        Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
-
-        try {
-            $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
-
-            if ($paymentIntent->status !== 'succeeded') {
+        // ── Stripe validation ────────────────────────────────────────────────
+        if ($paymentMethod === 'stripe') {
+            if (!$paymentIntentId) {
                 return $this->json([
                     'success' => false,
-                    'message' => sprintf('Payment not completed. Status: %s', $paymentIntent->status),
+                    'message' => 'Payment intent ID is required for card payment.',
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             }
 
-            if ((string) $paymentIntent->metadata->user_id !== (string) $user->getId()) {
+            Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
+
+            try {
+                $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
+
+                if ($paymentIntent->status !== 'succeeded') {
+                    return $this->json([
+                        'success' => false,
+                        'message' => sprintf('Payment not completed. Status: %s', $paymentIntent->status),
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                }
+
+                if ((string) $paymentIntent->metadata->user_id !== (string) $user->getId()) {
+                    return $this->json([
+                        'success' => false,
+                        'message' => 'Payment verification failed.',
+                    ], Response::HTTP_FORBIDDEN);
+                }
+
+            } catch (\Exception $e) {
                 return $this->json([
                     'success' => false,
-                    'message' => 'Payment verification failed.',
-                ], Response::HTTP_FORBIDDEN);
+                    'message' => 'Payment verification failed: ' . $e->getMessage(),
+                ], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
-
-        } catch (\Exception $e) {
-            return $this->json([
-                'success' => false,
-                'message' => 'Payment verification failed: ' . $e->getMessage(),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
+        // ── Cart validation ──────────────────────────────────────────────────
         $cartItems = $cartItemRepo->findByUser($user);
         if (empty($cartItems)) {
             return $this->json(['success' => false, 'message' => 'Cart is empty.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
+        // ── Customer upsert ──────────────────────────────────────────────────
         $customer = $customerRepo->findOneBy(['email' => $user->getEmail()]);
         if (!$customer) {
             $customer = new Customer();
@@ -315,6 +292,7 @@ final class CartApiController extends AbstractController
             $customer->setAddress($body['address']);
         }
 
+        // ── Stock check ──────────────────────────────────────────────────────
         foreach ($cartItems as $cartItem) {
             $product = $cartItem->getProduct();
             if ($cartItem->getQuantity() > $product->getQuantity()) {
@@ -333,11 +311,11 @@ final class CartApiController extends AbstractController
 
         try {
             $order = new Order();
-            $order->setStatus(Order::STATUS_CONFIRMED);
+            // COD starts as PENDING, Stripe starts as CONFIRMED
+            $order->setStatus($paymentMethod === 'cod' ? Order::STATUS_PENDING : Order::STATUS_CONFIRMED);
             $order->setCustomer($customer);
             $order->setCreatedBy($user);
 
-            // ── Build order items + collect socket payload ────────────────────
             $orderItemsForSocket = [];
 
             foreach ($cartItems as $cartItem) {
@@ -368,9 +346,7 @@ final class CartApiController extends AbstractController
             $cartItemRepo->clearByUser($user);
             $em->getConnection()->commit();
 
-            // ── WebSocket broadcasts ──────────────────────────────────────────
-
-            // 1. Notify admin of new order → web dashboard lights up
+            // ── WebSocket broadcasts ─────────────────────────────────────────
             $this->ws->broadcastOrderPlaced(
                 $order->getId(),
                 $order->getTotal(),
@@ -379,7 +355,6 @@ final class CartApiController extends AbstractController
                 $orderItemsForSocket
             );
 
-            // 2. Notify everyone of stock changes for each product
             foreach ($cartItems as $cartItem) {
                 $product = $cartItem->getProduct();
                 $this->ws->broadcastStockUpdated(
@@ -389,16 +364,16 @@ final class CartApiController extends AbstractController
                 );
             }
 
-            // 3. Reset cart count for this user
             $this->ws->broadcastCartUpdated($user->getId(), 0);
 
             return $this->json([
                 'success' => true,
                 'message' => sprintf('Order #%d placed successfully!', $order->getId()),
                 'data'    => [
-                    'orderId' => $order->getId(),
-                    'total'   => $order->getTotal(),
-                    'status'  => $order->getStatus(),
+                    'orderId'       => $order->getId(),
+                    'total'         => $order->getTotal(),
+                    'status'        => $order->getStatus(),
+                    'paymentMethod' => $paymentMethod,
                 ],
             ], Response::HTTP_CREATED);
 
