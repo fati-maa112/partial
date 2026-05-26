@@ -1,32 +1,3 @@
-# parameters:
-
-# services:
-#     _defaults:
-#         autowire: true
-#         autoconfigure: true
-
-#     App\:
-#         resource: '../src/'
-
-#     App\EventListener\ActivityLogDoctrineListener:
-#         tags:
-#             - { name: doctrine.event_subscriber }
-
-#     App\Security\UserChecker:
-#         tags:
-#             - { name: security.user_checker }
-
-#     App\Service\FirebaseAuthService:
-#         arguments:
-#             $credentialsPath: '%kernel.project_dir%/config/firebase/serviceAccountKey.json'
-
-#     # Add this — reuse the same credentials file you already have
-#     Kreait\Firebase\Factory:
-#         class: Kreait\Firebase\Factory
-#         calls:
-#             # - [withServiceAccount, ['%kernel.project_dir%/config/firebase/serviceAccountKey.json']]
-
-
 parameters:
 
 services:
@@ -47,8 +18,8 @@ services:
 
     App\Service\FirebaseAuthService:
         arguments:
-            $credentialsPath: '%kernel.project_dir%/config/firebase/serviceAccountKey.json'
+            $credentialsPath: '%env(FIREBASE_CREDENTIALS_JSON)%'
 
     App\Service\PushNotificationService:
         arguments:
-            $credentialsPath: '%kernel.project_dir%/config/firebase/serviceAccountKey.json'
+            $credentialsPath: '%env(FIREBASE_CREDENTIALS_JSON)%

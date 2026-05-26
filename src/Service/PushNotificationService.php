@@ -16,7 +16,8 @@ class PushNotificationService
         private FcmTokenRepository $fcmTokenRepository,
         string $credentialsPath,
     ) {
-        $this->factory = (new Factory)->withServiceAccount($credentialsPath);
+        $credentials = json_decode($credentialsPath, true) ?? $credentialsPath;
+        $this->factory = (new Factory)->withServiceAccount($credentials);
     }
 
     public function sendToUser(User $user, string $title, string $body, array $data = []): void

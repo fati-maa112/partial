@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Service;
+
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Auth;
 use Kreait\Firebase\Auth\Token\ExpiredToken;
@@ -15,16 +17,14 @@ class FirebaseAuthService
     ) {
         $factory = new Factory();
 
-        // ── Try env variable first (for Railway/production) ──
-        $credentialsJson = $_ENV['FIREBASE_CREDENTIALS_JSON'] ?? getenv('FIREBASE_CREDENTIALS_JSON');
+        $credentials = json_decode($this->credentialsPath, true);
 
-        if ($credentialsJson) {
+        if ($credentials) {
+            // JSON string passed directly (Railway env variable)
             $this->logger->info('Using Firebase credentials from environment variable');
-            // Write to a temp file since Kreait needs a file path
-            $tempFile = sys_get_temp_dir() . '/firebase_credentials.json';
-            file_put_contents($tempFile, $credentialsJson);
-            $factory = $factory->withServiceAccount($tempFile);
+            $factory = $factory->withServiceAccount($credentials);
         } elseif (file_exists($this->credentialsPath)) {
+            // File path passed (local development)
             $this->logger->info('Using Firebase credentials from file');
             $factory = $factory->withServiceAccount($this->credentialsPath);
         } else {
