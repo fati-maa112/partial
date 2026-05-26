@@ -1,30 +1,54 @@
+# parameters:
+
+# services:
+#     _defaults:
+#         autowire: true
+#         autoconfigure: true
+
+#     App\:
+#         resource: '../src/'
+
+#     App\EventListener\ActivityLogDoctrineListener:
+#         tags:
+#             - { name: doctrine.event_subscriber }
+
+#     App\Security\UserChecker:
+#         tags:
+#             - { name: security.user_checker }
+
+#     App\Service\FirebaseAuthService:
+#         arguments:
+#             $credentialsPath: '%kernel.project_dir%/config/firebase/serviceAccountKey.json'
+
+#     # Add this — reuse the same credentials file you already have
+#     Kreait\Firebase\Factory:
+#         class: Kreait\Firebase\Factory
+#         calls:
+#             # - [withServiceAccount, ['%kernel.project_dir%/config/firebase/serviceAccountKey.json']]
+
+
 parameters:
 
 services:
-    # default configuration for services in this file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true
+        autoconfigure: true
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
 
-    # Activity Log Doctrine Listener
     App\EventListener\ActivityLogDoctrineListener:
         tags:
             - { name: doctrine.event_subscriber }
 
-    # User Checker for status validation
     App\Security\UserChecker:
         tags:
             - { name: security.user_checker }
 
-    # Firebase Authentication Service for mobile app Google Sign-In
     App\Service\FirebaseAuthService:
         arguments:
             $credentialsPath: '%kernel.project_dir%/config/firebase/serviceAccountKey.json'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always replace previous ones
+    App\Service\PushNotificationService:
+        arguments:
+            $credentialsPath: '%kernel.project_dir%/config/firebase/serviceAccountKey.json'

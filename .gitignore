@@ -5,6 +5,7 @@
 .env.*.local
 .git/
 docker-compose.yaml
+config/firebase-credentials.json
 /config/secrets/prod/prod.decrypt.private.php
 
 config/firebase/serviceAccountKey.json
