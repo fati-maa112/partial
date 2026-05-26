@@ -18,8 +18,8 @@ services:
 
     App\Service\FirebaseAuthService:
         arguments:
-            $credentialsPath: '%env(FIREBASE_CREDENTIALS_JSON)%'
+            $credentialsPath: "%env(FIREBASE_CREDENTIALS_JSON)%"
 
     App\Service\PushNotificationService:
         arguments:
-            $credentialsPath: '%env(FIREBASE_CREDENTIALS_JSON)%
+            $credentialsPath: "%env(FIREBASE_CREDENTIALS_JSON)%"
