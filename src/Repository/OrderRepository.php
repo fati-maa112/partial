@@ -19,6 +19,22 @@ class OrderRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find orders placed by a customer user (mobile app)
+     */
+    public function findByUser(User $user): array
+    {
+        return $this->createQueryBuilder('o')
+            ->leftJoin('o.orderItems', 'oi')
+            ->leftJoin('oi.product', 'p')
+            ->addSelect('oi', 'p')
+            ->where('o.createdBy = :user')
+            ->setParameter('user', $user)
+            ->orderBy('o.created_at', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Find ALL orders with filters (ADMIN ONLY)
      */
     public function findAllWithFilters(array $filters = []): array
@@ -31,19 +47,16 @@ class OrderRepository extends ServiceEntityRepository
             ->addSelect('u', 'c', 'oi', 'p')
             ->orderBy('o.created_at', 'DESC');
 
-        // Search filter
         if (!empty($filters['search'])) {
             $qb->andWhere('c.name LIKE :search OR u.username LIKE :search OR o.status LIKE :search')
                ->setParameter('search', '%' . $filters['search'] . '%');
         }
 
-        // Creator filter (Admin only)
         if (!empty($filters['username'])) {
             $qb->andWhere('u.username = :username')
                ->setParameter('username', $filters['username']);
         }
 
-        // Status filter
         if (!empty($filters['status'])) {
             $qb->andWhere('o.status = :status')
                ->setParameter('status', $filters['status']);
@@ -70,13 +83,11 @@ class OrderRepository extends ServiceEntityRepository
             ->setParameter('user', $user)
             ->orderBy('o.created_at', 'DESC');
 
-        // Search filter
         if (!empty($filters['search'])) {
             $qb->andWhere('c.name LIKE :search OR o.status LIKE :search')
                ->setParameter('search', '%' . $filters['search'] . '%');
         }
 
-        // Status filter
         if (!empty($filters['status'])) {
             $qb->andWhere('o.status = :status')
                ->setParameter('status', $filters['status']);
@@ -149,27 +160,26 @@ class OrderRepository extends ServiceEntityRepository
                ->orderBy('date', 'ASC');
 
             $results = $qb->getQuery()->getResult();
-            
-            // Fill in missing days
+
             $completeData = [];
             for ($i = 6; $i >= 0; $i--) {
-                $date = new \DateTime("-{$i} days");
+                $date    = new \DateTime("-{$i} days");
                 $dateStr = $date->format('Y-m-d');
-                
+
                 $found = false;
                 foreach ($results as $result) {
                     if ($result['date'] === $dateStr) {
                         $completeData[] = $result;
-                        $found = true;
+                        $found          = true;
                         break;
                     }
                 }
-                
+
                 if (!$found) {
                     $completeData[] = ['date' => $dateStr, 'revenue' => 0];
                 }
             }
-            
+
             return $completeData;
         } catch (\Exception $e) {
             return [];
@@ -252,15 +262,12 @@ class OrderRepository extends ServiceEntityRepository
                ->setParameter('user', $user);
         }
 
-        // Use Order entity status constants when available
         return [
-            'total' => (int) $qb->select('COUNT(o.id)')
-                ->getQuery()
-                ->getSingleScalarResult(),
-            'pending' => $this->countByStatus(\App\Entity\Order::STATUS_PENDING, $user),
+            'total'      => (int) $qb->select('COUNT(o.id)')->getQuery()->getSingleScalarResult(),
+            'pending'    => $this->countByStatus(\App\Entity\Order::STATUS_PENDING, $user),
             'processing' => $this->countByStatus(\App\Entity\Order::STATUS_PREPARING, $user),
-            'completed' => $this->countByStatus(\App\Entity\Order::STATUS_COMPLETED, $user),
-            'canceled' => $this->countByStatus(\App\Entity\Order::STATUS_CANCELLED, $user),
+            'completed'  => $this->countByStatus(\App\Entity\Order::STATUS_COMPLETED, $user),
+            'canceled'   => $this->countByStatus(\App\Entity\Order::STATUS_CANCELLED, $user),
         ];
     }
 }
