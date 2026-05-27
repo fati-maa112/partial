@@ -1,4 +1,5 @@
 <?php
+// src/Service/PushNotificationService.php
 
 namespace App\Service;
 
@@ -6,15 +7,14 @@ use App\Entity\User;
 use App\Repository\FcmTokenRepository;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\Notification;
 
 class PushNotificationService
 {
     private Factory $factory;
 
     public function __construct(
+        private FcmTokenRepository $fcmTokenRepository,
         string $credentialsPath,
-        private readonly FcmTokenRepository $fcmTokenRepository,
     ) {
         $credentials = json_decode($credentialsPath, true) ?? $credentialsPath;
         $this->factory = (new Factory)->withServiceAccount($credentials);
@@ -22,37 +22,32 @@ class PushNotificationService
 
     public function sendToUser(User $user, string $title, string $body, array $data = []): void
     {
-        $fcmTokenEntity = $this->fcmTokenRepository->findOneBy(
-            ['user' => $user],
-            ['id' => 'DESC']
-        );
+        // Read token directly from user entity
+        $token = $user->getFcmToken();
 
-        if (!$fcmTokenEntity) {
-            file_put_contents('php://stderr', '[FCM] No token found for user: ' . $user->getEmail() . PHP_EOL);
+        if (empty($token)) {
+            error_log('[FCM] No FCM token for user: ' . $user->getEmail());
             return;
         }
 
-        $token = $fcmTokenEntity->getToken();
-        if (!$token) {
-            file_put_contents('php://stderr', '[FCM] Token is empty for user: ' . $user->getEmail() . PHP_EOL);
-            return;
-        }
-
-        file_put_contents('php://stderr', '[FCM] Sending to user: ' . $user->getEmail() . ' token: ' . substr($token, 0, 20) . '...' . PHP_EOL);
+        $messaging = $this->factory->createMessaging();
 
         try {
-            $messaging = $this->factory->createMessaging();
-            $stringData = array_map('strval', $data);
+            error_log('[FCM] Sending to: ' . $user->getEmail() . ' token: ' . substr($token, 0, 20) . '...');
 
-            $message = CloudMessage::withTarget('token', $token)
-                ->withNotification(Notification::create($title, $body))
-                ->withData($stringData);
+            $message = CloudMessage::fromArray([
+                'token'        => $token,
+                'notification' => [
+                    'title' => $title,
+                    'body'  => $body,
+                ],
+                'data' => array_map('strval', $data),
+            ]);
 
             $messaging->send($message);
-            file_put_contents('php://stderr', '[FCM] Sent successfully to: ' . $user->getEmail() . PHP_EOL);
-
+            error_log('[FCM] Sent successfully to: ' . $user->getEmail());
         } catch (\Throwable $e) {
-            file_put_contents('php://stderr', '[FCM] Send error: ' . $e->getMessage() . PHP_EOL);
+            error_log('[FCM] Send error: ' . $e->getMessage());
         }
     }
 }
