@@ -20,17 +20,26 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class OrderController extends AbstractController
 {
-    // ─── Helper: find user linked to order's customer email ───────────────────
     private function getUserForOrder(Order $order, EntityManagerInterface $em): ?User
     {
         $customer = $order->getCustomer();
-        if (!$customer) return null;
+        if (!$customer) {
+            error_log('[FCM] getUserForOrder: no customer on order #' . $order->getId());
+            return null;
+        }
 
-        return $em->getRepository(User::class)
+        $user = $em->getRepository(User::class)
             ->findOneBy(['email' => $customer->getEmail()]);
+
+        if (!$user) {
+            error_log('[FCM] getUserForOrder: no user found for email: ' . $customer->getEmail());
+        } else {
+            error_log('[FCM] getUserForOrder: found user ' . $user->getEmail() . ' (ID: ' . $user->getId() . ')');
+        }
+
+        return $user;
     }
 
-    // ─── Helper: send push silently (never crash the main flow) ───────────────
     private function notify(
         PushNotificationService $push,
         ?User $user,
@@ -38,15 +47,17 @@ final class OrderController extends AbstractController
         string $body,
         array $data = []
     ): void {
-        if (!$user) return;
+        if (!$user) {
+            error_log('[FCM] notify() called but user is NULL — skipping');
+            return;
+        }
+        error_log('[FCM] Attempting to notify user: ' . $user->getEmail());
         try {
             $push->sendToUser($user, $title, $body, $data);
         } catch (\Throwable $e) {
             error_log('[FCM] ' . $e->getMessage());
         }
     }
-
-    // ──────────────────────────────────────────────────────────────────────────
 
     #[Route(name: 'app_order_index', methods: ['GET'])]
     public function index(Request $request, OrderRepository $orderRepository): Response
@@ -112,7 +123,6 @@ final class OrderController extends AbstractController
 
             $logger->logCreate('Order', 'Order #' . $order->getId(), $order->getId());
 
-            // 🔔 Notify customer — new order placed
             $user = $this->getUserForOrder($order, $entityManager);
             $this->notify(
                 $push, $user,
@@ -204,8 +214,6 @@ final class OrderController extends AbstractController
             ->getForm();
     }
 
-    // ── CONFIRM ───────────────────────────────────────────────────────────────
-
     #[Route('/{id}/confirm', name: 'app_order_confirm', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
     public function confirm(
@@ -242,7 +250,6 @@ final class OrderController extends AbstractController
         $entityManager->flush();
         $logger->logUpdate('Order', 'Confirmed Order #' . $order->getId(), $order->getId());
 
-        // 🔔 Notify customer
         $user = $this->getUserForOrder($order, $entityManager);
         $this->notify(
             $push, $user,
@@ -254,8 +261,6 @@ final class OrderController extends AbstractController
         $this->addFlash('success', '✓ Order confirmed and stock updated.');
         return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
     }
-
-    // ── MARK PROCESSING ───────────────────────────────────────────────────────
 
     #[Route('/{id}/mark-processing', name: 'app_order_mark_processing', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
@@ -285,7 +290,6 @@ final class OrderController extends AbstractController
 
         $logger->logUpdate('Order', sprintf('Order #%d marked as PROCESSING', $order->getId()), $order->getId());
 
-        // 🔔 Notify customer
         $user = $this->getUserForOrder($order, $entityManager);
         $this->notify(
             $push, $user,
@@ -297,8 +301,6 @@ final class OrderController extends AbstractController
         $this->addFlash('success', '✓ Order marked as being processed.');
         return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
     }
-
-    // ── MARK COMPLETED ────────────────────────────────────────────────────────
 
     #[Route('/{id}/mark-completed', name: 'app_order_mark_completed', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
@@ -326,7 +328,6 @@ final class OrderController extends AbstractController
 
         $logger->logUpdate('Order', sprintf('Order #%d marked as COMPLETED', $order->getId()), $order->getId());
 
-        // 🔔 Notify customer
         $user = $this->getUserForOrder($order, $entityManager);
         $this->notify(
             $push, $user,
@@ -338,8 +339,6 @@ final class OrderController extends AbstractController
         $this->addFlash('success', '✓ Order completed successfully!');
         return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
     }
-
-    // ── CANCEL ────────────────────────────────────────────────────────────────
 
     #[Route('/{id}/cancel', name: 'app_order_cancel', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
@@ -365,7 +364,6 @@ final class OrderController extends AbstractController
             return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
         }
 
-        // Restore stock if was confirmed/preparing
         if (in_array($order->getStatus(), [Order::STATUS_PREPARING, Order::STATUS_CONFIRMED], true)) {
             foreach ($order->getOrderItems() as $item) {
                 $product = $item->getProduct();
@@ -382,7 +380,6 @@ final class OrderController extends AbstractController
 
         $logger->logUpdate('Order', sprintf('Order #%d cancelled', $order->getId()), $order->getId());
 
-        // 🔔 Notify customer
         $user = $this->getUserForOrder($order, $entityManager);
         $this->notify(
             $push, $user,
@@ -394,8 +391,6 @@ final class OrderController extends AbstractController
         $this->addFlash('success', '✓ Order cancelled successfully. Stock restored.');
         return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
     }
-
-    // ── RECEIPT ───────────────────────────────────────────────────────────────
 
     #[Route('/{id}/receipt', name: 'app_order_receipt', methods: ['GET'])]
     public function receipt(Order $order): Response
