@@ -276,44 +276,50 @@ final class OrderController extends AbstractController
     }
 
     #[Route('/{id}/mark-processing', name: 'app_order_mark_processing', methods: ['POST'])]
-    #[IsGranted('ROLE_ADMIN')]
-    public function markProcessing(
-        Request $request,
-        Order $order,
-        EntityManagerInterface $entityManager,
-        ActivityLogger $logger,
-        PushNotificationService $push
-    ): Response {
-        if (!$this->isCsrfTokenValid('mark_processing_' . $order->getId(), $request->request->get('_token'))) {
-            $this->addFlash('error', 'Invalid security token.');
-            return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
-        }
+#[IsGranted('ROLE_ADMIN')]
+public function markProcessing(
+    Request $request,
+    Order $order,
+    EntityManagerInterface $entityManager,
+    ActivityLogger $logger,
+    PushNotificationService $push
+): Response {
+    // DEBUG ENTRY LOG
+    file_put_contents('/tmp/fcm_debug.log', date('Y-m-d H:i:s') . ' markProcessing CALLED for order #' . $order->getId() . ' status=' . $order->getStatus() . PHP_EOL, FILE_APPEND);
 
-        if ($order->getStatus() !== Order::STATUS_PENDING) {
-            $this->addFlash('error', sprintf(
-                'Cannot mark as processing. Order status must be PENDING, current status is %s.',
-                $order->getStatus()
-            ));
-            return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
-        }
-
-        $order->setStatus(Order::STATUS_PREPARING);
-        $order->setUpdatedAt(new \DateTimeImmutable());
-        $entityManager->flush();
-
-        $logger->logUpdate('Order', sprintf('Order #%d marked as PROCESSING', $order->getId()), $order->getId());
-
-        $user = $this->getUserForOrder($order, $entityManager);
-        $this->notify(
-            $push, $user,
-            '📦 Order Being Prepared!',
-            'Your Order #' . $order->getId() . ' is now being prepared.',
-            ['orderId' => (string) $order->getId(), 'status' => Order::STATUS_PREPARING]
-        );
-
-        $this->addFlash('success', '✓ Order marked as being processed.');
+    if (!$this->isCsrfTokenValid('mark_processing_' . $order->getId(), $request->request->get('_token'))) {
+        file_put_contents('/tmp/fcm_debug.log', date('Y-m-d H:i:s') . ' CSRF INVALID' . PHP_EOL, FILE_APPEND);
+        $this->addFlash('error', 'Invalid security token.');
         return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
     }
+
+    if ($order->getStatus() !== Order::STATUS_PENDING) {
+        file_put_contents('/tmp/fcm_debug.log', date('Y-m-d H:i:s') . ' STATUS NOT PENDING: ' . $order->getStatus() . PHP_EOL, FILE_APPEND);
+        $this->addFlash('error', sprintf(
+            'Cannot mark as processing. Order status must be PENDING, current status is %s.',
+            $order->getStatus()
+        ));
+        return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
+    }
+
+    $order->setStatus(Order::STATUS_PREPARING);
+    $order->setUpdatedAt(new \DateTimeImmutable());
+    $entityManager->flush();
+
+    $logger->logUpdate('Order', sprintf('Order #%d marked as PROCESSING', $order->getId()), $order->getId());
+
+    $user = $this->getUserForOrder($order, $entityManager);
+    $this->notify(
+        $push, $user,
+        '📦 Order Being Prepared!',
+        'Your Order #' . $order->getId() . ' is now being prepared.',
+        ['orderId' => (string) $order->getId(), 'status' => Order::STATUS_PREPARING]
+    );
+
+    $this->addFlash('success', '✓ Order marked as being processed.');
+    return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
+}
+
 
     #[Route('/{id}/mark-completed', name: 'app_order_mark_completed', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
