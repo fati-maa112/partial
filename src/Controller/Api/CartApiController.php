@@ -10,6 +10,7 @@ use App\Entity\OrderItem;
 use App\Repository\CartItemRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\ProductRepository;
+use App\Service\PushNotificationService;
 use App\Service\WebSocketService;
 use Doctrine\ORM\EntityManagerInterface;
 use Stripe\Stripe;
@@ -26,7 +27,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class CartApiController extends AbstractController
 {
     public function __construct(
-        private readonly WebSocketService $ws
+        private readonly WebSocketService $ws,
+        private readonly PushNotificationService $push
     ) {}
 
     #[Route('', name: 'api_cart_view', methods: ['GET'])]
@@ -311,7 +313,6 @@ final class CartApiController extends AbstractController
 
         try {
             $order = new Order();
-            // COD starts as PENDING, Stripe starts as CONFIRMED
             $order->setStatus($paymentMethod === 'cod' ? Order::STATUS_PENDING : Order::STATUS_CONFIRMED);
             $order->setCustomer($customer);
             $order->setCreatedBy($user);
@@ -365,6 +366,23 @@ final class CartApiController extends AbstractController
             }
 
             $this->ws->broadcastCartUpdated($user->getId(), 0);
+
+            // ── Push notification to user ────────────────────────────────────
+            try {
+                $statusLabel = $paymentMethod === 'cod' ? 'pending' : 'confirmed';
+                $this->push->sendToUser(
+                    $user,
+                    '🛒 Order Placed!',
+                    sprintf('Your Order #%d has been placed successfully. Status: %s', $order->getId(), strtoupper($statusLabel)),
+                    [
+                        'orderId' => (string) $order->getId(),
+                        'status'  => $order->getStatus(),
+                    ]
+                );
+            } catch (\Throwable $e) {
+                // Don't fail the order if push notification fails
+                error_log('[FCM] Order placed notification failed: ' . $e->getMessage());
+            }
 
             return $this->json([
                 'success' => true,
