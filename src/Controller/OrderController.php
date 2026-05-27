@@ -24,7 +24,7 @@ final class OrderController extends AbstractController
     {
         $customer = $order->getCustomer();
         if (!$customer) {
-            error_log('[FCM] getUserForOrder: no customer on order #' . $order->getId());
+            file_put_contents('php://stderr', '[FCM] getUserForOrder: no customer on order #' . $order->getId() . PHP_EOL);
             return null;
         }
 
@@ -32,9 +32,9 @@ final class OrderController extends AbstractController
             ->findOneBy(['email' => $customer->getEmail()]);
 
         if (!$user) {
-            error_log('[FCM] getUserForOrder: no user found for email: ' . $customer->getEmail());
+            file_put_contents('php://stderr', '[FCM] getUserForOrder: no user found for email: ' . $customer->getEmail() . PHP_EOL);
         } else {
-            error_log('[FCM] getUserForOrder: found user ' . $user->getEmail() . ' (ID: ' . $user->getId() . ')');
+            file_put_contents('php://stderr', '[FCM] getUserForOrder: found user ' . $user->getEmail() . ' (ID: ' . $user->getId() . ')' . PHP_EOL);
         }
 
         return $user;
@@ -48,14 +48,14 @@ final class OrderController extends AbstractController
         array $data = []
     ): void {
         if (!$user) {
-            error_log('[FCM] notify() called but user is NULL — skipping');
+            file_put_contents('php://stderr', '[FCM] notify() called but user is NULL — skipping' . PHP_EOL);
             return;
         }
-        error_log('[FCM] Attempting to notify user: ' . $user->getEmail());
+        file_put_contents('php://stderr', '[FCM] Attempting to notify user: ' . $user->getEmail() . PHP_EOL);
         try {
             $push->sendToUser($user, $title, $body, $data);
         } catch (\Throwable $e) {
-            error_log('[FCM] ' . $e->getMessage());
+            file_put_contents('php://stderr', '[FCM] Error: ' . $e->getMessage() . PHP_EOL);
         }
     }
 

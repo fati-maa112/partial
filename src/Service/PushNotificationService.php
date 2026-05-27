@@ -22,24 +22,26 @@ class PushNotificationService
 
     public function sendToUser(User $user, string $title, string $body, array $data = []): void
     {
-        // ✅ Look up FCM token from the fcm_tokens table
         $fcmTokenEntity = $this->fcmTokenRepository->findOneBy(
             ['user' => $user],
-            ['id' => 'DESC'] // get the most recent token
+            ['id' => 'DESC']
         );
 
         if (!$fcmTokenEntity) {
-            error_log('[FCM] No FCM token found for user: ' . $user->getEmail());
+            file_put_contents('php://stderr', '[FCM] No token found for user: ' . $user->getEmail() . PHP_EOL);
             return;
         }
 
         $token = $fcmTokenEntity->getToken();
-        if (!$token) return;
+        if (!$token) {
+            file_put_contents('php://stderr', '[FCM] Token is empty for user: ' . $user->getEmail() . PHP_EOL);
+            return;
+        }
+
+        file_put_contents('php://stderr', '[FCM] Sending to user: ' . $user->getEmail() . ' token: ' . substr($token, 0, 20) . '...' . PHP_EOL);
 
         try {
             $messaging = $this->factory->createMessaging();
-
-            // Convert all data values to strings (FCM requirement)
             $stringData = array_map('strval', $data);
 
             $message = CloudMessage::withTarget('token', $token)
@@ -47,11 +49,10 @@ class PushNotificationService
                 ->withData($stringData);
 
             $messaging->send($message);
-
-            error_log('[FCM] Notification sent to ' . $user->getEmail() . ': ' . $title);
+            file_put_contents('php://stderr', '[FCM] Sent successfully to: ' . $user->getEmail() . PHP_EOL);
 
         } catch (\Throwable $e) {
-            error_log('[FCM] Send error for ' . $user->getEmail() . ': ' . $e->getMessage());
+            file_put_contents('php://stderr', '[FCM] Send error: ' . $e->getMessage() . PHP_EOL);
         }
     }
 }
