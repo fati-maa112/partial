@@ -24,7 +24,7 @@ final class OrderController extends AbstractController
     {
         $customer = $order->getCustomer();
         if (!$customer) {
-            file_put_contents('php://stderr', '[FCM] getUserForOrder: no customer on order #' . $order->getId() . PHP_EOL);
+            file_put_contents('/tmp/fcm_debug.log', date('Y-m-d H:i:s') . ' getUserForOrder: no customer on order #' . $order->getId() . PHP_EOL, FILE_APPEND);
             return null;
         }
 
@@ -32,9 +32,9 @@ final class OrderController extends AbstractController
             ->findOneBy(['email' => $customer->getEmail()]);
 
         if (!$user) {
-            file_put_contents('php://stderr', '[FCM] getUserForOrder: no user found for email: ' . $customer->getEmail() . PHP_EOL);
+            file_put_contents('/tmp/fcm_debug.log', date('Y-m-d H:i:s') . ' getUserForOrder: no user found for email: ' . $customer->getEmail() . PHP_EOL, FILE_APPEND);
         } else {
-            file_put_contents('php://stderr', '[FCM] getUserForOrder: found user ' . $user->getEmail() . ' (ID: ' . $user->getId() . ')' . PHP_EOL);
+            file_put_contents('/tmp/fcm_debug.log', date('Y-m-d H:i:s') . ' getUserForOrder: found user ' . $user->getEmail() . ' (ID: ' . $user->getId() . ')' . PHP_EOL, FILE_APPEND);
         }
 
         return $user;
@@ -47,16 +47,29 @@ final class OrderController extends AbstractController
         string $body,
         array $data = []
     ): void {
+        $logFile = '/tmp/fcm_debug.log';
+
         if (!$user) {
-            file_put_contents('php://stderr', '[FCM] notify() called but user is NULL — skipping' . PHP_EOL);
+            file_put_contents($logFile, date('Y-m-d H:i:s') . ' notify() called but user is NULL' . PHP_EOL, FILE_APPEND);
             return;
         }
-        file_put_contents('php://stderr', '[FCM] Attempting to notify user: ' . $user->getEmail() . PHP_EOL);
+
+        file_put_contents($logFile, date('Y-m-d H:i:s') . ' Attempting to notify: ' . $user->getEmail() . PHP_EOL, FILE_APPEND);
+
         try {
             $push->sendToUser($user, $title, $body, $data);
+            file_put_contents($logFile, date('Y-m-d H:i:s') . ' sendToUser completed' . PHP_EOL, FILE_APPEND);
         } catch (\Throwable $e) {
-            file_put_contents('php://stderr', '[FCM] Error: ' . $e->getMessage() . PHP_EOL);
+            file_put_contents($logFile, date('Y-m-d H:i:s') . ' Error: ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
         }
+    }
+
+    #[Route('/fcm-debug-log', name: 'app_fcm_debug_log', methods: ['GET'])]
+    public function fcmDebugLog(): Response
+    {
+        $logFile = '/tmp/fcm_debug.log';
+        $content = file_exists($logFile) ? file_get_contents($logFile) : 'No log file found';
+        return new Response('<pre>' . htmlspecialchars($content) . '</pre>');
     }
 
     #[Route(name: 'app_order_index', methods: ['GET'])]
