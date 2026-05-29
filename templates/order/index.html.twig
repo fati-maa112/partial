@@ -5,7 +5,6 @@
 
 {% block body %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<!-- DataTables CSS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
 
@@ -44,9 +43,6 @@
     margin: 0;
 }
 
-/* ============================= */
-/* Add Order Button */
-/* ============================= */
 .btn-add {
     background: #fff;
     color: var(--color-olive);
@@ -63,10 +59,7 @@
     gap: 10px;
     border: 2px solid transparent;
 }
-.btn-add i { 
-    font-size: 16px;
-    transition: transform 0.3s ease;
-}
+.btn-add i { font-size: 16px; transition: transform 0.3s ease; }
 .btn-add:hover {
     background: var(--color-sand);
     color: #fff;
@@ -74,9 +67,91 @@
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
     border-color: rgba(255, 255, 255, 0.3);
 }
-.btn-add:hover i {
-    transform: rotate(90deg);
+.btn-add:hover i { transform: rotate(90deg); }
+
+/* ============================= */
+/* Live indicator badge          */
+/* ============================= */
+.live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.9);
+    font-weight: 600;
+    margin-top: 10px;
 }
+.live-dot {
+    width: 8px;
+    height: 8px;
+    background: #a8e6cf;
+    border-radius: 50%;
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(168,230,207,0.6); }
+    50%       { box-shadow: 0 0 0 5px rgba(168,230,207,0); }
+}
+
+/* ============================= */
+/* Toast notification            */
+/* ============================= */
+#order-toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    background: #1a2e1a;
+    color: #e8f0e8;
+    border-left: 4px solid #4caf76;
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    min-width: 300px;
+    max-width: 420px;
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+}
+#order-toast.show {
+    transform: translateX(0);
+    pointer-events: auto;
+}
+.toast-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+.toast-body strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 3px;
+    color: #c8e6c9;
+}
+.toast-body span {
+    font-size: 13px;
+    color: #a5c8a5;
+}
+.toast-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #8aab8a;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 0 0 8px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.toast-close:hover { color: #e8f0e8; }
 
 /* ============================= */
 /* Stats Cards */
@@ -96,12 +171,10 @@
     border-left: 4px solid var(--color-olive);
     transition: all 0.3s ease;
 }
-
 .stat-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
-
 .stat-card .stat-icon {
     width: 48px;
     height: 48px;
@@ -112,19 +185,13 @@
     justify-content: center;
     margin-bottom: 12px;
 }
-
-.stat-card .stat-icon i {
-    color: #fff;
-    font-size: 20px;
-}
-
+.stat-card .stat-icon i { color: #fff; font-size: 20px; }
 .stat-card .stat-value {
     font-size: 28px;
     font-weight: 700;
     color: var(--color-olive);
     margin-bottom: 4px;
 }
-
 .stat-card .stat-label {
     font-size: 13px;
     color: #666;
@@ -133,21 +200,18 @@
     font-weight: 600;
 }
 
-/* Status-specific stat cards */
-.stat-card.pending { border-left-color: #b79b7f; }
-.stat-card.pending .stat-icon { background: linear-gradient(135deg, #b79b7f, #a98867); }
-.stat-card.pending .stat-value { color: #b79b7f; }
-
+.stat-card.pending   { border-left-color: #b79b7f; }
+.stat-card.pending .stat-icon   { background: linear-gradient(135deg, #b79b7f, #a98867); }
+.stat-card.pending .stat-value  { color: #b79b7f; }
 .stat-card.processing { border-left-color: #C2B280; }
 .stat-card.processing .stat-icon { background: linear-gradient(135deg, #C2B280, #a9986c); }
 .stat-card.processing .stat-value { color: #C2B280; }
-
-.stat-card.completed { border-left-color: #7a8661; }
-.stat-card.completed .stat-icon { background: linear-gradient(135deg, #7a8661, #5f6c4c); }
+.stat-card.completed  { border-left-color: #7a8661; }
+.stat-card.completed .stat-icon  { background: linear-gradient(135deg, #7a8661, #5f6c4c); }
 .stat-card.completed .stat-value { color: #7a8661; }
 
 /* ============================= */
-/* DataTables Custom Styling */
+/* DataTables */
 /* ============================= */
 .table-card {
     background: #fff;
@@ -155,16 +219,8 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     overflow: hidden;
 }
-
-.dataTables_wrapper {
-    padding: 30px;
-}
-
-/* Search box styling */
-.dataTables_filter {
-    margin-bottom: 20px;
-}
-
+.dataTables_wrapper { padding: 30px; }
+.dataTables_filter { margin-bottom: 20px; }
 .dataTables_filter label {
     display: flex;
     align-items: center;
@@ -172,7 +228,6 @@
     font-weight: 600;
     color: #333;
 }
-
 .dataTables_filter input {
     border: 2px solid #e5e7eb;
     border-radius: 10px;
@@ -182,15 +237,12 @@
     width: 280px;
     background: #f9fafb;
 }
-
 .dataTables_filter input:focus {
     outline: none;
     border-color: var(--color-olive);
     background: #fff;
     box-shadow: 0 0 0 3px rgba(107, 119, 85, 0.1);
 }
-
-/* Entries dropdown */
 .dataTables_length label {
     display: flex;
     align-items: center;
@@ -198,7 +250,6 @@
     font-weight: 600;
     color: #333;
 }
-
 .dataTables_length select {
     border: 2px solid #e5e7eb;
     border-radius: 10px;
@@ -208,25 +259,13 @@
     cursor: pointer;
     transition: all 0.3s ease;
 }
-
 .dataTables_length select:focus {
     outline: none;
     border-color: var(--color-olive);
     background: #fff;
 }
-
-/* Info text */
-.dataTables_info {
-    color: #6b7280;
-    font-weight: 500;
-    font-size: 14px;
-}
-
-/* Pagination styling */
-.dataTables_paginate {
-    margin-top: 24px;
-}
-
+.dataTables_info { color: #6b7280; font-weight: 500; font-size: 14px; }
+.dataTables_paginate { margin-top: 24px; }
 .dataTables_paginate .paginate_button {
     border-radius: 8px;
     padding: 8px 14px;
@@ -237,34 +276,20 @@
     font-weight: 600;
     color: #374151 !important;
 }
-
 .dataTables_paginate .paginate_button:hover {
     background: var(--color-olive);
     color: #fff !important;
     border-color: var(--color-olive);
     transform: translateY(-2px);
 }
-
 .dataTables_paginate .paginate_button.current {
     background: var(--color-olive);
     color: #fff !important;
     border-color: var(--color-olive);
     box-shadow: 0 4px 12px rgba(107, 119, 85, 0.3);
 }
-
-.dataTables_paginate .paginate_button.disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-/* Export buttons */
-.dt-buttons {
-    margin-bottom: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
+.dataTables_paginate .paginate_button.disabled { opacity: 0.4; cursor: not-allowed; }
+.dt-buttons { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
 .dt-button {
     background: linear-gradient(135deg, var(--color-sand), #b5a173) !important;
     color: #fff !important;
@@ -278,7 +303,6 @@
     transition: all 0.3s ease !important;
     box-shadow: 0 4px 12px rgba(194, 178, 128, 0.3) !important;
 }
-
 .dt-button:hover {
     background: linear-gradient(135deg, var(--color-olive), #556042) !important;
     transform: translateY(-2px);
@@ -286,19 +310,10 @@
 }
 
 /* ============================= */
-/* Table Styling */
+/* Table */
 /* ============================= */
-.table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-.table thead {
-    background: linear-gradient(135deg, var(--color-olive), #556042);
-    color: #fff;
-}
-
+.table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.table thead { background: linear-gradient(135deg, var(--color-olive), #556042); color: #fff; }
 .table thead th {
     padding: 18px 15px;
     text-align: center;
@@ -307,17 +322,9 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     border: none;
-    position: relative;
 }
-
-.table thead th:first-child {
-    border-top-left-radius: 12px;
-}
-
-.table thead th:last-child {
-    border-top-right-radius: 12px;
-}
-
+.table thead th:first-child { border-top-left-radius: 12px; }
+.table thead th:last-child  { border-top-right-radius: 12px; }
 .table tbody td {
     padding: 16px 15px;
     text-align: center;
@@ -326,45 +333,30 @@
     vertical-align: middle;
     color: #374151;
 }
-
-.table tbody tr {
-    transition: all 0.2s ease;
-    background: #fff;
-}
-
+.table tbody tr { transition: all 0.2s ease; background: #fff; }
 .table tbody tr:hover {
     background: linear-gradient(to right, #f9fafb, #ffffff);
     transform: scale(1.01);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* Customer name styling */
-.customer-name {
-    font-weight: 600;
-    color: var(--color-olive);
+/* New row highlight animation */
+@keyframes newRowPulse {
+    0%   { background: rgba(76,175,118,0.25); }
+    50%  { background: rgba(76,175,118,0.10); }
+    100% { background: transparent; }
 }
+.new-order-row td { animation: newRowPulse 3s ease forwards; }
 
-/* Order ID styling */
-.order-id {
-    font-weight: 700;
-    color: #6b7280;
-}
+.customer-name { font-weight: 600; color: var(--color-olive); }
+.order-id { font-weight: 700; color: #6b7280; }
+.order-total { font-weight: 700; font-size: 16px; color: var(--color-olive); }
+.order-date { color: #6b7280; font-size: 13px; }
 
-/* Total price styling */
-.order-total {
-    font-weight: 700;
-    font-size: 16px;
-    color: var(--color-olive);
-}
-
-/* Sorting icons color */
-.table thead th.sorting:before,
-.table thead th.sorting:after,
-.table thead th.sorting_asc:before,
-.table thead th.sorting_asc:after,
-.table thead th.sorting_desc:before,
-.table thead th.sorting_desc:after {
-    color: rgba(255, 255, 255, 0.7);
+.table thead th.sorting:before, .table thead th.sorting:after,
+.table thead th.sorting_asc:before, .table thead th.sorting_asc:after,
+.table thead th.sorting_desc:before, .table thead th.sorting_desc:after {
+    color: rgba(255,255,255,0.7);
 }
 
 /* ============================= */
@@ -380,45 +372,16 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     white-space: nowrap;
 }
-
-.badge i {
-    font-size: 14px;
-}
-
-.bg-pending {
-    background: linear-gradient(135deg, #94a3b8, #64748b);
-    color: #fff;
-}
-
-.bg-confirmed {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    color: #fff;
-}
-
-.bg-processing {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: #fff;
-}
-
-.bg-completed {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: #fff;
-}
-
-.bg-cancelled {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: #fff;
-}
-
-.bg-unknown {
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-    color: #fff;
-}
-    color: #fff;
-}
+.badge i { font-size: 14px; }
+.bg-pending    { background: linear-gradient(135deg, #94a3b8, #64748b); color: #fff; }
+.bg-confirmed  { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; }
+.bg-processing { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+.bg-completed  { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+.bg-cancelled  { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+.bg-unknown    { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; }
 
 /* ============================= */
 /* Action Buttons */
@@ -429,7 +392,6 @@
     align-items: center;
     gap: 10px;
 }
-
 .btn-view, .btn-edit {
     display: inline-flex;
     align-items: center;
@@ -441,148 +403,93 @@
     border-radius: 10px;
     border: none;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
     text-decoration: none;
 }
+.btn-view { background: linear-gradient(135deg, #6B7755, #556042); color: #fff; }
+.btn-view:hover { transform: translateY(-4px) scale(1.05); box-shadow: 0 8px 20px rgba(107,119,85,0.4); }
+.btn-edit { background: linear-gradient(135deg, #C2B280, #a9986c); color: #fff; }
+.btn-edit:hover { transform: translateY(-4px) scale(1.05); box-shadow: 0 8px 20px rgba(194,178,128,0.4); }
 
-/* View (Olive) */
-.btn-view {
-    background: linear-gradient(135deg, #6B7755, #556042);
-    color: #fff;
-}
-.btn-view:hover {
-    transform: translateY(-4px) scale(1.05);
-    box-shadow: 0 8px 20px rgba(107, 119, 85, 0.4);
-}
-
-/* Edit (Sand) */
-.btn-edit {
-    background: linear-gradient(135deg, #C2B280, #a9986c);
-    color: #fff;
-}
-.btn-edit:hover {
-    transform: translateY(-4px) scale(1.05);
-    box-shadow: 0 8px 20px rgba(194, 178, 128, 0.4);
-}
-
-/* Empty state */
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #9ca3af;
-}
-
-.empty-state i {
-    font-size: 64px;
-    margin-bottom: 20px;
-    opacity: 0.3;
-}
-
-.empty-state h3 {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #6b7280;
-}
-
-.empty-state p {
-    font-size: 14px;
-}
-
-/* Date styling */
-.order-date {
-    color: #6b7280;
-    font-size: 13px;
-}
+.empty-state { text-align: center; padding: 60px 20px; color: #9ca3af; }
+.empty-state i { font-size: 64px; margin-bottom: 20px; opacity: 0.3; }
+.empty-state h3 { font-size: 20px; font-weight: 600; margin-bottom: 8px; color: #6b7280; }
+.empty-state p { font-size: 14px; }
 </style>
 
-<!-- ============================= -->
-<!-- Page Content -->
-<!-- ============================= -->
+{# ── Toast ── #}
+<div id="order-toast">
+    <div class="toast-icon">🛒</div>
+    <div class="toast-body">
+        <strong id="toast-title">New Order Received!</strong>
+        <span  id="toast-body">Loading...</span>
+    </div>
+    <button class="toast-close" onclick="hideToast()" aria-label="Close">✕</button>
+</div>
+
 <div class="content">
-    <!-- Page Header -->
+
+    {# ── Page Header ── #}
     <div class="page-header">
         <div class="page-header-content">
             <h1><i class="fas fa-shopping-cart"></i> Order Management</h1>
             <p>Track and manage customer orders</p>
+            <div class="live-badge">
+                <span class="live-dot"></span>
+                <span id="socket-status">Connecting…</span>
+            </div>
         </div>
         <a href="{{ path('app_order_new') }}" class="btn-add">
             <i class="fas fa-plus"></i> Create New Order
         </a>
     </div>
 
-    <!-- Stats Cards -->
+    {# ── Stats Cards ── #}
     <div class="stats-container">
         <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-shopping-bag"></i>
-            </div>
-            <div class="stat-value">{{ orders|length }}</div>
+            <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+            <div class="stat-value" id="stat-total">{{ orders|length }}</div>
             <div class="stat-label">Total Orders</div>
         </div>
         <div class="stat-card pending">
-            <div class="stat-icon">
-                <i class="fas fa-clock"></i>
-            </div>
-            <div class="stat-value">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-value" id="stat-pending">
                 {% set pendingCount = 0 %}
-                {% for order in orders %}
-                    {% if order.status == 'Pending' %}
-                        {% set pendingCount = pendingCount + 1 %}
-                    {% endif %}
-                {% endfor %}
+                {% for order in orders %}{% if order.status in ['PENDING','Pending'] %}{% set pendingCount = pendingCount + 1 %}{% endif %}{% endfor %}
                 {{ pendingCount }}
             </div>
             <div class="stat-label">Pending Orders</div>
         </div>
         <div class="stat-card processing">
-            <div class="stat-icon">
-                <i class="fas fa-spinner"></i>
-            </div>
-            <div class="stat-value">
+            <div class="stat-icon"><i class="fas fa-spinner"></i></div>
+            <div class="stat-value" id="stat-processing">
                 {% set processingCount = 0 %}
-                {% for order in orders %}
-                    {% if order.status == 'Processing' %}
-                        {% set processingCount = processingCount + 1 %}
-                    {% endif %}
-                {% endfor %}
+                {% for order in orders %}{% if order.status in ['PREPARING','Processing'] %}{% set processingCount = processingCount + 1 %}{% endif %}{% endfor %}
                 {{ processingCount }}
             </div>
             <div class="stat-label">Processing</div>
         </div>
         <div class="stat-card completed">
-            <div class="stat-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="stat-value">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-value" id="stat-completed">
                 {% set completedCount = 0 %}
-                {% for order in orders %}
-                    {% if order.status == 'Completed' %}
-                        {% set completedCount = completedCount + 1 %}
-                    {% endif %}
-                {% endfor %}
+                {% for order in orders %}{% if order.status in ['COMPLETED','Completed'] %}{% set completedCount = completedCount + 1 %}{% endif %}{% endfor %}
                 {{ completedCount }}
             </div>
             <div class="stat-label">Completed</div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-peso-sign"></i>
-            </div>
-            <div class="stat-value">
+            <div class="stat-icon"><i class="fas fa-peso-sign"></i></div>
+            <div class="stat-value" id="stat-revenue">
                 {% set totalRevenue = 0 %}
-                {% for order in orders %}
-                    {% if order.status != 'Canceled' %}
-                        {% set totalRevenue = totalRevenue + order.total %}
-                    {% endif %}
-                {% endfor %}
+                {% for order in orders %}{% if order.status != 'Canceled' %}{% set totalRevenue = totalRevenue + order.total %}{% endif %}{% endfor %}
                 ₱{{ (totalRevenue / 1000)|number_format(1) }}K
             </div>
             <div class="stat-label">Total Revenue</div>
         </div>
     </div>
 
-    <!-- Table Card -->
+    {# ── Table Card ── #}
     <div class="table-card">
         <table id="ordersTable" class="table">
             <thead>
@@ -595,48 +502,32 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="orders-tbody">
             {% for order in orders %}
-                <tr>
+                <tr data-order-id="{{ order.id }}" data-status="{{ order.status }}">
                     <td class="order-id">#{{ order.id }}</td>
-                   <td class="customer-name">{{ order.customer.fullName }}</td>
+                    <td class="customer-name">{{ order.customer.fullName }}</td>
                     <td class="order-total">₱{{ order.total|number_format(2, '.', ',') }}</td>
                     <td>
-                        {% if order.status == 'PENDING' or order.status == 'Pending' %}
-                            <span class="badge bg-pending">
-                                <i class="fas fa-clock"></i> Pending
-                            </span>
-                        {% elseif order.status == 'CONFIRMED' or order.status == 'Confirmed' %}
-                            <span class="badge bg-confirmed">
-                                <i class="fas fa-check"></i> Confirmed
-                            </span>
-                        {% elseif order.status == 'PREPARING' or order.status == 'Processing' %}
-                            <span class="badge bg-processing">
-                                <i class="fas fa-spinner"></i> Processing
-                            </span>
-                        {% elseif order.status == 'COMPLETED' or order.status == 'Completed' %}
-                            <span class="badge bg-completed">
-                                <i class="fas fa-check-circle"></i> Completed
-                            </span>
-                        {% elseif order.status == 'CANCELLED' or order.status == 'Canceled' %}
-                            <span class="badge bg-cancelled">
-                                <i class="fas fa-times-circle"></i> Cancelled
-                            </span>
+                        {% if order.status in ['PENDING','Pending'] %}
+                            <span class="badge bg-pending"><i class="fas fa-clock"></i> Pending</span>
+                        {% elseif order.status in ['CONFIRMED','Confirmed'] %}
+                            <span class="badge bg-confirmed"><i class="fas fa-check"></i> Confirmed</span>
+                        {% elseif order.status in ['PREPARING','Processing'] %}
+                            <span class="badge bg-processing"><i class="fas fa-spinner"></i> Processing</span>
+                        {% elseif order.status in ['COMPLETED','Completed'] %}
+                            <span class="badge bg-completed"><i class="fas fa-check-circle"></i> Completed</span>
+                        {% elseif order.status in ['CANCELLED','Canceled'] %}
+                            <span class="badge bg-cancelled"><i class="fas fa-times-circle"></i> Cancelled</span>
                         {% else %}
-                            <span class="badge bg-unknown">
-                                <i class="fas fa-question-circle"></i> {{ order.status }}
-                            </span>
+                            <span class="badge bg-unknown"><i class="fas fa-question-circle"></i> {{ order.status }}</span>
                         {% endif %}
                     </td>
                     <td class="order-date">{{ order.createdAt ? order.createdAt|date('M d, Y h:i A') : '' }}</td>
                     <td>
                         <div class="table-actions">
-                            <a href="{{ path('app_order_show', {'id': order.id}) }}" class="btn-view" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="{{ path('app_order_edit', {'id': order.id}) }}" class="btn-edit" title="Edit Order">
-                                <i class="fas fa-edit"></i>
-                            </a>
+                            <a href="{{ path('app_order_show', {'id': order.id}) }}" class="btn-view" title="View"><i class="fas fa-eye"></i></a>
+                            <a href="{{ path('app_order_edit', {'id': order.id}) }}" class="btn-edit" title="Edit"><i class="fas fa-edit"></i></a>
                         </div>
                     </td>
                 </tr>
@@ -656,11 +547,9 @@
     </div>
 </div>
 
-<!-- jQuery (required for DataTables) -->
+{# ── Scripts ── #}
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<!-- DataTables Buttons -->
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
@@ -668,86 +557,186 @@
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
 
+{# Socket.IO client — same server your mobile app uses #}
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
 <script>
-$(document).ready(function() {
-    $('#ordersTable').DataTable({
-        // Enable export buttons
+// ─── DataTable init ──────────────────────────────────────────────────────────
+let ordersTable;
+
+$(document).ready(function () {
+    ordersTable = $('#ordersTable').DataTable({
         dom: 'Bfrtip',
         buttons: [
-            {
-                extend: 'copy',
-                text: '<i class="fas fa-copy"></i> Copy',
-                exportOptions: {
-                    columns: [0, 1, 2, 3, 4]
-                }
-            },
-            {
-                extend: 'csv',
-                text: '<i class="fas fa-file-csv"></i> CSV',
-                exportOptions: {
-                    columns: [0, 1, 2, 3, 4]
-                }
-            },
-            {
-                extend: 'excel',
-                text: '<i class="fas fa-file-excel"></i> Excel',
-                exportOptions: {
-                    columns: [0, 1, 2, 3, 4]
-                }
-            },
-            {
-                extend: 'pdf',
-                text: '<i class="fas fa-file-pdf"></i> PDF',
-                exportOptions: {
-                    columns: [0, 1, 2, 3, 4]
-                }
-            },
-            {
-                extend: 'print',
-                text: '<i class="fas fa-print"></i> Print',
-                exportOptions: {
-                    columns: [0, 1, 2, 3, 4]
-                }
-            }
+            { extend: 'copy',  text: '<i class="fas fa-copy"></i> Copy',  exportOptions: { columns: [0,1,2,3,4] } },
+            { extend: 'csv',   text: '<i class="fas fa-file-csv"></i> CSV',   exportOptions: { columns: [0,1,2,3,4] } },
+            { extend: 'excel', text: '<i class="fas fa-file-excel"></i> Excel', exportOptions: { columns: [0,1,2,3,4] } },
+            { extend: 'pdf',   text: '<i class="fas fa-file-pdf"></i> PDF',   exportOptions: { columns: [0,1,2,3,4] } },
+            { extend: 'print', text: '<i class="fas fa-print"></i> Print',  exportOptions: { columns: [0,1,2,3,4] } }
         ],
-        
-        // Pagination
         pageLength: 10,
-        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
-        
-        // Sorting - default by most recent
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
         order: [[0, 'desc']],
-        
-        // Column settings
-        columnDefs: [
-            { 
-                orderable: false, 
-                targets: [5] // Disable sorting for Actions column
-            }
-        ],
-        
-        // Styling
+        columnDefs: [{ orderable: false, targets: [5] }],
         language: {
-            search: "Search orders:",
-            lengthMenu: "Show _MENU_ orders per page",
-            info: "Showing _START_ to _END_ of _TOTAL_ orders",
-            infoEmpty: "No orders available",
-            infoFiltered: "(filtered from _MAX_ total orders)",
-            zeroRecords: "No matching orders found",
-            paginate: {
-                first: "First",
-                last: "Last",
-                next: "Next",
-                previous: "Previous"
-            }
+            search:       'Search orders:',
+            lengthMenu:   'Show _MENU_ orders per page',
+            info:         'Showing _START_ to _END_ of _TOTAL_ orders',
+            infoEmpty:    'No orders available',
+            infoFiltered: '(filtered from _MAX_ total orders)',
+            zeroRecords:  'No matching orders found',
+            paginate: { first: 'First', last: 'Last', next: 'Next', previous: 'Previous' }
         },
-        
-        // Responsive
         responsive: true,
-        
-        // Auto width
         autoWidth: false
     });
 });
+
+// ─── Toast helpers ────────────────────────────────────────────────────────────
+let toastTimer = null;
+
+function showToast(title, body) {
+    document.getElementById('toast-title').textContent = title;
+    document.getElementById('toast-body').textContent  = body;
+    const toast = document.getElementById('order-toast');
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, 6000);
+}
+
+function hideToast() {
+    document.getElementById('order-toast').classList.remove('show');
+}
+
+// ─── Status badge HTML helper ─────────────────────────────────────────────────
+function statusBadge(status) {
+    const s = (status || '').toUpperCase();
+    const map = {
+        PENDING:   ['bg-pending',    'fa-clock',        'Pending'],
+        CONFIRMED: ['bg-confirmed',  'fa-check',        'Confirmed'],
+        PREPARING: ['bg-processing', 'fa-spinner',      'Processing'],
+        COMPLETED: ['bg-completed',  'fa-check-circle', 'Completed'],
+        CANCELLED: ['bg-cancelled',  'fa-times-circle', 'Cancelled'],
+    };
+    const [cls, icon, label] = map[s] || ['bg-unknown', 'fa-question-circle', status];
+    return `<span class="badge ${cls}"><i class="fas ${icon}"></i> ${label}</span>`;
+}
+
+// ─── Stat counter helpers ─────────────────────────────────────────────────────
+function incrementStat(id) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = (parseInt(el.textContent, 10) || 0) + 1;
+}
+
+// ─── Socket.IO — real-time new order ─────────────────────────────────────────
+const SOCKET_URL = 'https://naturae-socket-production.up.railway.app';
+
+const socket = io(SOCKET_URL, {
+    transports: ['websocket', 'polling'],
+    reconnection: true,
+    reconnectionAttempts: 10,
+    reconnectionDelay: 2000,
+});
+
+socket.on('connect', () => {
+    console.log('[Socket] Dashboard connected ✅', socket.id);
+    document.getElementById('socket-status').textContent = 'Live Updates Active';
+
+    // Join admin broadcast room so server can target dashboard specifically
+    socket.emit('join-admin', { role: 'admin' });
+});
+
+socket.on('disconnect', (reason) => {
+    console.warn('[Socket] Disconnected:', reason);
+    document.getElementById('socket-status').textContent = 'Reconnecting…';
+});
+
+socket.on('reconnect', () => {
+    document.getElementById('socket-status').textContent = 'Live Updates Active';
+    socket.emit('join-admin', { role: 'admin' });
+});
+
+// ── New order placed (mobile customer just placed an order) ───────────────────
+socket.on('order_placed', (data) => {
+    console.log('[Socket] New order received:', data);
+
+    const {
+        orderId,
+        customerName = 'Customer',
+        total        = '0.00',
+        status       = 'PENDING',
+        createdAt,
+    } = data;
+
+    // Skip if row already exists (idempotency guard)
+    if (document.querySelector(`tr[data-order-id="${orderId}"]`)) return;
+
+    const dateStr = createdAt
+        ? new Date(createdAt).toLocaleString('en-PH', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : new Date().toLocaleString('en-PH', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+    const formattedTotal = parseFloat(total).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    const initial    = (customerName.trim()[0] || 'G').toUpperCase();
+    const viewUrl    = `/order/${orderId}`;
+    const editUrl    = `/order/${orderId}/edit`;
+
+    const actionsHtml = `
+        <div class="table-actions">
+            <a href="${viewUrl}" class="btn-view" title="View"><i class="fas fa-eye"></i></a>
+            <a href="${editUrl}" class="btn-edit" title="Edit"><i class="fas fa-edit"></i></a>
+        </div>`;
+
+    // Add row to DataTable
+    const newRow = ordersTable.row.add([
+        `<span class="order-id">#${orderId}</span>`,
+        `<span class="customer-name">${customerName}</span>`,
+        `<span class="order-total">₱${formattedTotal}</span>`,
+        statusBadge(status),
+        `<span class="order-date">${dateStr}</span>`,
+        actionsHtml,
+    ]).draw(false).node();   // draw(false) = stay on current page
+
+    // Add data attributes and highlight animation
+    $(newRow)
+        .attr('data-order-id', orderId)
+        .attr('data-status', status)
+        .addClass('new-order-row');
+
+    // Remove animation class after it ends so hover still works
+    setTimeout(() => $(newRow).removeClass('new-order-row'), 3100);
+
+    // Update stat counters
+    incrementStat('stat-total');
+    incrementStat('stat-pending');
+
+    // Show toast
+    showToast(
+        '🛒 New Order #' + orderId,
+        `${customerName} placed an order — ₱${formattedTotal}`
+    );
+});
+
+// ── Order status changed (admin updated from another tab / mobile trigger) ────
+socket.on('order_status_changed', (data) => {
+    console.log('[Socket] Status update:', data);
+    const { orderId, status } = data;
+
+    // Find the row and update the badge in-place
+    const row = document.querySelector(`tr[data-order-id="${orderId}"]`);
+    if (!row) return;
+
+    const badgeCell = row.querySelector('td:nth-child(4)');
+    if (badgeCell) {
+        badgeCell.innerHTML = statusBadge(status);
+        row.setAttribute('data-status', status);
+
+        // Flash the cell green briefly
+        badgeCell.style.transition = 'background 0.3s';
+        badgeCell.style.background = 'rgba(76,175,118,0.2)';
+        setTimeout(() => { badgeCell.style.background = ''; }, 1500);
+    }
+});
 </script>
+
 {% endblock %}
