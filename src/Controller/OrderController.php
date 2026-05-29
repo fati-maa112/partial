@@ -243,15 +243,20 @@ final class OrderController extends AbstractController
 
     #[Route('/{id}/edit', name: 'app_order_edit', methods: ['GET', 'POST'])]
     public function edit(
-        Request                $request,
-        Order                  $order,
-        EntityManagerInterface $entityManager,
-        ActivityLogger         $logger
+        Request                 $request,
+        Order                   $order,
+        EntityManagerInterface  $entityManager,
+        ActivityLogger          $logger,
+        PushNotificationService $push,
+        WebSocketService        $ws
     ): Response {
         if (method_exists($order, 'isModifiable') && !$order->isModifiable()) {
             $this->addFlash('error', 'Completed or cancelled orders cannot be modified.');
             return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
         }
+
+        // Capture status BEFORE the form overwrites it
+        $oldStatus = $order->getStatus();
 
         $form = $this->createForm(OrderType::class, $order);
         $form->handleRequest($request);
@@ -262,6 +267,38 @@ final class OrderController extends AbstractController
 
             $entityManager->flush();
             $logger->logUpdate('Order', 'Order #' . $order->getId(), $order->getId());
+
+            // Notify only when status actually changed
+            $newStatus = $order->getStatus();
+            if ($newStatus !== $oldStatus) {
+                file_put_contents(
+                    '/tmp/fcm_debug.log',
+                    date('Y-m-d H:i:s') . ' edit() status changed: ' . $oldStatus . ' → ' . $newStatus . ' for order #' . $order->getId() . PHP_EOL,
+                    FILE_APPEND
+                );
+
+                $statusLabels = [
+                    Order::STATUS_CONFIRMED  => ['📋 Order Confirmed',        'Your Order #%d has been confirmed.'],
+                    Order::STATUS_PREPARING  => ['👨‍🍳 Order Being Prepared',   'Your Order #%d is now being prepared.'],
+                    Order::STATUS_COMPLETED  => ['🎉 Order Completed!',        'Your Order #%d has been completed. Thank you!'],
+                    Order::STATUS_CANCELLED  => ['❌ Order Cancelled',          'Your Order #%d has been cancelled.'],
+                    Order::STATUS_PENDING    => ['🕐 Order Pending',           'Your Order #%d is pending.'],
+                ];
+
+                [$title, $bodyTemplate] = $statusLabels[$newStatus] ?? [
+                    '📦 Order Update',
+                    'Your Order #%d status changed to: ' . $newStatus,
+                ];
+
+                $user = $this->getUserForOrder($order, $entityManager);
+                $this->broadcastStatusChange(
+                    $ws, $push, $order, $user,
+                    $newStatus,
+                    $title,
+                    sprintf($bodyTemplate, $order->getId())
+                );
+            }
+
             $this->addFlash('success', '✓ Order updated successfully!');
             return $this->redirectToRoute('app_order_index', [], Response::HTTP_SEE_OTHER);
         }
