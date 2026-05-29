@@ -9,6 +9,7 @@ use App\Form\OrderType;
 use App\Repository\OrderRepository;
 use App\Service\ActivityLogger;
 use App\Service\PushNotificationService;
+use App\Service\WebSocketService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,11 +21,19 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class OrderController extends AbstractController
 {
+    // ─────────────────────────────────────────────────────────────────────────
+    // Private helpers
+    // ─────────────────────────────────────────────────────────────────────────
+
     private function getUserForOrder(Order $order, EntityManagerInterface $em): ?User
     {
         $customer = $order->getCustomer();
         if (!$customer) {
-            file_put_contents('/tmp/fcm_debug.log', date('Y-m-d H:i:s') . ' getUserForOrder: no customer on order #' . $order->getId() . PHP_EOL, FILE_APPEND);
+            file_put_contents(
+                '/tmp/fcm_debug.log',
+                date('Y-m-d H:i:s') . ' getUserForOrder: no customer on order #' . $order->getId() . PHP_EOL,
+                FILE_APPEND
+            );
             return null;
         }
 
@@ -32,14 +41,25 @@ final class OrderController extends AbstractController
             ->findOneBy(['email' => $customer->getEmail()]);
 
         if (!$user) {
-            file_put_contents('/tmp/fcm_debug.log', date('Y-m-d H:i:s') . ' getUserForOrder: no user found for email: ' . $customer->getEmail() . PHP_EOL, FILE_APPEND);
+            file_put_contents(
+                '/tmp/fcm_debug.log',
+                date('Y-m-d H:i:s') . ' getUserForOrder: no user found for email: ' . $customer->getEmail() . PHP_EOL,
+                FILE_APPEND
+            );
         } else {
-            file_put_contents('/tmp/fcm_debug.log', date('Y-m-d H:i:s') . ' getUserForOrder: found user ' . $user->getEmail() . ' (ID: ' . $user->getId() . ')' . PHP_EOL, FILE_APPEND);
+            file_put_contents(
+                '/tmp/fcm_debug.log',
+                date('Y-m-d H:i:s') . ' getUserForOrder: found user ' . $user->getEmail() . ' (ID: ' . $user->getId() . ')' . PHP_EOL,
+                FILE_APPEND
+            );
         }
 
         return $user;
     }
 
+    /**
+     * Send FCM push notification to a user (fire-and-forget, never throws).
+     */
     private function notify(
         PushNotificationService $push,
         ?User $user,
@@ -64,13 +84,61 @@ final class OrderController extends AbstractController
         }
     }
 
+    /**
+     * Broadcast a real-time WebSocket event + FCM fallback for a status change.
+     * Centralises the two-step notify pattern used by every status action.
+     */
+    private function broadcastStatusChange(
+        WebSocketService        $ws,
+        PushNotificationService $push,
+        Order                   $order,
+        ?User                   $user,
+        string                  $status,
+        string                  $fcmTitle,
+        string                  $fcmBody
+    ): void {
+        // 1. Real-time Socket.IO (works when the mobile app is open / foreground)
+        if ($user?->getId()) {
+            $ws->broadcastOrderStatusChanged(
+                $order->getId(),
+                $status,
+                $user->getId()
+            );
+            file_put_contents(
+                '/tmp/fcm_debug.log',
+                date('Y-m-d H:i:s') . ' WebSocket broadcast sent for order #' . $order->getId() . ' status=' . $status . PHP_EOL,
+                FILE_APPEND
+            );
+        } else {
+            file_put_contents(
+                '/tmp/fcm_debug.log',
+                date('Y-m-d H:i:s') . ' WebSocket skipped — no userId for order #' . $order->getId() . PHP_EOL,
+                FILE_APPEND
+            );
+        }
+
+        // 2. FCM push notification (fallback for background / killed app)
+        $this->notify($push, $user, $fcmTitle, $fcmBody, [
+            'orderId' => (string) $order->getId(),
+            'status'  => $status,
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Debug route
+    // ─────────────────────────────────────────────────────────────────────────
+
     #[Route('/fcm-debug-log', name: 'app_fcm_debug_log', methods: ['GET'])]
     public function fcmDebugLog(): Response
     {
-        $logFile = '/tmp/fcm_debug.log';
-        $content = file_exists($logFile) ? file_get_contents($logFile) : 'No log file found';
+        $logFile  = '/tmp/fcm_debug.log';
+        $content  = file_exists($logFile) ? file_get_contents($logFile) : 'No log file found';
         return new Response('<pre>' . htmlspecialchars($content) . '</pre>');
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // CRUD
+    // ─────────────────────────────────────────────────────────────────────────
 
     #[Route(name: 'app_order_index', methods: ['GET'])]
     public function index(Request $request, OrderRepository $orderRepository): Response
@@ -96,10 +164,11 @@ final class OrderController extends AbstractController
 
     #[Route('/new', name: 'app_order_new', methods: ['GET', 'POST'])]
     public function new(
-        Request $request,
-        EntityManagerInterface $entityManager,
-        ActivityLogger $logger,
-        PushNotificationService $push
+        Request                 $request,
+        EntityManagerInterface  $entityManager,
+        ActivityLogger          $logger,
+        PushNotificationService $push,
+        WebSocketService        $ws
     ): Response {
         $order = new Order();
         $form  = $this->createForm(OrderType::class, $order);
@@ -137,6 +206,18 @@ final class OrderController extends AbstractController
             $logger->logCreate('Order', 'Order #' . $order->getId(), $order->getId());
 
             $user = $this->getUserForOrder($order, $entityManager);
+
+            // Broadcast initial "placed" event so mobile order-tracking screen
+            // can subscribe before any status changes arrive.
+            if ($user?->getId()) {
+                $ws->broadcastOrderPlaced(
+                    $order->getId(),
+                    (string) $order->getTotal(),
+                    $order->getStatus(),
+                    $order->getCustomer()?->getName() ?? '',
+                );
+            }
+
             $this->notify(
                 $push, $user,
                 '🛒 New Order Placed!',
@@ -162,10 +243,10 @@ final class OrderController extends AbstractController
 
     #[Route('/{id}/edit', name: 'app_order_edit', methods: ['GET', 'POST'])]
     public function edit(
-        Request $request,
-        Order $order,
+        Request                $request,
+        Order                  $order,
         EntityManagerInterface $entityManager,
-        ActivityLogger $logger
+        ActivityLogger         $logger
     ): Response {
         if (method_exists($order, 'isModifiable') && !$order->isModifiable()) {
             $this->addFlash('error', 'Completed or cancelled orders cannot be modified.');
@@ -196,10 +277,10 @@ final class OrderController extends AbstractController
     #[Route('/{id}', name: 'app_order_delete', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
     public function delete(
-        Request $request,
-        Order $order,
+        Request                $request,
+        Order                  $order,
         EntityManagerInterface $entityManager,
-        ActivityLogger $logger
+        ActivityLogger         $logger
     ): Response {
         $token = $request->request->get('_token');
         if ($this->isCsrfTokenValid('delete' . $order->getId(), $token)) {
@@ -227,14 +308,19 @@ final class OrderController extends AbstractController
             ->getForm();
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // Status-change actions (all use broadcastStatusChange helper)
+    // ─────────────────────────────────────────────────────────────────────────
+
     #[Route('/{id}/confirm', name: 'app_order_confirm', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
     public function confirm(
-        Request $request,
-        Order $order,
-        EntityManagerInterface $entityManager,
-        ActivityLogger $logger,
-        PushNotificationService $push
+        Request                 $request,
+        Order                   $order,
+        EntityManagerInterface  $entityManager,
+        ActivityLogger          $logger,
+        PushNotificationService $push,
+        WebSocketService        $ws
     ): Response {
         if (method_exists($order, 'isModifiable') && !$order->isModifiable()) {
             $this->addFlash('error', 'Order cannot be confirmed because it is already finalized.');
@@ -256,19 +342,18 @@ final class OrderController extends AbstractController
             }
         }
 
-        if (method_exists($order, 'setStatus')) {
-            $order->setStatus(Order::STATUS_CONFIRMED);
-        }
-
+        $order->setStatus(Order::STATUS_CONFIRMED);
+        if (method_exists($order, 'setUpdatedAt')) $order->setUpdatedAt(new \DateTimeImmutable());
         $entityManager->flush();
+
         $logger->logUpdate('Order', 'Confirmed Order #' . $order->getId(), $order->getId());
 
         $user = $this->getUserForOrder($order, $entityManager);
-        $this->notify(
-            $push, $user,
+        $this->broadcastStatusChange(
+            $ws, $push, $order, $user,
+            Order::STATUS_CONFIRMED,
             '✅ Order Confirmed!',
-            'Your Order #' . $order->getId() . ' has been confirmed and is being prepared.',
-            ['orderId' => (string) $order->getId(), 'status' => Order::STATUS_CONFIRMED]
+            'Your Order #' . $order->getId() . ' has been confirmed and is being prepared.'
         );
 
         $this->addFlash('success', '✓ Order confirmed and stock updated.');
@@ -276,59 +361,67 @@ final class OrderController extends AbstractController
     }
 
     #[Route('/{id}/mark-processing', name: 'app_order_mark_processing', methods: ['POST'])]
-#[IsGranted('ROLE_ADMIN')]
-public function markProcessing(
-    Request $request,
-    Order $order,
-    EntityManagerInterface $entityManager,
-    ActivityLogger $logger,
-    PushNotificationService $push
-): Response {
-    // DEBUG ENTRY LOG
-    file_put_contents('/tmp/fcm_debug.log', date('Y-m-d H:i:s') . ' markProcessing CALLED for order #' . $order->getId() . ' status=' . $order->getStatus() . PHP_EOL, FILE_APPEND);
+    #[IsGranted('ROLE_ADMIN')]
+    public function markProcessing(
+        Request                 $request,
+        Order                   $order,
+        EntityManagerInterface  $entityManager,
+        ActivityLogger          $logger,
+        PushNotificationService $push,
+        WebSocketService        $ws
+    ): Response {
+        file_put_contents(
+            '/tmp/fcm_debug.log',
+            date('Y-m-d H:i:s') . ' markProcessing CALLED for order #' . $order->getId() . ' status=' . $order->getStatus() . PHP_EOL,
+            FILE_APPEND
+        );
 
-    if (!$this->isCsrfTokenValid('mark_processing_' . $order->getId(), $request->request->get('_token'))) {
-        file_put_contents('/tmp/fcm_debug.log', date('Y-m-d H:i:s') . ' CSRF INVALID' . PHP_EOL, FILE_APPEND);
-        $this->addFlash('error', 'Invalid security token.');
+        if (!$this->isCsrfTokenValid('mark_processing_' . $order->getId(), $request->request->get('_token'))) {
+            file_put_contents('/tmp/fcm_debug.log', date('Y-m-d H:i:s') . ' CSRF INVALID' . PHP_EOL, FILE_APPEND);
+            $this->addFlash('error', 'Invalid security token.');
+            return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
+        }
+
+        if ($order->getStatus() !== Order::STATUS_PENDING) {
+            file_put_contents(
+                '/tmp/fcm_debug.log',
+                date('Y-m-d H:i:s') . ' STATUS NOT PENDING: ' . $order->getStatus() . PHP_EOL,
+                FILE_APPEND
+            );
+            $this->addFlash('error', sprintf(
+                'Cannot mark as processing. Order status must be PENDING, current status is %s.',
+                $order->getStatus()
+            ));
+            return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
+        }
+
+        $order->setStatus(Order::STATUS_PREPARING);
+        $order->setUpdatedAt(new \DateTimeImmutable());
+        $entityManager->flush();
+
+        $logger->logUpdate('Order', sprintf('Order #%d marked as PROCESSING', $order->getId()), $order->getId());
+
+        $user = $this->getUserForOrder($order, $entityManager);
+        $this->broadcastStatusChange(
+            $ws, $push, $order, $user,
+            Order::STATUS_PREPARING,
+            '📦 Order Being Prepared!',
+            'Your Order #' . $order->getId() . ' is now being prepared.'
+        );
+
+        $this->addFlash('success', '✓ Order marked as being processed.');
         return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
     }
-
-    if ($order->getStatus() !== Order::STATUS_PENDING) {
-        file_put_contents('/tmp/fcm_debug.log', date('Y-m-d H:i:s') . ' STATUS NOT PENDING: ' . $order->getStatus() . PHP_EOL, FILE_APPEND);
-        $this->addFlash('error', sprintf(
-            'Cannot mark as processing. Order status must be PENDING, current status is %s.',
-            $order->getStatus()
-        ));
-        return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
-    }
-
-    $order->setStatus(Order::STATUS_PREPARING);
-    $order->setUpdatedAt(new \DateTimeImmutable());
-    $entityManager->flush();
-
-    $logger->logUpdate('Order', sprintf('Order #%d marked as PROCESSING', $order->getId()), $order->getId());
-
-    $user = $this->getUserForOrder($order, $entityManager);
-    $this->notify(
-        $push, $user,
-        '📦 Order Being Prepared!',
-        'Your Order #' . $order->getId() . ' is now being prepared.',
-        ['orderId' => (string) $order->getId(), 'status' => Order::STATUS_PREPARING]
-    );
-
-    $this->addFlash('success', '✓ Order marked as being processed.');
-    return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
-}
-
 
     #[Route('/{id}/mark-completed', name: 'app_order_mark_completed', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
     public function markCompleted(
-        Request $request,
-        Order $order,
-        EntityManagerInterface $entityManager,
-        ActivityLogger $logger,
-        PushNotificationService $push
+        Request                 $request,
+        Order                   $order,
+        EntityManagerInterface  $entityManager,
+        ActivityLogger          $logger,
+        PushNotificationService $push,
+        WebSocketService        $ws
     ): Response {
         if (!$this->isCsrfTokenValid('mark_completed_' . $order->getId(), $request->request->get('_token'))) {
             $this->addFlash('error', 'Invalid security token.');
@@ -348,11 +441,11 @@ public function markProcessing(
         $logger->logUpdate('Order', sprintf('Order #%d marked as COMPLETED', $order->getId()), $order->getId());
 
         $user = $this->getUserForOrder($order, $entityManager);
-        $this->notify(
-            $push, $user,
+        $this->broadcastStatusChange(
+            $ws, $push, $order, $user,
+            Order::STATUS_COMPLETED,
             '🎉 Order Completed!',
-            'Your Order #' . $order->getId() . ' has been completed. Thank you!',
-            ['orderId' => (string) $order->getId(), 'status' => Order::STATUS_COMPLETED]
+            'Your Order #' . $order->getId() . ' has been completed. Thank you!'
         );
 
         $this->addFlash('success', '✓ Order completed successfully!');
@@ -362,11 +455,12 @@ public function markProcessing(
     #[Route('/{id}/cancel', name: 'app_order_cancel', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
     public function cancel(
-        Request $request,
-        Order $order,
-        EntityManagerInterface $entityManager,
-        ActivityLogger $logger,
-        PushNotificationService $push
+        Request                 $request,
+        Order                   $order,
+        EntityManagerInterface  $entityManager,
+        ActivityLogger          $logger,
+        PushNotificationService $push,
+        WebSocketService        $ws
     ): Response {
         if (!$this->isCsrfTokenValid('cancel_' . $order->getId(), $request->request->get('_token'))) {
             $this->addFlash('error', 'Invalid security token.');
@@ -383,6 +477,7 @@ public function markProcessing(
             return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
         }
 
+        // Restore stock for orders that already had inventory deducted
         if (in_array($order->getStatus(), [Order::STATUS_PREPARING, Order::STATUS_CONFIRMED], true)) {
             foreach ($order->getOrderItems() as $item) {
                 $product = $item->getProduct();
@@ -400,16 +495,20 @@ public function markProcessing(
         $logger->logUpdate('Order', sprintf('Order #%d cancelled', $order->getId()), $order->getId());
 
         $user = $this->getUserForOrder($order, $entityManager);
-        $this->notify(
-            $push, $user,
+        $this->broadcastStatusChange(
+            $ws, $push, $order, $user,
+            Order::STATUS_CANCELLED,
             '❌ Order Cancelled',
-            'Your Order #' . $order->getId() . ' has been cancelled.',
-            ['orderId' => (string) $order->getId(), 'status' => Order::STATUS_CANCELLED]
+            'Your Order #' . $order->getId() . ' has been cancelled.'
         );
 
         $this->addFlash('success', '✓ Order cancelled successfully. Stock restored.');
         return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Receipt
+    // ─────────────────────────────────────────────────────────────────────────
 
     #[Route('/{id}/receipt', name: 'app_order_receipt', methods: ['GET'])]
     public function receipt(Order $order): Response
