@@ -9,7 +9,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class WebSocketService
 {
-    private const SOCKET_SERVER = 'http://127.0.0.1:3000';
+    private const SOCKET_SERVER = 'https://naturae-socket-production.up.railway.app';
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
