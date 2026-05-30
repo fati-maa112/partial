@@ -7,9 +7,11 @@
 namespace App\EventListener;
 
 use App\Service\ActivityLogger;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
+#[AsEventListener(event: LogoutEvent::class)]
 class LogoutListener
 {
     public function __construct(
