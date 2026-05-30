@@ -237,6 +237,8 @@ final class OrderController extends AbstractController
                     (string) $order->getTotal(),
                     $order->getStatus(),
                     $order->getCustomer()?->getName() ?? '',
+                    [],
+                    $order->getCreatedAt()->format(\DateTimeInterface::ATOM)
                 );
             }
 

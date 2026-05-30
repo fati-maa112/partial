@@ -1020,7 +1020,7 @@ body {
     }
 
     // ── New order placed → update Recent Orders table + KPI ──────────────────
-    socket.on('order_placed', (data) => {
+    const handleOrderPlaced = (data) => {
         console.log('[Dashboard] New order:', data);
 
         const createdAt = data.createdAt || new Date().toISOString();
@@ -1028,10 +1028,8 @@ body {
         const totalAmount = parseFloat(data.total || 0);
         const formattedTotal = totalAmount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        // 1 — Prepend row to Recent Orders table
         const tbody = document.querySelector('.recent-table tbody');
         if (tbody) {
-            // Remove empty state if present
             const empty = tbody.querySelector('.empty-state');
             if (empty) empty.closest('tr')?.remove();
 
@@ -1054,7 +1052,6 @@ body {
             tbody.insertBefore(row, tbody.firstChild);
         }
 
-        // 2 — Bump total orders and revenue KPI cards
         const cards = document.querySelectorAll('.card-value');
         cards.forEach(card => {
             const label = card.closest('.card')?.querySelector('h3');
@@ -1079,15 +1076,17 @@ body {
             }
         });
 
-        // 3 — Show toast
         showToast(
             `🛒 New Order #${data.orderId}`,
             `${data.customerName} — ₱${formattedTotal}`
         );
-    });
+    };
+
+    socket.on('order_placed', handleOrderPlaced);
+    socket.on('order-placed', handleOrderPlaced);
 
     // ── Order status changed → update status badge in table ──────────────────
-    socket.on('order_status_changed', (data) => {
+    const handleOrderStatusChanged = (data) => {
         console.log('[Dashboard] Order status changed:', data);
 
         // Update status badge in Recent Orders table if order is visible
@@ -1107,10 +1106,12 @@ body {
             `📦 Order #${data.orderId} Updated`,
             `Status changed to: ${data.status}`
         );
-    });
+    };
 
-    // ── Activity logged → show in Recent Activity feed (real-time) ───────────
-    socket.on('activity_logged', (data) => {
+    socket.on('order_status_changed', handleOrderStatusChanged);
+    socket.on('order-status-changed', handleOrderStatusChanged);
+
+    const handleActivityLogged = (data) => {
         console.log('[Dashboard] Activity logged:', data);
 
         const feed = document.querySelector('.activity-feed');
@@ -1159,7 +1160,10 @@ body {
         } else if (data.action === 'LOGOUT') {
             showToast(`🚪 User Logged Out`, `${data.username} (${data.role})`, '#ff9800');
         }
-    });
+    };
+
+    socket.on('activity_logged', handleActivityLogged);
+    socket.on('activity-logged', handleActivityLogged);
 
 })();
 </script>
