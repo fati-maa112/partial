@@ -17,22 +17,38 @@ class ActivityLogger
         private WebSocketService       $ws,
     ) {}
 
-    public function log(string $action, string $details): void
-    {
-        $user = $this->security->getUser();
-        if (!$user) return;
+    // ─────────────────────────────────────────────────────────────────────────
+    // Core log method
+    // Accepts an optional $username + $role so logLogout() can pass them in
+    // BEFORE the security context is cleared (getUser() returns null after logout)
+    // ─────────────────────────────────────────────────────────────────────────
+    public function log(
+        string  $action,
+        string  $details,
+        ?string $overrideUsername = null,
+        ?string $overrideRole     = null,
+    ): void {
+        // Use override values if provided (logout case), otherwise read from security
+        if ($overrideUsername !== null && $overrideRole !== null) {
+            $username    = $overrideUsername;
+            $primaryRole = $overrideRole;
+        } else {
+            $user = $this->security->getUser();
+            if (!$user) return;
+
+            $roles       = $user->getRoles();
+            $primaryRole = match(true) {
+                in_array('ROLE_ADMIN', $roles) => 'ADMIN',
+                in_array('ROLE_STAFF', $roles) => 'STAFF',
+                default                        => 'USER',
+            };
+            $username = $user->getUserIdentifier();
+        }
 
         $request = $this->requestStack->getCurrentRequest();
 
-        $roles       = $user->getRoles();
-        $primaryRole = match(true) {
-            in_array('ROLE_ADMIN', $roles) => 'ADMIN',
-            in_array('ROLE_STAFF', $roles) => 'STAFF',
-            default                        => 'USER',
-        };
-
         $activityLog = new ActivityLog();
-        $activityLog->setUsername($user->getUserIdentifier());
+        $activityLog->setUsername($username);
         $activityLog->setAction(strtoupper($action));
         $activityLog->setTargetData($details);
         $activityLog->setRole($primaryRole);
@@ -49,7 +65,7 @@ class ActivityLogger
         try {
             $this->ws->broadcastActivityLogged(
                 $activityLog->getId(),
-                $activityLog->getUsername(),
+                $username,
                 $primaryRole,
                 strtoupper($action),
                 $details,
@@ -59,6 +75,10 @@ class ActivityLogger
             // Never let a socket failure break the log write
         }
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Convenience wrappers
+    // ─────────────────────────────────────────────────────────────────────────
 
     public function logCreate(string $entityType, string $entityName, int $entityId): void
     {
@@ -80,9 +100,42 @@ class ActivityLogger
         $this->log('LOGIN', 'User logged in');
     }
 
-    public function logLogout(): void
+    /**
+     * Call this BEFORE triggering the Symfony logout (e.g. in SecurityController
+     * or a LogoutListener), while getUser() still works — OR pass the username
+     * and role explicitly so it works even after the token is cleared.
+     *
+     * Usage A — call before logout redirect (recommended):
+     *   $activityLogger->logLogout();
+     *   return $this->redirectToRoute('app_logout');
+     *
+     * Usage B — pass values explicitly (e.g. from a LogoutEvent listener):
+     *   $activityLogger->logLogout($username, $role);
+     */
+    public function logLogout(?string $username = null, ?string $role = null): void
     {
-        $this->log('LOGOUT', 'User logged out');
+        // If explicit values were passed, use them directly
+        if ($username !== null && $role !== null) {
+            $this->log('LOGOUT', 'User logged out', $username, $role);
+            return;
+        }
+
+        // Otherwise try to read from the security context.
+        // This only works if called BEFORE Symfony clears the token.
+        $user = $this->security->getUser();
+        if (!$user) {
+            // Security context already cleared — nothing we can do without explicit values
+            return;
+        }
+
+        $roles       = $user->getRoles();
+        $primaryRole = match(true) {
+            in_array('ROLE_ADMIN', $roles) => 'ADMIN',
+            in_array('ROLE_STAFF', $roles) => 'STAFF',
+            default                        => 'USER',
+        };
+
+        $this->log('LOGOUT', 'User logged out', $user->getUserIdentifier(), $primaryRole);
     }
 
     public function logOrder(string $customerName, int $orderId, string $status, float $total): void
