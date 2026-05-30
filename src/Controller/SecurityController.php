@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Service\ActivityLogger;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -12,13 +11,6 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    private ActivityLogger $activityLogger;
-
-    public function __construct(ActivityLogger $activityLogger)
-    {
-        $this->activityLogger = $activityLogger;
-    }
-
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
@@ -60,21 +52,6 @@ public function connectGoogleCheck(): void
     #[Route(path: '/logout', name: 'app_logout')]
     public function logout(): void
     {
-        // Log the logout action before Symfony clears the token
-        $user = $this->getUser();
-        if ($user) {
-            $roles = $user->getRoles();
-            $primaryRole = match(true) {
-                in_array('ROLE_ADMIN', $roles) => 'ADMIN',
-                in_array('ROLE_STAFF', $roles) => 'STAFF',
-                default                        => 'USER',
-            };
-            $this->activityLogger->logLogout(
-                $user->getUserIdentifier(),
-                $primaryRole,
-            );
-        }
-
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 }

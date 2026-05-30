@@ -5,6 +5,7 @@ namespace App\EventSubscriber;
 use App\Entity\ActivityLog;
 use App\Service\WebSocketService;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -17,6 +18,7 @@ class SecurityEventSubscriber implements EventSubscriberInterface
         private EntityManagerInterface $entityManager,
         private WebSocketService       $ws,
         private RequestStack           $requestStack,
+        private LoggerInterface        $logger,
     ) {}
 
     public static function getSubscribedEvents(): array
@@ -35,13 +37,18 @@ class SecurityEventSubscriber implements EventSubscriberInterface
 
     public function onLogout(LogoutEvent $event): void
     {
+        error_log('[SecurityEventSubscriber] LogoutEvent triggered!');
+        $this->logger->info('[SecurityEventSubscriber] LogoutEvent triggered!');
+        
         $token = $event->getToken();
         if (!$token) {
+            error_log('[SecurityEventSubscriber] No token in event');
             return;
         }
 
         $user = $token->getUser();
         if (!$user) {
+            error_log('[SecurityEventSubscriber] No user in token');
             return;
         }
 
@@ -51,7 +58,13 @@ class SecurityEventSubscriber implements EventSubscriberInterface
 
         $roles = $user instanceof UserInterface ? $user->getRoles() : [];
 
+        error_log("[SecurityEventSubscriber] Writing logout for: {$username}");
+        $this->logger->info("[SecurityEventSubscriber] Writing logout for: {$username}");
+        
         $this->writeLog($username, $this->resolveRole($roles), 'LOGOUT', 'User logged out');
+        
+        error_log('[SecurityEventSubscriber] Logout written successfully');
+        $this->logger->info('[SecurityEventSubscriber] Logout written successfully');
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
