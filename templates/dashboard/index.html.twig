@@ -915,4 +915,148 @@ body {
 })();
 </script>
 
+
+<script src="https://cdn.socket.io/4.8.0/socket.io.min.js"></script>
+<script>
+(function () {
+    // ── Connect to Railway socket server ─────────────────────────────────────
+    const socket = io('https://naturae-socket-production.up.railway.app', {
+        transports: ['websocket', 'polling'],
+        reconnection: true,
+        reconnectionAttempts: 10,
+        reconnectionDelay: 2000,
+    });
+
+    socket.on('connect', () => {
+        console.log('[Dashboard] Socket connected ✅', socket.id);
+        socket.emit('join-admin', { role: 'admin' });
+    });
+
+    socket.on('disconnect', () => {
+        console.warn('[Dashboard] Socket disconnected');
+    });
+
+    // ── Helper: format date ───────────────────────────────────────────────────
+    function formatDate(isoString) {
+        const d = new Date(isoString);
+        return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+    }
+
+    // ── Helper: status badge ──────────────────────────────────────────────────
+    function statusBadge(status) {
+        const s = (status || 'pending').toLowerCase();
+        return `<span class="status-badge status-${s}">${s.charAt(0).toUpperCase() + s.slice(1)}</span>`;
+    }
+
+    // ── Helper: show toast ────────────────────────────────────────────────────
+    function showToast(title, message) {
+        const existing = document.getElementById('dashboard-toast');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'dashboard-toast';
+        toast.style.cssText = `
+            position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+            background: white; border-radius: 12px; padding: 16px 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15); min-width: 280px;
+            border-left: 4px solid #7a8661; animation: slideIn 0.3s ease;
+            font-family: Poppins, sans-serif;
+        `;
+        toast.innerHTML = `
+            <strong style="color:#5f6b4d;font-size:13px;display:block;margin-bottom:4px;">${title}</strong>
+            <span style="color:#888;font-size:12px;">${message}</span>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 5000);
+    }
+
+    // ── New order placed → update Recent Orders table + KPI ──────────────────
+    socket.on('order_placed', (data) => {
+        console.log('[Dashboard] New order:', data);
+
+        // 1 — Prepend row to Recent Orders table
+        const tbody = document.querySelector('.recent-table tbody');
+        if (tbody) {
+            // Remove empty state if present
+            const empty = tbody.querySelector('.empty-state');
+            if (empty) empty.closest('tr')?.remove();
+
+            const initial = (data.customerName || 'G').charAt(0).toUpperCase();
+            const row = document.createElement('tr');
+            row.style.animation = 'highlightRow 2s ease';
+            row.innerHTML = `
+                <td><span class="order-id">#${data.orderId}</span></td>
+                <td>
+                    <div class="customer-cell">
+                        <div class="customer-avatar">${initial}</div>
+                        ${data.customerName ?? 'Guest'}
+                    </div>
+                </td>
+                <td>${statusBadge(data.status)}</td>
+                <td><span class="amount-cell">₱${parseFloat(data.total || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span></td>
+                <td>${formatDate(data.createdAt)}</td>
+            `;
+            tbody.insertBefore(row, tbody.firstChild);
+        }
+
+        // 2 — Bump total orders KPI card
+        const cards = document.querySelectorAll('.card-value');
+        cards.forEach(card => {
+            const label = card.closest('.card')?.querySelector('h3');
+            if (label && label.textContent.trim().toUpperCase() === 'ORDERS') {
+                const current = parseInt(card.textContent.replace(/[^0-9]/g, ''), 10) || 0;
+                card.textContent = current + 1;
+                card.style.animation = 'none';
+                void card.offsetWidth;
+                card.style.animation = 'bumpValue 0.4s ease';
+            }
+        });
+
+        // 3 — Show toast
+        showToast(
+            `🛒 New Order #${data.orderId}`,
+            `${data.customerName} — ₱${parseFloat(data.total || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`
+        );
+    });
+
+    // ── Order status changed → update status badge in table ──────────────────
+    socket.on('order_status_changed', (data) => {
+        console.log('[Dashboard] Order status changed:', data);
+
+        // Update status badge in Recent Orders table if order is visible
+        const rows = document.querySelectorAll('.recent-table tbody tr');
+        rows.forEach(row => {
+            const idCell = row.querySelector('.order-id');
+            if (idCell && idCell.textContent.trim() === `#${data.orderId}`) {
+                const statusCell = row.cells[2];
+                if (statusCell) {
+                    statusCell.innerHTML = statusBadge(data.status);
+                    row.style.animation = 'highlightRow 2s ease';
+                }
+            }
+        });
+
+        showToast(
+            `📦 Order #${data.orderId} Updated`,
+            `Status changed to: ${data.status}`
+        );
+    });
+
+})();
+</script>
+
+<style>
+@keyframes highlightRow {
+    0%   { background: rgba(122, 134, 97, 0.15); }
+    100% { background: transparent; }
+}
+@keyframes bumpValue {
+    0%   { transform: scale(1.2); color: #5f6b4d; }
+    100% { transform: scale(1);   color: inherit; }
+}
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to   { transform: translateX(0);   opacity: 1; }
+}
+</style>
 {% endblock %}
