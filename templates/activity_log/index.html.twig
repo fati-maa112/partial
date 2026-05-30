@@ -403,6 +403,12 @@
             <i class="fas fa-clipboard-list"></i>
             System Activity Logs
         </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="padding: 8px 16px; background: rgba(122,134,97,0.1); border-radius: 999px; display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--color-olive);">
+                <span style="width: 8px; height: 8px; background: #ccc; border-radius: 50%; display: inline-block;" id="live-dot"></span>
+                <span id="live-status">Connecting…</span>
+            </div>
+        </div>
     </div>
 
     <div class="logs-stats">
@@ -574,12 +580,17 @@
 
     function setStatus(connected) {
         const dot = document.getElementById('socket-dot');
+        const liveDot = document.getElementById('live-dot');
+        const liveStatus = document.getElementById('live-status');
+        
         if (connected) {
-            dot.style.background = '#4caf50';
-            statusEl.childNodes[1].textContent = ' Live Updates Active';
+            if (dot) dot.style.background = '#4caf50';
+            if (liveDot) liveDot.style.background = '#4caf50';
+            if (liveStatus) liveStatus.textContent = 'Live Updates Active';
         } else {
-            dot.style.background = '#f44336';
-            statusEl.childNodes[1].textContent = ' Reconnecting…';
+            if (dot) dot.style.background = '#f44336';
+            if (liveDot) liveDot.style.background = '#f44336';
+            if (liveStatus) liveStatus.textContent = 'Reconnecting…';
         }
     }
 
@@ -652,6 +663,35 @@
         setTimeout(() => toast.remove(), 6000);
     }
 
+    // ── Update stat card in real-time ─────────────────────────────────────────
+    function updateStatCard(action) {
+        const statMap = {
+            'CREATE': 'create',
+            'UPDATE': 'update',
+            'DELETE': 'delete',
+            'LOGIN': 'login',
+            'LOGOUT': 'logout',
+        };
+
+        const key = statMap[action];
+        if (!key) return;
+
+        const card = document.querySelector(`.stat-icon.${key}`);
+        if (!card) return;
+
+        const valueEl = card.parentElement.querySelector('.stat-value');
+        if (valueEl) {
+            const current = parseInt(valueEl.textContent, 10) || 0;
+            valueEl.textContent = current + 1;
+            
+            // Pulse animation
+            valueEl.style.animation = 'none';
+            setTimeout(() => {
+                valueEl.style.animation = 'statPulse 0.6s ease';
+            }, 10);
+        }
+    }
+
     // ── New activity log received ─────────────────────────────────────────────
     socket.on('activity_logged', (data) => {
         console.log('[ActivityLog] New activity:', data);
@@ -686,6 +726,9 @@
         // Prepend — newest on top
         tbody.insertBefore(row, tbody.firstChild);
 
+        // Update stat cards in real-time
+        updateStatCard(data.action);
+
         // Toast type based on action
         const toastConfig = {
             CREATE: { title: '✅ New Record Created', type: 'success' },
@@ -711,6 +754,12 @@
 @keyframes highlightNew {
     0%   { background: rgba(122, 134, 97, 0.15); }
     100% { background: transparent; }
+}
+
+@keyframes statPulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.1); color: var(--color-sand); }
+    100% { transform: scale(1); }
 }
 </style>
 
