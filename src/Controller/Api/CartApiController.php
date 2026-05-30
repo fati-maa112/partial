@@ -353,7 +353,8 @@ final class CartApiController extends AbstractController
                 $order->getTotal(),
                 $order->getStatus(),
                 $user->getFullName(),
-                $orderItemsForSocket
+                $orderItemsForSocket,
+                $order->getCreatedAt()->format(\DateTimeInterface::ATOM)
             );
 
             foreach ($cartItems as $cartItem) {

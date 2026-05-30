@@ -919,6 +919,32 @@ body {
 <script src="https://cdn.socket.io/4.8.0/socket.io.min.js"></script>
 <script>
 (function () {
+    // ── Connection status indicator ────────────────────────────────────────
+    const statusEl = document.createElement('div');
+    statusEl.id = 'realtime-status';
+    statusEl.style.cssText = `
+        position: fixed; top: 20px; right: 20px; z-index: 9998;
+        background: white; border-radius: 999px; padding: 8px 16px;
+        font-size: 12px; font-family: Poppins, sans-serif; font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        display: flex; align-items: center; gap: 8px;
+        border: 1px solid rgba(122,134,97,0.2);
+    `;
+    statusEl.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:#ffa500;display:inline-block;animation:pulse 2s infinite;"></span> <span id="status-text">Connecting…</span>`;
+    document.body.appendChild(statusEl);
+
+    function setRealtimeStatus(connected) {
+        const dot = document.querySelector('#realtime-status span:first-child');
+        const text = document.getElementById('status-text');
+        if (connected) {
+            if (dot) dot.style.background = '#4caf50';
+            if (text) text.textContent = 'Real-Time Connected ✓';
+        } else {
+            if (dot) dot.style.background = '#ff6b6b';
+            if (text) text.textContent = 'Reconnecting…';
+        }
+    }
+
     // ── Connect to Railway socket server ─────────────────────────────────────
     const socket = io('https://naturae-socket-production.up.railway.app', {
         transports: ['websocket', 'polling'],
@@ -929,17 +955,40 @@ body {
 
     socket.on('connect', () => {
         console.log('[Dashboard] Socket connected ✅', socket.id);
+        setRealtimeStatus(true);
         socket.emit('join-admin', { role: 'admin' });
     });
 
     socket.on('disconnect', () => {
         console.warn('[Dashboard] Socket disconnected');
+        setRealtimeStatus(false);
+    });
+
+    socket.on('reconnect', () => {
+        console.log('[Dashboard] Socket reconnected');
+        setRealtimeStatus(true);
+        socket.emit('join-admin', { role: 'admin' });
     });
 
     // ── Helper: format date ───────────────────────────────────────────────────
     function formatDate(isoString) {
         const d = new Date(isoString);
         return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+    }
+
+    // ── Helper: format time ago ───────────────────────────────────────────────
+    function timeAgo(isoString) {
+        const d = new Date(isoString);
+        const now = new Date();
+        const seconds = Math.floor((now - d) / 1000);
+        
+        if (seconds < 60) return 'just now';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        return `${days}d ago`;
     }
 
     // ── Helper: status badge ──────────────────────────────────────────────────
@@ -949,7 +998,7 @@ body {
     }
 
     // ── Helper: show toast ────────────────────────────────────────────────────
-    function showToast(title, message) {
+    function showToast(title, message, color = '#7a8661') {
         const existing = document.getElementById('dashboard-toast');
         if (existing) existing.remove();
 
@@ -959,7 +1008,7 @@ body {
             position: fixed; bottom: 24px; right: 24px; z-index: 9999;
             background: white; border-radius: 12px; padding: 16px 20px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.15); min-width: 280px;
-            border-left: 4px solid #7a8661; animation: slideIn 0.3s ease;
+            border-left: 4px solid ${color}; animation: slideIn 0.3s ease;
             font-family: Poppins, sans-serif;
         `;
         toast.innerHTML = `
@@ -974,6 +1023,11 @@ body {
     socket.on('order_placed', (data) => {
         console.log('[Dashboard] New order:', data);
 
+        const createdAt = data.createdAt || new Date().toISOString();
+        const orderDate = formatDate(createdAt);
+        const totalAmount = parseFloat(data.total || 0);
+        const formattedTotal = totalAmount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
         // 1 — Prepend row to Recent Orders table
         const tbody = document.querySelector('.recent-table tbody');
         if (tbody) {
@@ -983,6 +1037,7 @@ body {
 
             const initial = (data.customerName || 'G').charAt(0).toUpperCase();
             const row = document.createElement('tr');
+            row.dataset.orderId = data.orderId;
             row.style.animation = 'highlightRow 2s ease';
             row.innerHTML = `
                 <td><span class="order-id">#${data.orderId}</span></td>
@@ -993,19 +1048,31 @@ body {
                     </div>
                 </td>
                 <td>${statusBadge(data.status)}</td>
-                <td><span class="amount-cell">₱${parseFloat(data.total || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span></td>
-                <td>${formatDate(data.createdAt)}</td>
+                <td><span class="amount-cell">₱${formattedTotal}</span></td>
+                <td>${orderDate}</td>
             `;
             tbody.insertBefore(row, tbody.firstChild);
         }
 
-        // 2 — Bump total orders KPI card
+        // 2 — Bump total orders and revenue KPI cards
         const cards = document.querySelectorAll('.card-value');
         cards.forEach(card => {
             const label = card.closest('.card')?.querySelector('h3');
-            if (label && label.textContent.trim().toUpperCase() === 'ORDERS') {
+            if (!label) return;
+
+            const title = label.textContent.trim().toUpperCase();
+            if (title === 'ORDERS') {
                 const current = parseInt(card.textContent.replace(/[^0-9]/g, ''), 10) || 0;
                 card.textContent = current + 1;
+                card.style.animation = 'none';
+                void card.offsetWidth;
+                card.style.animation = 'bumpValue 0.4s ease';
+            }
+
+            if (title === 'SALES') {
+                const currentValue = parseFloat(card.textContent.replace(/[^0-9\.]/g, '')) || 0;
+                const newValue = currentValue + totalAmount;
+                card.textContent = '₱' + newValue.toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
                 card.style.animation = 'none';
                 void card.offsetWidth;
                 card.style.animation = 'bumpValue 0.4s ease';
@@ -1015,7 +1082,7 @@ body {
         // 3 — Show toast
         showToast(
             `🛒 New Order #${data.orderId}`,
-            `${data.customerName} — ₱${parseFloat(data.total || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`
+            `${data.customerName} — ₱${formattedTotal}`
         );
     });
 
@@ -1042,21 +1109,85 @@ body {
         );
     });
 
+    // ── Activity logged → show in Recent Activity feed (real-time) ───────────
+    socket.on('activity_logged', (data) => {
+        console.log('[Dashboard] Activity logged:', data);
+
+        const feed = document.querySelector('.activity-feed');
+        if (!feed) return;
+
+        // Remove empty state if present
+        const empty = feed.querySelector('.empty-state');
+        if (empty) empty.remove();
+
+        // Determine icon and color based on action
+        const actionConfig = {
+            LOGIN:  { icon: 'sign-in-alt',  class: 'success', emoji: '🔐' },
+            LOGOUT: { icon: 'sign-out-alt', class: 'info',    emoji: '🚪' },
+            CREATE: { icon: 'plus-circle',  class: 'success', emoji: '✅' },
+            UPDATE: { icon: 'edit',         class: 'info',    emoji: '✏️' },
+            DELETE: { icon: 'trash-alt',    class: 'danger',  emoji: '🗑️' },
+        };
+
+        const config = actionConfig[data.action] || { icon: 'bell', class: 'info', emoji: '📋' };
+
+        const item = document.createElement('div');
+        item.className = 'activity-item';
+        item.style.cssText = 'animation: slideInActivity 0.4s ease; background: rgba(122,134,97,0.06); border-radius: 10px;';
+        item.innerHTML = `
+            <div class="activity-icon ${config.class}">
+                <i class="fas fa-${config.icon}"></i>
+            </div>
+            <div class="activity-content">
+                <strong>${config.emoji} ${data.action}</strong>
+                <span>${data.username} (${data.role}) — ${data.description}</span>
+            </div>
+            <div class="activity-time">just now</div>
+        `;
+
+        feed.insertBefore(item, feed.firstChild);
+
+        // Keep only latest 5 activities in feed
+        const items = feed.querySelectorAll('.activity-item');
+        if (items.length > 5) {
+            items[items.length - 1].remove();
+        }
+
+        // Show toast for login/logout
+        if (data.action === 'LOGIN') {
+            showToast(`🔐 User Logged In`, `${data.username} (${data.role})`, '#7a8661');
+        } else if (data.action === 'LOGOUT') {
+            showToast(`🚪 User Logged Out`, `${data.username} (${data.role})`, '#ff9800');
+        }
+    });
+
 })();
 </script>
 
 <style>
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 165, 0, 0.7); }
+    50% { box-shadow: 0 0 0 6px rgba(255, 165, 0, 0); }
+}
+
 @keyframes highlightRow {
     0%   { background: rgba(122, 134, 97, 0.15); }
     100% { background: transparent; }
 }
+
 @keyframes bumpValue {
     0%   { transform: scale(1.2); color: #5f6b4d; }
     100% { transform: scale(1);   color: inherit; }
 }
+
 @keyframes slideIn {
     from { transform: translateX(100%); opacity: 0; }
     to   { transform: translateX(0);   opacity: 1; }
+}
+
+@keyframes slideInActivity {
+    from { transform: translateX(-20px); opacity: 0; }
+    to   { transform: translateX(0);     opacity: 1; }
 }
 </style>
 {% endblock %}

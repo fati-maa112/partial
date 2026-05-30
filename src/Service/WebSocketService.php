@@ -32,7 +32,8 @@ class WebSocketService
         string $total,
         string $status,
         string $customerName,
-        array  $items = []
+        array  $items = [],
+        string $createdAt = ''
     ): void {
         $this->post('/socket/order-placed', [
             'orderId'      => $orderId,
@@ -40,6 +41,7 @@ class WebSocketService
             'status'       => $status,
             'customerName' => $customerName,
             'items'        => $items,
+            'createdAt'    => $createdAt,
         ]);
     }
 
