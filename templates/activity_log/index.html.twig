@@ -553,4 +553,165 @@
         {% endif %}
     </div>
 </div>
+
+<script src="https://cdn.socket.io/4.8.0/socket.io.min.js"></script>
+<script>
+(function () {
+
+    // ── Socket status indicator ───────────────────────────────────────────────
+    const statusEl = document.createElement('div');
+    statusEl.id = 'socket-status';
+    statusEl.style.cssText = `
+        position: fixed; top: 80px; right: 20px; z-index: 999;
+        background: white; border-radius: 999px; padding: 6px 14px;
+        font-size: 12px; font-family: Poppins, sans-serif;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        display: flex; align-items: center; gap: 6px;
+        border: 1px solid rgba(122,134,97,0.2);
+    `;
+    statusEl.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:#ccc;display:inline-block;" id="socket-dot"></span> Connecting…`;
+    document.body.appendChild(statusEl);
+
+    function setStatus(connected) {
+        const dot = document.getElementById('socket-dot');
+        if (connected) {
+            dot.style.background = '#4caf50';
+            statusEl.childNodes[1].textContent = ' Live Updates Active';
+        } else {
+            dot.style.background = '#f44336';
+            statusEl.childNodes[1].textContent = ' Reconnecting…';
+        }
+    }
+
+    // ── Connect ───────────────────────────────────────────────────────────────
+    const socket = io('https://naturae-socket-production.up.railway.app', {
+        transports: ['websocket', 'polling'],
+        reconnection: true,
+        reconnectionAttempts: 10,
+        reconnectionDelay: 2000,
+    });
+
+    socket.on('connect', () => {
+        console.log('[ActivityLog] Connected ✅', socket.id);
+        setStatus(true);
+        socket.emit('join-admin', { role: 'admin' });
+    });
+
+    socket.on('disconnect', () => {
+        setStatus(false);
+    });
+
+    socket.on('reconnect', () => {
+        setStatus(true);
+        socket.emit('join-admin', { role: 'admin' });
+    });
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    function actionBadge(action) {
+        const a = (action || '').toLowerCase();
+        const icons = {
+            create: 'fa-plus-circle',
+            update: 'fa-edit',
+            delete: 'fa-trash-alt',
+            login:  'fa-sign-in-alt',
+            logout: 'fa-sign-out-alt',
+        };
+        const icon = icons[a] || 'fa-circle';
+        return `<span class="action-badge ${a}"><i class="fas ${icon}"></i> ${action.toUpperCase()}</span>`;
+    }
+
+    function roleBadge(role) {
+        return `<span class="role-badge">${role}</span>`;
+    }
+
+    function showToast(title, message, type = 'info') {
+        const existing = document.getElementById('activity-toast');
+        if (existing) existing.remove();
+
+        const colors = {
+            info:    '#7a8661',
+            warning: '#f0a500',
+            danger:  '#e74c3c',
+            success: '#4caf50',
+        };
+
+        const toast = document.createElement('div');
+        toast.id = 'activity-toast';
+        toast.style.cssText = `
+            position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+            background: white; border-radius: 12px; padding: 16px 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15); min-width: 300px;
+            border-left: 4px solid ${colors[type] || colors.info};
+            font-family: Poppins, sans-serif;
+        `;
+        toast.innerHTML = `
+            <strong style="color:#333;font-size:13px;display:block;margin-bottom:4px;">${title}</strong>
+            <span style="color:#888;font-size:12px;">${message}</span>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 6000);
+    }
+
+    // ── New activity log received ─────────────────────────────────────────────
+    socket.on('activity_logged', (data) => {
+        console.log('[ActivityLog] New activity:', data);
+
+        const tbody = document.querySelector('.logs-table tbody');
+        if (!tbody) return;
+
+        // Remove empty state if present
+        const empty = document.querySelector('.empty-state');
+        if (empty) empty.remove();
+
+        const desc = (data.description || '').length > 50
+            ? data.description.slice(0, 50) + '…'
+            : (data.description || '');
+
+        const row = document.createElement('tr');
+        row.style.cssText = 'animation: highlightNew 2s ease; background: rgba(122,134,97,0.08);';
+        row.innerHTML = `
+            <td><strong>#${data.id}</strong></td>
+            <td>${data.username}</td>
+            <td>${roleBadge(data.role)}</td>
+            <td>${actionBadge(data.action)}</td>
+            <td>${desc}</td>
+            <td>${data.createdAt}</td>
+            <td>
+                <a href="/activity-logs/${data.id}" class="view-btn">
+                    <i class="fas fa-eye"></i> View
+                </a>
+            </td>
+        `;
+
+        // Prepend — newest on top
+        tbody.insertBefore(row, tbody.firstChild);
+
+        // Toast type based on action
+        const toastConfig = {
+            CREATE: { title: '✅ New Record Created', type: 'success' },
+            UPDATE: { title: '✏️ Record Updated',     type: 'info' },
+            DELETE: { title: '🗑️ Record Deleted',     type: 'danger' },
+            LOGIN:  { title: '🔐 User Logged In',     type: 'info' },
+            LOGOUT: { title: '🚪 User Logged Out',    type: 'info' },
+        };
+
+        // Special toast for low stock
+        if (data.description && data.description.includes('⚠️ Low stock')) {
+            showToast('⚠️ Low Stock Alert!', desc, 'warning');
+        } else {
+            const cfg = toastConfig[data.action?.toUpperCase()] || { title: '📋 New Activity', type: 'info' };
+            showToast(cfg.title, `${data.username} (${data.role}) — ${desc}`, cfg.type);
+        }
+    });
+
+})();
+</script>
+
+<style>
+@keyframes highlightNew {
+    0%   { background: rgba(122, 134, 97, 0.15); }
+    100% { background: transparent; }
+}
+</style>
+
 {% endblock %}
