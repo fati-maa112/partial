@@ -45,7 +45,6 @@ class WebSocketService
 
     /**
      * Fired when a user's cart is updated.
-     * Useful for multi-device sync or live basket indicators.
      */
     public function broadcastCartUpdated(int $userId, int $itemCount): void
     {
@@ -57,7 +56,6 @@ class WebSocketService
 
     /**
      * Fired when product stock changes (purchase, cancel, manual edit).
-     * Allows the dashboard to refresh stock columns without a page reload.
      */
     public function broadcastStockUpdated(int $productId, string $productName, int $newStock): void
     {
@@ -72,11 +70,8 @@ class WebSocketService
      * Called when admin changes an order status.
      *
      * Two-channel delivery:
-     *   1. Real-time Socket.IO event  → works when app is open (foreground)
+     *   1. Real-time Socket.IO event  → works when app is open / foreground
      *   2. FCM push notification      → fallback when app is background / killed
-     *
-     * The mobile socketService.ts listens on 'order_status_changed' in the
-     * room 'user-{userId}', which the app joins after login via 'join-user'.
      */
     public function broadcastOrderStatusChanged(int $orderId, string $status, int $userId): void
     {
@@ -113,13 +108,34 @@ class WebSocketService
                 ]);
             }
         } catch (\Throwable $e) {
-            // Non-fatal — socket event was already sent above
             $this->logger->warning('[WebSocket] FCM fallback failed', [
                 'orderId' => $orderId,
                 'userId'  => $userId,
                 'error'   => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Fired after every ActivityLogger::log() call.
+     * Pushes the new row to the live activity log dashboard instantly.
+     */
+    public function broadcastActivityLogged(
+        int    $id,
+        string $username,
+        string $role,
+        string $action,
+        string $description,
+        string $createdAt,
+    ): void {
+        $this->post('/socket/activity-logged', [
+            'id'          => $id,
+            'username'    => $username,
+            'role'        => $role,
+            'action'      => $action,
+            'description' => $description,
+            'createdAt'   => $createdAt,
+        ]);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -143,7 +159,6 @@ class WebSocketService
                 ],
             ]);
 
-            // Trigger response so Symfony HttpClient actually sends it
             $statusCode = $response->getStatusCode();
 
             $this->logger->info('[WebSocket] Event sent', [
@@ -152,7 +167,6 @@ class WebSocketService
                 'httpStatus' => $statusCode,
             ]);
         } catch (\Throwable $e) {
-            // Never let a socket failure break the main HTTP response
             $this->logger->warning('[WebSocket] Failed to notify socket server', [
                 'path'  => $path,
                 'error' => $e->getMessage(),

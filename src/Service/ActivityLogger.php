@@ -12,44 +12,31 @@ class ActivityLogger
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private Security $security,
-        private RequestStack $requestStack
-    ) {
-    }
+        private Security               $security,
+        private RequestStack           $requestStack,
+        private WebSocketService       $ws,
+    ) {}
 
-    /**
-     * Log an activity
-     * 
-     * @param string $action The action type (CREATE, UPDATE, DELETE, LOGIN, LOGOUT)
-     * @param string $details The details of the action
-     */
     public function log(string $action, string $details): void
     {
         $user = $this->security->getUser();
-        
-        if (!$user) {
-            // If no user is logged in, don't log
-            return;
-        }
+        if (!$user) return;
 
         $request = $this->requestStack->getCurrentRequest();
+
+        $roles       = $user->getRoles();
+        $primaryRole = match(true) {
+            in_array('ROLE_ADMIN', $roles) => 'ADMIN',
+            in_array('ROLE_STAFF', $roles) => 'STAFF',
+            default                        => 'USER',
+        };
 
         $activityLog = new ActivityLog();
         $activityLog->setUsername($user->getUserIdentifier());
         $activityLog->setAction(strtoupper($action));
-        $activityLog->setTargetData($details); // Using targetData instead of details
-        
-        // Set user role
-        $roles = $user->getRoles();
-        $primaryRole = 'USER';
-        if (in_array('ROLE_ADMIN', $roles)) {
-            $primaryRole = 'ADMIN';
-        } elseif (in_array('ROLE_STAFF', $roles)) {
-            $primaryRole = 'STAFF';
-        }
+        $activityLog->setTargetData($details);
         $activityLog->setRole($primaryRole);
 
-        // Optionally capture IP and User Agent
         if ($request) {
             $activityLog->setIpAddress($request->getClientIp());
             $activityLog->setUserAgent($request->headers->get('User-Agent'));
@@ -57,83 +44,72 @@ class ActivityLogger
 
         $this->entityManager->persist($activityLog);
         $this->entityManager->flush();
+
+        // Broadcast to activity log dashboard in real time
+        try {
+            $this->ws->broadcastActivityLogged(
+                $activityLog->getId(),
+                $activityLog->getUsername(),
+                $primaryRole,
+                strtoupper($action),
+                $details,
+                $activityLog->getCreatedAt()->format('M d, Y h:i A'),
+            );
+        } catch (\Throwable) {
+            // Never let a socket failure break the log write
+        }
     }
 
-    /**
-     * Log a CREATE action
-     * 
-     * @param string $entityType The type of entity (e.g., "Product", "Order")
-     * @param string $entityName The name/title of the entity
-     * @param int $entityId The ID of the entity
-     */
     public function logCreate(string $entityType, string $entityName, int $entityId): void
     {
         $this->log('CREATE', "{$entityType}: {$entityName} (ID: {$entityId})");
     }
 
-    /**
-     * Log an UPDATE action
-     * 
-     * @param string $entityType The type of entity (e.g., "Product", "Order")
-     * @param string $entityName The name/title of the entity
-     * @param int $entityId The ID of the entity
-     */
     public function logUpdate(string $entityType, string $entityName, int $entityId): void
     {
         $this->log('UPDATE', "{$entityType}: {$entityName} (ID: {$entityId})");
     }
 
-    /**
-     * Log a DELETE action
-     * 
-     * @param string $entityType The type of entity (e.g., "Product", "Order")
-     * @param string $entityName The name/title of the entity
-     * @param int $entityId The ID of the entity
-     */
     public function logDelete(string $entityType, string $entityName, int $entityId): void
     {
         $this->log('DELETE', "{$entityType}: {$entityName} (ID: {$entityId})");
     }
 
-    /**
-     * Log user login
-     */
     public function logLogin(): void
     {
         $this->log('LOGIN', 'User logged in');
     }
 
-    /**
-     * Log user logout
-     */
     public function logLogout(): void
     {
         $this->log('LOGOUT', 'User logged out');
     }
 
-    /**
-     * Log password change
-     */
+    public function logOrder(string $customerName, int $orderId, string $status, float $total): void
+    {
+        $this->log('CREATE', "Order #{$orderId} placed by {$customerName} — Status: {$status}, Total: ₱" . number_format($total, 2));
+    }
+
+    public function logOrderStatusChange(int $orderId, string $oldStatus, string $newStatus, string $customerName): void
+    {
+        $this->log('UPDATE', "Order #{$orderId} ({$customerName}) status changed: {$oldStatus} → {$newStatus}");
+    }
+
+    public function logLowStock(string $productName, int $productId, int $remainingStock): void
+    {
+        $this->log('UPDATE', "⚠️ Low stock alert: {$productName} (ID: {$productId}) — only {$remainingStock} unit(s) left");
+    }
+
     public function logPasswordChange(): void
     {
         $this->log('UPDATE', 'Password changed');
     }
 
-    /**
-     * Log profile update
-     */
     public function logProfileUpdate(): void
     {
         $this->log('UPDATE', 'Profile information updated');
     }
 
-    /**
-     * Log bulk action
-     * 
-     * @param string $action The action type
-     * @param int $count Number of items affected
-     * @param string $entityType Type of entities
-     */
     public function logBulkAction(string $action, int $count, string $entityType): void
     {
         $this->log($action, "Bulk {$action}: {$count} {$entityType}(s)");

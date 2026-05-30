@@ -21,6 +21,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class OrderController extends AbstractController
 {
+    private const LOW_STOCK_THRESHOLD = 5;
+
     // ─────────────────────────────────────────────────────────────────────────
     // Private helpers
     // ─────────────────────────────────────────────────────────────────────────
@@ -97,7 +99,6 @@ final class OrderController extends AbstractController
         string                  $fcmTitle,
         string                  $fcmBody
     ): void {
-        // 1. Real-time Socket.IO (works when the mobile app is open / foreground)
         if ($user?->getId()) {
             $ws->broadcastOrderStatusChanged(
                 $order->getId(),
@@ -117,11 +118,27 @@ final class OrderController extends AbstractController
             );
         }
 
-        // 2. FCM push notification (fallback for background / killed app)
         $this->notify($push, $user, $fcmTitle, $fcmBody, [
             'orderId' => (string) $order->getId(),
             'status'  => $status,
         ]);
+    }
+
+    /**
+     * Check each order item's product for low stock and log an alert if below threshold.
+     */
+    private function checkAndLogLowStock(Order $order, ActivityLogger $logger): void
+    {
+        foreach ($order->getOrderItems() as $item) {
+            $product = $item->getProduct();
+            if ($product && $product->getQuantity() <= self::LOW_STOCK_THRESHOLD) {
+                $logger->logLowStock(
+                    $product->getName(),
+                    $product->getId(),
+                    $product->getQuantity()
+                );
+            }
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -131,8 +148,8 @@ final class OrderController extends AbstractController
     #[Route('/fcm-debug-log', name: 'app_fcm_debug_log', methods: ['GET'])]
     public function fcmDebugLog(): Response
     {
-        $logFile  = '/tmp/fcm_debug.log';
-        $content  = file_exists($logFile) ? file_get_contents($logFile) : 'No log file found';
+        $logFile = '/tmp/fcm_debug.log';
+        $content = file_exists($logFile) ? file_get_contents($logFile) : 'No log file found';
         return new Response('<pre>' . htmlspecialchars($content) . '</pre>');
     }
 
@@ -203,12 +220,17 @@ final class OrderController extends AbstractController
             $entityManager->persist($order);
             $entityManager->flush();
 
+            // Log the order creation with full details
             $logger->logCreate('Order', 'Order #' . $order->getId(), $order->getId());
+            $logger->logOrder(
+                $order->getCustomer()?->getName() ?? 'Unknown',
+                $order->getId(),
+                $order->getStatus(),
+                (float) $order->getTotal()
+            );
 
             $user = $this->getUserForOrder($order, $entityManager);
 
-            // Broadcast initial "placed" event so mobile order-tracking screen
-            // can subscribe before any status changes arrive.
             if ($user?->getId()) {
                 $ws->broadcastOrderPlaced(
                     $order->getId(),
@@ -255,8 +277,8 @@ final class OrderController extends AbstractController
             return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
         }
 
-        // Capture status BEFORE the form overwrites it
-        $oldStatus = $order->getStatus();
+        $oldStatus    = $order->getStatus();
+        $customerName = $order->getCustomer()?->getName() ?? 'Unknown';
 
         $form = $this->createForm(OrderType::class, $order);
         $form->handleRequest($request);
@@ -266,9 +288,9 @@ final class OrderController extends AbstractController
             if (method_exists($order, 'calculateTotal')) $order->calculateTotal();
 
             $entityManager->flush();
+
             $logger->logUpdate('Order', 'Order #' . $order->getId(), $order->getId());
 
-            // Notify only when status actually changed
             $newStatus = $order->getStatus();
             if ($newStatus !== $oldStatus) {
                 file_put_contents(
@@ -277,12 +299,20 @@ final class OrderController extends AbstractController
                     FILE_APPEND
                 );
 
+                // Log the status change to activity log
+                $logger->logOrderStatusChange(
+                    $order->getId(),
+                    $oldStatus,
+                    $newStatus,
+                    $customerName
+                );
+
                 $statusLabels = [
-                    Order::STATUS_CONFIRMED  => ['📋 Order Confirmed',        'Your Order #%d has been confirmed.'],
-                    Order::STATUS_PREPARING  => ['👨‍🍳 Order Being Prepared',   'Your Order #%d is now being prepared.'],
-                    Order::STATUS_COMPLETED  => ['🎉 Order Completed!',        'Your Order #%d has been completed. Thank you!'],
-                    Order::STATUS_CANCELLED  => ['❌ Order Cancelled',          'Your Order #%d has been cancelled.'],
-                    Order::STATUS_PENDING    => ['🕐 Order Pending',           'Your Order #%d is pending.'],
+                    Order::STATUS_CONFIRMED => ['📋 Order Confirmed',      'Your Order #%d has been confirmed.'],
+                    Order::STATUS_PREPARING => ['👨‍🍳 Order Being Prepared', 'Your Order #%d is now being prepared.'],
+                    Order::STATUS_COMPLETED => ['🎉 Order Completed!',      'Your Order #%d has been completed. Thank you!'],
+                    Order::STATUS_CANCELLED => ['❌ Order Cancelled',        'Your Order #%d has been cancelled.'],
+                    Order::STATUS_PENDING   => ['🕐 Order Pending',         'Your Order #%d is pending.'],
                 ];
 
                 [$title, $bodyTemplate] = $statusLabels[$newStatus] ?? [
@@ -321,13 +351,15 @@ final class OrderController extends AbstractController
     ): Response {
         $token = $request->request->get('_token');
         if ($this->isCsrfTokenValid('delete' . $order->getId(), $token)) {
-            $orderId = $order->getId();
+            $orderId      = $order->getId();
+            $customerName = $order->getCustomer()?->getName() ?? 'Unknown';
+
             if (method_exists($order, 'isModifiable') && !$order->isModifiable()) {
                 $this->addFlash('error', 'Completed or cancelled orders cannot be deleted.');
             } else {
                 $entityManager->remove($order);
                 $entityManager->flush();
-                $logger->logDelete('Order', 'Order #' . $orderId, $orderId);
+                $logger->logDelete('Order', "Order #{$orderId} (Customer: {$customerName})", $orderId);
                 $this->addFlash('success', '✓ Order deleted successfully!');
             }
         } else {
@@ -346,7 +378,7 @@ final class OrderController extends AbstractController
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Status-change actions (all use broadcastStatusChange helper)
+    // Status-change actions
     // ─────────────────────────────────────────────────────────────────────────
 
     #[Route('/{id}/confirm', name: 'app_order_confirm', methods: ['POST'])]
@@ -371,6 +403,9 @@ final class OrderController extends AbstractController
 
         if (method_exists($order, 'calculateTotal')) $order->calculateTotal();
 
+        $customerName = $order->getCustomer()?->getName() ?? 'Unknown';
+        $oldStatus    = $order->getStatus();
+
         foreach ($order->getOrderItems() as $item) {
             $product = $item->getProduct();
             if ($product) {
@@ -383,7 +418,9 @@ final class OrderController extends AbstractController
         if (method_exists($order, 'setUpdatedAt')) $order->setUpdatedAt(new \DateTimeImmutable());
         $entityManager->flush();
 
-        $logger->logUpdate('Order', 'Confirmed Order #' . $order->getId(), $order->getId());
+        // Log status change + check for low stock after deducting
+        $logger->logOrderStatusChange($order->getId(), $oldStatus, Order::STATUS_CONFIRMED, $customerName);
+        $this->checkAndLogLowStock($order, $logger);
 
         $user = $this->getUserForOrder($order, $entityManager);
         $this->broadcastStatusChange(
@@ -432,11 +469,14 @@ final class OrderController extends AbstractController
             return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
         }
 
+        $customerName = $order->getCustomer()?->getName() ?? 'Unknown';
+        $oldStatus    = $order->getStatus();
+
         $order->setStatus(Order::STATUS_PREPARING);
         $order->setUpdatedAt(new \DateTimeImmutable());
         $entityManager->flush();
 
-        $logger->logUpdate('Order', sprintf('Order #%d marked as PROCESSING', $order->getId()), $order->getId());
+        $logger->logOrderStatusChange($order->getId(), $oldStatus, Order::STATUS_PREPARING, $customerName);
 
         $user = $this->getUserForOrder($order, $entityManager);
         $this->broadcastStatusChange(
@@ -471,11 +511,13 @@ final class OrderController extends AbstractController
             return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
         }
 
+        $customerName = $order->getCustomer()?->getName() ?? 'Unknown';
+
         $order->setStatus(Order::STATUS_COMPLETED);
         $order->setUpdatedAt(new \DateTimeImmutable());
         $entityManager->flush();
 
-        $logger->logUpdate('Order', sprintf('Order #%d marked as COMPLETED', $order->getId()), $order->getId());
+        $logger->logOrderStatusChange($order->getId(), $currentStatus, Order::STATUS_COMPLETED, $customerName);
 
         $user = $this->getUserForOrder($order, $entityManager);
         $this->broadcastStatusChange(
@@ -514,8 +556,11 @@ final class OrderController extends AbstractController
             return $this->redirectToRoute('app_order_show', ['id' => $order->getId()]);
         }
 
-        // Restore stock for orders that already had inventory deducted
-        if (in_array($order->getStatus(), [Order::STATUS_PREPARING, Order::STATUS_CONFIRMED], true)) {
+        $customerName = $order->getCustomer()?->getName() ?? 'Unknown';
+        $oldStatus    = $order->getStatus();
+
+        // Restore stock for orders that had inventory deducted
+        if (in_array($oldStatus, [Order::STATUS_PREPARING, Order::STATUS_CONFIRMED], true)) {
             foreach ($order->getOrderItems() as $item) {
                 $product = $item->getProduct();
                 if ($product) {
@@ -529,7 +574,7 @@ final class OrderController extends AbstractController
         $order->setUpdatedAt(new \DateTimeImmutable());
         $entityManager->flush();
 
-        $logger->logUpdate('Order', sprintf('Order #%d cancelled', $order->getId()), $order->getId());
+        $logger->logOrderStatusChange($order->getId(), $oldStatus, Order::STATUS_CANCELLED, $customerName);
 
         $user = $this->getUserForOrder($order, $entityManager);
         $this->broadcastStatusChange(
