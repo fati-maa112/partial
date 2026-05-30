@@ -7,10 +7,9 @@
 namespace App\EventListener;
 
 use App\Service\ActivityLogger;
-use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
-#[AsEventListener(event: LogoutEvent::class)]
 class LogoutListener
 {
     public function __construct(
@@ -20,12 +19,20 @@ class LogoutListener
     public function __invoke(LogoutEvent $event): void
     {
         $token = $event->getToken();
-        if (!$token) return;
+        if (!$token) {
+            return;
+        }
 
         $user = $token->getUser();
-        if (!$user) return;
+        if (!$user) {
+            return;
+        }
 
-        $roles       = $user->getRoles();
+        $username = $user instanceof UserInterface
+            ? $user->getUserIdentifier()
+            : (string) $user;
+
+        $roles = $user instanceof UserInterface ? $user->getRoles() : [];
         $primaryRole = match(true) {
             in_array('ROLE_ADMIN', $roles) => 'ADMIN',
             in_array('ROLE_STAFF', $roles) => 'STAFF',
@@ -35,7 +42,7 @@ class LogoutListener
         // Pass username + role explicitly so ActivityLogger doesn't need
         // to call getUser() (the token may be cleared by the time log() runs)
         $this->activityLogger->logLogout(
-            $user->getUserIdentifier(),
+            $username,
             $primaryRole,
         );
     }

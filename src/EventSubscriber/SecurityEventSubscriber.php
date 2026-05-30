@@ -7,6 +7,7 @@ use App\Service\WebSocketService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
@@ -35,12 +36,22 @@ class SecurityEventSubscriber implements EventSubscriberInterface
     public function onLogout(LogoutEvent $event): void
     {
         $token = $event->getToken();
-        if (!$token) return;
+        if (!$token) {
+            return;
+        }
 
         $user = $token->getUser();
-        if (!$user) return;
+        if (!$user) {
+            return;
+        }
 
-        $this->writeLog($user->getUserIdentifier(), $this->resolveRole($user->getRoles()), 'LOGOUT', 'User logged out');
+        $username = $user instanceof UserInterface
+            ? $user->getUserIdentifier()
+            : (string) $user;
+
+        $roles = $user instanceof UserInterface ? $user->getRoles() : [];
+
+        $this->writeLog($username, $this->resolveRole($roles), 'LOGOUT', 'User logged out');
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────

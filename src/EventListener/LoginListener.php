@@ -4,11 +4,9 @@
 namespace App\EventListener;
 
 use App\Service\ActivityLogger;
-use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
 
 // CHANGED: Use LoginSuccessEvent instead of InteractiveLoginEvent
-#[AsEventListener(event: LoginSuccessEvent::class)]
 class LoginListener
 {
     private ActivityLogger $logger;
